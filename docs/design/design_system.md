@@ -138,7 +138,7 @@ Material Symbols **Rounded**, weight 400, filled for the selected state, outline
 
 Five tabs, in this order: **Download**, **Library**, **Convert**, **System**, **Settings**. An engine update puts a badge dot on the Settings tab. Full-screen pages above the tabs: the Library media viewer, Settings → Cookies and Settings → About (and the debug-only design gallery).
 
-Not built yet: a minimum macOS window size, drag and drop of links/files onto the Download and Convert screens, and two-pane layouts.
+The macOS window has a minimum size of 600 × 600 points, matching the narrowest supported layout. Drag and drop of links/files onto the Download and Convert screens and two-pane layouts are not built yet.
 
 The screen-size breakpoint is tracked by a `ScreenTypeNotifier`, so only widgets that care rebuild when the window resizes.
 
