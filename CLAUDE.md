@@ -1,141 +1,204 @@
-# Media Downloader & Converter — Project Brief
+# Media Downloader — Claude Code Rules (CLAUDE.md)
 
-> Paste this whole file into a new Claude Code session (run from the project folder)
-> as the starting prompt. It contains every decision made so far.
+> These rules apply to Claude Code working in this project. Follow them strictly.
+> The architecture and documentation layout follow the vAIolin Flutter app.
 
-## Goal
+---
 
-A Flutter app for **Android, iOS and macOS** that:
+## 1. Project Identity
 
-1. Downloads videos from **YouTube, Facebook, Instagram, Threads, X/Twitter and TikTok** by pasting a link.
-2. Downloads **photos** too: Instagram photo and carousel posts, TikTok photo posts (slideshows), Threads/X images.
-3. Saves either **video (MP4)**, **audio (MP3)** or **photos (JPG)** from any of those sites.
-4. Converts local files: video ↔ video (MP4/MKV/WebM/MOV), video → MP3/M4A, image ↔ image (JPG/PNG/WebP/HEIC).
-5. Produces **iPhone-compatible** output by default (HEVC or H.264 video + AAC audio in MP4), so files play in the iPhone Photos app.
+- **App:** Media Downloader. A Flutter app that downloads videos, audio and photos from YouTube, Facebook, Instagram, Threads, X/Twitter and TikTok, keeps them in its own Library, and converts or compresses media files.
+- **Architecture:** Feature-first MVVM with Riverpod, get_it/injectable, auto_route and drift. See `docs/architecture/architecture.md`.
+- **Platforms:** Android, iOS, macOS. No web, no flavors.
+- **Entry point:** `lib/main.dart`. Package name: `media_downloader`.
+- **Personal-use tool.** Not distributed; built and run from source on your own devices.
 
-Personal-use tool. Not distributed via Google Play or the App Store (both reject YouTube downloaders).
+---
 
-## Distribution (decided)
+## 2. Mandatory Rules (Never Violate)
 
-| Platform | How it ships |
-|---|---|
-| Android | Signed APK, shared directly / GitHub Releases / F-Droid-style. User enables "install unknown apps". |
-| iOS | Paid Apple Developer account: development/ad-hoc install on registered devices (≤100, ~1 year), or TestFlight **internal** testers only (90-day builds). No App Store, no external TestFlight. |
-| macOS | Developer ID signed + notarized DMG, outside the Mac App Store, **not sandboxed**. |
+- **BEFORE** any task, read the **relevant** docs in `docs/` (only what the task needs). Start from the Docs Map in `docs/architecture/architecture.md`.
+- **NEVER** update `docs/` as part of a code change without **asking the user first**. Make the change, stop, and let the user try it. Only after they say it's final, ask whether to update the docs, and do it in one pass. Approval to *implement* is not approval to write docs. Exception: a task that is itself a docs task.
+- **NO automated tests.** The project has no test suite; verify changes with `flutter analyze` and by running the app.
+- **ALWAYS** write code for the SDK installed on this machine (Flutter 3.50.1 / Dart 3.14 as of 2026-11-25) with its newest idioms. If a newer SDK is installed than `pubspec.yaml` allows, tell the user and offer to upgrade before writing feature code.
+- **NEVER** use relative imports. Always `package:media_downloader/...`.
+- **NEVER** write business logic in widgets or Views. It belongs in Notifiers, use cases and repositories.
+- **NEVER** add platform-specific code under `lib/ui/`. Route it through `lib/data/services/platform/` (Pigeon or `dart:io` `Process`).
+- **NEVER** call `MediaEngine`, dio, drift or `dart:io` file APIs from Notifiers or Views. Go through repositories.
+- **NEVER** send cookies anywhere except the site they belong to, and never log, upload or back them up. Nothing (cookies, history, errors) leaves the device: no backend, no analytics, no crash reporting.
+- **NEVER** use `void` as the return type of `async` methods. Use `Future<void>`.
+- **NEVER** add a `Co-Authored-By: Claude ...` (or similar AI-attribution) trailer to commit messages.
 
-## Architecture
+---
 
-One Flutter app with a shared UI + a platform-specific download engine behind a single Dart interface.
+## 3. Code Style
+
+- Single quotes; `const` wherever possible; `if`/`for`/`while` bodies on a new line; constructors first in a class; method tear-offs over lambdas.
+- Short comments that only explain a non-obvious *why*.
+
+### Modern Dart & Flutter
+
+Details in `docs/architecture/development.md`. In short:
+
+- **Primary constructors**, `;` for empty bodies, **dot shorthands** (`.center`, `const .all(16)`), **null-aware elements** (`[?x]`), wildcard `_`.
+- **Patterns:** switch expressions, `if (x case final T y)`, `sealed` hierarchies with exhaustive `switch`, records.
+- **Material/Cupertino** from `package:material_ui` / `package:cupertino_ui`, never `package:flutter/material.dart`.
+- No deprecated APIs; never silence `deprecated_member_use`.
+- Never edit generated files (`*.g.dart`, `*.gr.dart`, `*.config.dart`, Pigeon output). Pigeon inputs in `lib/config/pigeon/` keep classic field + constructor syntax.
+
+---
+
+## 4. Architecture Rules
+
+### State Management
+
+- All ViewModels extend `BaseNotifier` / `BaseAsyncNotifier` / `BaseStreamNotifier`; all states extend `BaseState` (`StateStatus` + `StateMessage`).
+- **`copyWith` never keeps the previous `message`**: use the argument directly (`message: message`), so messages can be cleared.
+- Views show `StateMessage`s with `ToastUtil` (on `flutter_sliding_toast`), never `SnackBar`.
+- Each user flow runs in `runFlow('<flow label>', ...)`; surface errors with `trackFailure(dataState)` / `trackError(text)`, never a bare `ErrorMessage(...)`. Every `ErrorHandler.execute` call passes an `action:` label. See `docs/core/error_handling.md`.
+- Every user-facing string lives in `lib/core/messages/app_messages.dart`. Bump `kMessagesVersion` when wording changes. See `docs/core/app_messages.md`.
+- **Notifiers never show toasts, dialogs or navigate.** They set state (e.g. `pendingRemovePrompt`); the View reacts with `ref.listen`.
+- `ref.listen` uses the `ref` of the widget/builder it's called in, never one captured from an outer scope.
+- A Notifier that calls another notifier captures it once in `build()` (nullable field), never a lazy getter or inline `ref.read`.
+- Check `ref.mounted` before touching state after an `await` in `.autoDispose` notifiers.
+- Downloads and conversions are owned by **keep-alive** notifiers, so leaving a screen never cancels a job.
+
+### UI Widgets
+
+- **One widget per file.** Extract widgets, never `_buildX()` methods.
+- Design-system widgets live in `lib/ui/core/ui/base/<category>/` and take plain props only (no Notifier/Ref).
+- Colours, text styles, spacing, radius and motion come from the tokens in `lib/ui/core/themes/`. **Never write a hex colour or raw font size in a widget.** See `docs/design/design_system.md`.
+- Prefer `ConsumerWidget` / `HookConsumerWidget` / `ConsumerStatefulWidget` over `StatefulWidget`.
+- Promote a widget to `base/` or a feature's `widgets/` only once a second real consumer needs it.
+
+### Dependency Injection
+
+- `@injectable`, `@lazySingleton`, `@singleton`. Per-platform implementations use injectable environments (`PlatformEnv.android | ios | macos`).
+- Run `dart run build_runner build` after changing any injectable class, route or drift table.
+
+### Data Layer
+
+- Services return raw data (DTOs, primitives) wrapped in `ErrorHandler`; repositories map DTOs to domain models and return `DataState<T>`.
+- `FutureVoid` methods return `const SuccessState.nil()` on success, never `SuccessState(data: null)`.
+- yt-dlp and ffmpeg arguments are built **only** in Dart (`YtDlpArgsBuilder`, `FfmpegCommandBuilder`); platform engines only run them.
+- Store file paths in the database **relative** to the app's base folder.
+- Every `schemaVersion` bump gets an explicit `onUpgrade` step and an exported schema snapshot (`dart run drift_dev make-migrations`). Never delete exported schema snapshots.
+
+---
+
+## 5. Project Structure
 
 ```
-lib/
-  core/
-    engine/media_engine.dart        # abstract interface (below)
-    engine/engine_android.dart      # MethodChannel -> Kotlin
-    engine/engine_ios.dart          # MethodChannel -> Swift (embedded Python)
-    engine/engine_macos.dart        # dart:io Process -> bundled binaries
-    models/                         # MediaInfo, FormatOption, DownloadJob, ConvertJob
-    platform_detect.dart            # URL -> youtube | facebook | instagram | threads | x | tiktok | unknown
-    extractors/
-      threads_extractor.dart        # custom Threads support (videos + images)
-      instagram_photo_extractor.dart# Instagram photo/carousel posts (yt-dlp is video-only)
-      tiktok_photo_extractor.dart   # TikTok photo posts / slideshows (yt-dlp is video-only)
-  features/
-    download/                       # paste link -> preview -> choose MP4/MP3 + quality -> queue
-    convert/                        # pick/drag local file -> choose target format
-    queue/                          # progress, cancel, open/share/show-in-folder
-    settings/                       # default quality, iPhone-compatible toggle, output folder, engine update
+lib/ui/features/<feature>/
+    ├── models/       # UI-only models
+    ├── providers/    # Notifiers
+    ├── widgets/      # shared across this feature's screens
+    └── views/<screen>/
+        ├── <screen>_screen.dart
+        └── widgets/  # this screen only
+
+lib/data/
+    ├── models/responses/   # DTOs (yt-dlp JSON, extractor pages)
+    ├── repositories/       # implementations
+    └── services/
+        ├── local/          # drift, settings, cookies files
+        ├── platform/       # MediaEngine (+ android / ios / macos), gallery, file export, share, picker
+        └── remote/         # photo extractors, MediaFileDownloader
+
+lib/domain/
+    ├── models/             # Site, MediaInfo, FormatOption, JobProgress, LibraryItem, ...
+    ├── repositories/       # abstract contracts
+    └── use_cases/          # ResolveLinkUseCase, DownloadMediaUseCase, ...
 ```
 
-### Engine interface
+Full tree: `docs/architecture/architecture.md`. Features: `home` (shell), `download`, `library`, `convert`, `settings`.
 
-```dart
-abstract class MediaEngine {
-  Future<void> init();                                   // unpack/update yt-dlp etc.
-  Future<MediaInfo> probe(String url);                   // title, thumbnail, duration, formats
-  Stream<JobProgress> download(DownloadRequest req);     // percent, speed, ETA, state, output path
-  Stream<JobProgress> convert(ConvertRequest req);       // local file conversion
-  Future<void> cancel(String jobId);
-  Future<String> updateYtDlp();                          // returns new version
-}
+Widget tiers: one screen → `views/<screen>/widgets/`; several screens in one feature → `<feature>/widgets/`; several features → `lib/ui/core/ui/base/<category>/`.
+
+---
+
+## 6. Code Generation
+
+```bash
+dart run build_runner build                                       # routes, DI, drift
+dart run pigeon --input lib/config/pigeon/media_engine_api.dart   # engine bridge
+dart run pigeon --input lib/config/pigeon/file_export_api.dart    # Save to Files bridge
 ```
 
-### Per-platform engine
+---
 
-- **Android:** library `io.github.junkfood02.youtubedl-android` (modules: `library`, `ffmpeg`; optionally `aria2c`). It bundles Python + yt-dlp + ffmpeg and supports `YoutubeDL.updateYoutubeDL()`. Look up the current version on Maven Central before adding it. Kotlin side runs requests on a background coroutine and streams progress back over an `EventChannel`. Save output to MediaStore (Downloads / Movies / Music) so it shows up in the gallery and file managers.
-- **iOS:** apps cannot start subprocesses. Embed CPython (3.13+ supports iOS officially; use BeeWare's `Python-Apple-support` XCFramework) and call `yt_dlp.YoutubeDL` **as a Python module**, using `progress_hooks` for progress. ffmpeg must be linked as a library: `ffmpeg_kit` was retired in 2025, so use a maintained fork or build ffmpeg XCFrameworks with `videotoolbox` and `libmp3lame` enabled. Save to Photos (PHPhotoLibrary) or share via the Files app / share sheet. Hardest platform: build it last.
-- **macOS:** bundle the standalone `yt-dlp_macos` binary and a static `ffmpeg` / `ffprobe` in `Contents/Resources`, and run them with `Process`. Parse `--newline` progress lines. Turn off App Sandbox. yt-dlp updates itself with `yt-dlp -U` into Application Support.
+## 7. Code Quality
 
-## Site support (verified with yt-dlp 2026.11.23)
+- Lints: `leancode_lint` (configured in `analysis_options.yaml`).
+- `flutter analyze` must be clean before a task is done.
 
-| Site | Status |
-|---|---|
-| YouTube | ✅ incl. 4K (VP9/AV1 only above 1080p) and Shorts |
-| Facebook | ✅ videos and Reels; private posts need cookies |
-| Instagram | ✅ posts, Reels; Stories need cookies; `instagram:user` (whole profile) is **currently broken** |
-| X / Twitter | ✅ tweets with video, Spaces (audio) |
-| Threads | ❌ **no yt-dlp extractor**. Write `threads_extractor.dart`: fetch the post HTML, read the `og:video` / `og:image` meta or the embedded JSON for the media URLs, then download and pass them through the same ffmpeg step. Expect it to break when Meta changes the page; keep it isolated and easy to fix. |
-| TikTok videos | ✅ `TikTok` and `vm.tiktok` (short links) work in yt-dlp, and so do `tiktok:user` and `tiktok:collection`. `tiktok:sound`, `tiktok:tag` and `tiktok:effect` are **currently broken**. |
-| TikTok photo posts | ❌ in yt-dlp. ✅ in **gallery-dl** 1.32.21 (`tiktok:post` and `tiktok:vmpost` handle `/@user/photo/<id>` and vm.tiktok links). |
+---
 
-Logged-in content: support importing cookies (a Netscape cookies.txt file, or on macOS `--cookies-from-browser`). Never send cookies anywhere except the target site.
+## 8. What NOT to Do
 
-## Photo posts (yt-dlp does not do images)
+| ❌ Don't | ✅ Do instead |
+| --- | --- |
+| Business logic in widgets | Notifier / use case / repository |
+| Relative imports | `package:media_downloader/...` |
+| Hex colours / raw sizes in widgets | Theme tokens (`context.colors`, `context.text`, spacing) |
+| `SnackBar` | `ToastUtil` with `StateMessage` |
+| Hard-coded user text | `lib/core/messages/app_messages.dart` |
+| Bare `try/catch` | `ErrorHandler.execute<T>(action: ...)` |
+| Build yt-dlp/ffmpeg args in Kotlin/Swift | `YtDlpArgsBuilder` / `FfmpegCommandBuilder` in Dart |
+| Notifier opens a dialog or navigates | Set state; the View reacts |
+| Absolute paths in the database | Paths relative to `AppDirectories.base` |
+| Send cookies or data off-device | Keep everything on the device |
+| Hand-edit generated files | Change the source and regenerate |
 
-yt-dlp only extracts video. On an Instagram photo post it fails with `There is no video in this post`. Photos need their own route:
+---
 
-**Primary route: Dart extractors (works on all three platforms, no extra native code).**
-- **Instagram** (tested 2026-11-25 on a public photo post, worked without login): fetch `https://www.instagram.com/p/<shortcode>/embed/captioned/` with a normal browser User-Agent. Take the `<img class="EmbeddedMediaImage">` element and pick the widest entry in its `srcset` (gave 1152×1440 WebP). For carousels, also look for every slide in the embed page's JSON. Strip tracking query params (`?fqnt=…`, `?igsh=…`) from pasted links first.
-- **TikTok photo posts:** fetch the post page. The `<script id="__UNIVERSAL_DATA_FOR_REHYDRATION__">` JSON contains `imagePost.images[].imageURL.urlList[]`; take the first URL of each image, in order. The post's music is in the same JSON (`music.playUrl`). Resolve `vm.tiktok.com` short links by following redirects first. (Check this JSON path against a live post when implementing; TikTok changes it now and then.)
-- **Threads / X images:** `og:image` / embedded JSON (Threads), and yt-dlp's metadata or the tweet's media for X.
+## 9. Product Brief
 
-**Fallback: gallery-dl** (Python, same idea as yt-dlp but for images).
-- macOS: bundle it, or use the Homebrew/pip version during development.
-- iOS: install it as a pure-Python package alongside yt-dlp in the embedded Python.
-- Android: youtubedl-android does not include it. Only add it if the Dart extractors aren't enough (it would mean switching to Chaquopy, a tool for running Python in Android apps, or packaging gallery-dl into the app's Python).
-- gallery-dl's Instagram support needs a login (tested: `401 Unauthorized` without cookies). Use it for Instagram only when the user has imported cookies.
+### Goal
 
-**Photo output:** convert WebP/HEIC to **JPG** by default (quality ~92) so files open everywhere, with an option to keep the original. Save numbered files for carousels/slideshows: `<user> <postid> 01.jpg`, `02.jpg`, …
+1. Download **videos** (MP4), **audio** (MP3) and **photos** (JPG) by pasting a link from YouTube, Facebook, Instagram, Threads, X/Twitter and TikTok. Photos: Facebook photo posts/albums, Instagram photos/carousels, TikTok photo posts (slideshows), Threads/X images.
+2. **Preview** before downloading (thumbnail, title, in-app playback when possible, all photos of a post) and pick the **quality** (Best/4K/1440p/1080p/720p/480p; MP3 320/192/128).
+3. Save into the **app's own folder**; a **Library** shows everything, with Save to Photos, Save to Files, Share, Delete, and a "remove from app?" prompt after a confirmed save. Finished jobs on the Download page have **Share** and **Remove**.
+4. **Convert and compress** local files (from the Library, Photos or Files): video ↔ MP4/MKV/WebM/MOV, video → MP3/M4A, image ↔ JPG/PNG/WebP/HEIC, smaller videos and images.
+5. **iPhone-compatible** output by default (HEVC or H.264 + AAC in MP4, `hvc1` tag), so files play in the iPhone Photos app.
 
-**Optional for TikTok slideshows:** "Save as video": turn the images + `music.playUrl` audio into an MP4 with ffmpeg (each image ~3 s, or spread evenly across the audio length).
+### Running on your own devices
 
-## Proven yt-dlp / ffmpeg settings
+| Platform | How it runs |
+| --- | --- |
+| Android | `flutter run` on your own phone or emulator. |
+| iOS | `flutter run` / Xcode with your Apple ID team (free: 7-day installs; paid account: ~1 year). |
+| macOS | `flutter run`; the app is **not sandboxed** because it runs bundled binaries. |
 
-These were tested on real downloads during planning.
+### Where the decisions live
 
-**Best video ≤ chosen height, merged:**
-```
-yt-dlp -f "bv*[height<=2160]+ba/b" --merge-output-format mkv -o "%(title)s [%(height)sp].%(ext)s" URL
-```
+| Topic | Doc |
+| --- | --- |
+| Engine interface, probe, progress, cancel, updates | `docs/engine/media_engine.md` |
+| Android (youtubedl-android), iOS (embedded CPython + ffmpeg library), macOS (bundled binaries) | `docs/engine/android_engine.md`, `ios_engine.md`, `macos_engine.md` |
+| Tested yt-dlp / ffmpeg commands, compression presets | `docs/engine/ffmpeg_recipes.md` |
+| What each site supports, cookies | `docs/engine/site_support.md` |
+| Instagram / TikTok / Facebook photos, Threads, gallery-dl fallback | `docs/extractors/photo_extractors.md` |
+| Download page, preview, job cards, Share/Remove | `docs/features/download.md` |
+| Library, Save to Photos/Files, remove prompt | `docs/features/library.md` |
+| Converter and compressor | `docs/features/convert.md` |
+| Settings, cookies, engine updates | `docs/features/settings.md` |
+| Look and feel | `docs/design/design_system.md` |
 
-**Make it iPhone-compatible (HEVC + AAC MP4).** YouTube 4K/1440p only comes as VP9/AV1, so it has to be re-encoded:
-```
-ffmpeg -i in.mkv -c:v hevc_videotoolbox -q:v 65 -tag:v hvc1 -pix_fmt yuv420p \
-       -c:a aac -b:a 192k -movflags +faststart out.mp4
-```
-- `-tag:v hvc1` is required, or the Apple Photos app refuses the file.
-- Use `hevc_videotoolbox` on macOS/iOS. On Android, prefer selecting `avc1`+`m4a` formats when ≤1080p (then only remux: `-c copy`). For 4K, re-encode with whatever encoder the bundled ffmpeg has (check `ffmpeg -encoders`; MediaCodec `hevc_mediacodec` if available, else `libx264`).
-- Optimisation: if the chosen formats are already H.264/HEVC + AAC, skip re-encoding and just remux.
+### Build order (v1)
 
-**MP3:**
-```
-yt-dlp -f ba -x --audio-format mp3 --audio-quality 0 --embed-thumbnail --add-metadata -o "%(title)s.%(ext)s" URL
-```
+1. Project skeleton (architecture, theme, base widgets) + `MediaEngine` + **Android engine**. Paste → preview → MP4/MP3 with quality → progress → app folder. **Library** with Save to Photos / Save to Files / Share / Delete and the remove prompt; Share / Remove on finished downloads. YouTube, Facebook, Instagram, X, TikTok videos.
+2. Photo extractors (Facebook, Instagram, TikTok) + Threads extractor. A pasted link picks the video or photo route automatically.
+3. Converter + compressor, importing from Library / Photos / Files.
+4. macOS engine.
+5. iOS engine (hardest; last).
+6. Settings: iPhone-compatible toggle, default quality, cookie import, engine update + check on launch.
 
-**Filenames:** titles can be long, non-Latin (e.g. Hindi) or full of hashtags. Strip `#tags`, trim to about 80 chars, and keep Unicode (`--restrict-filenames` is off; sanitise only the characters that are illegal on the filesystem).
+Later: exact-size two-pass compression, batch conversion, HEIC output on Android if unreliable, receiving links from the share sheet.
 
-## v1 scope (build in this order)
-
-1. Flutter project + shared UI + `MediaEngine` interface + **Android engine**. Paste link → preview → MP4 (Best/4K/1080p/720p) or MP3 → progress → saved to gallery/Downloads. YouTube, Facebook, Instagram, X, TikTok videos.
-2. Photo extractors (Instagram photos/carousels, TikTok photo posts) + Threads extractor. A pasted link automatically picks the video or photo route.
-3. Local file converter (video/audio/image).
-4. macOS engine (bundled binaries).
-5. iOS engine (embedded Python + ffmpeg library).
-6. Settings: iPhone-compatible toggle (on by default), default quality, cookies import, "Update engine" button + check for updates on launch.
-
-## Non-goals / guardrails
+### Guardrails
 
 - No backend server: everything runs on the device.
-- No Play Store / App Store submission.
+- Not distributed: no store submission, no release builds to share.
 - Show a one-time notice that users are responsible for having the rights to what they download.
-- Don't store or upload user cookies or download history anywhere off-device.
+- Don't store or upload cookies, download history or errors anywhere off-device.

@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.example.media_downloader"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 37
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -29,6 +29,16 @@ android {
         versionName = flutter.versionName
     }
 
+    // youtubedl-android runs Python and ffmpeg as executables from nativeLibraryDir,
+    // so native libraries must be extracted on install.
+    packaging {
+        jniLibs {
+            useLegacyPackaging = true
+            // These are zip archives named .so; stripping them fails.
+            keepDebugSymbols += listOf("**/libpython.zip.so", "**/libffmpeg.zip.so")
+        }
+    }
+
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.
@@ -46,4 +56,13 @@ kotlin {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    // Look up the current version on Maven Central before bumping (docs/engine/android_engine.md).
+    implementation("io.github.junkfood02.youtubedl-android:library:0.18.1")
+    implementation("io.github.junkfood02.youtubedl-android:ffmpeg:0.18.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
+    // NotificationCompat / ServiceCompat for the download foreground service.
+    implementation("androidx.core:core-ktx:1.16.0")
 }

@@ -9,6 +9,7 @@ class MainFlutterWindow: NSWindow {
     self.setFrame(windowFrame, display: true)
 
     RegisterGeneratedPlugins(registry: flutterViewController)
+    SystemMonitorHostApiSetup.setUp(binaryMessenger: flutterViewController.engine.binaryMessenger, api: SystemMonitor())
 
     super.awakeFromNib()
   }

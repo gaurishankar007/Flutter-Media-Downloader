@@ -1,0 +1,70 @@
+import 'package:auto_route/auto_route.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:media_downloader/core/utils/format_utils.dart';
+import 'package:media_downloader/routing/routes.gr.dart';
+import 'package:media_downloader/ui/core/themes/app_spacing.dart';
+import 'package:media_downloader/ui/core/ui/base/cards/media_card.dart';
+import 'package:media_downloader/ui/core/utils/local_media.dart';
+import 'package:media_downloader/ui/features/library/models/library_entry.dart';
+import 'package:media_downloader/ui/features/library/providers/library/library_notifier.dart';
+import 'package:media_downloader/ui/features/library/widgets/item_action_sheet.dart';
+
+/// The Library's cards. Tap opens the viewer (or toggles selection in
+/// multi-select); long-press / right-click opens the item's actions.
+class const LibraryGrid({super.key, required final List<LibraryEntry> entries}) extends ConsumerWidget {
+  static const _minCardWidth = 168.0;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selecting = ref.watch(libraryProvider.select((state) => state.selecting));
+    final selectedIds = ref.watch(libraryProvider.select((state) => state.selectedIds));
+    final notifier = ref.read(libraryProvider.notifier);
+    final ids = [for (final entry in entries) ...entry.ids];
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final columns = (constraints.maxWidth / _minCardWidth).floor().clamp(2, 5);
+        final cardWidth = (constraints.maxWidth - AppSpacing.sm * (columns - 1)) / columns;
+        return GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          padding: .zero,
+          itemCount: entries.length,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: columns,
+            mainAxisSpacing: AppSpacing.sm,
+            crossAxisSpacing: AppSpacing.sm,
+            mainAxisExtent: MediaCard.heightFor(context, cardWidth),
+          ),
+          itemBuilder: (context, index) {
+            final entry = entries[index];
+            final item = entry.item;
+            return MediaCard(
+              key: ValueKey(entry.id),
+              title: item.title,
+              kind: item.kind,
+              site: item.site,
+              image: entry.thumbnailPath == null ? null : LocalMedia.image(entry.thumbnailPath!),
+              duration: item.durationMs == null ? null : FormatUtils.duration(item.durationMs! ~/ 1000),
+              metadata: [FormatUtils.bytes(item.sizeBytes), item.format.toUpperCase()].join(' · '),
+              saved: item.isSaved,
+              heroTag: 'library-${entry.id}',
+              count: entry.isGroup ? entry.ids.length : null,
+              selected: selecting ? selectedIds.containsAll(entry.ids) : null,
+              // A grouped post pages through its own items.
+              onTap: selecting
+                  ? () => notifier.toggleSelectedAll(entry.ids)
+                  : () => context.router.push(
+                      MediaViewerRoute(initialId: entry.id, ids: entry.isGroup ? entry.ids : ids),
+                    ),
+              onMore: selecting
+                  ? () => notifier.toggleSelectedAll(entry.ids)
+                  : () => showItemActionSheet(context, ref, entry),
+            );
+          },
+        );
+      },
+    );
+  }
+}

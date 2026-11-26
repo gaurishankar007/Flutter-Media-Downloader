@@ -46,3 +46,10 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# Bundled macOS binaries (download separately, see README)
+macos/Runner/Resources/bin/*
+!macos/Runner/Resources/bin/.gitkeep
+
+# iOS engine frameworks (download with ios/scripts/fetch_engine.sh)
+ios/Frameworks/
