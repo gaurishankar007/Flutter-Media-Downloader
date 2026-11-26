@@ -1,48 +1,41 @@
 # Packages
 
-> Planned set. Look up the current version of each on pub.dev when adding it; don't copy version numbers from here.
+> What `pubspec.yaml` declares today. Look up the current version of a package on pub.dev before adding or bumping it; don't copy version numbers from here.
 
 ## App
 
 | Package | Why |
 | --- | --- |
-| `material_ui`, `cupertino_ui` | Material / Cupertino widgets (decoupled from the Flutter SDK) |
-| `flutter_riverpod` | State management (Notifiers as ViewModels) |
+| `material_ui` | Material widgets (decoupled from the Flutter SDK). `cupertino_ui` isn't needed yet. |
+| `hooks_riverpod` | State management (Notifiers as ViewModels), with flutter_hooks integration |
 | `flutter_hooks` | Local widget state (controllers, animations) |
 | `get_it`, `injectable` | Dependency injection |
-| `auto_route` | Routing with tab shell |
+| `auto_route` | Routing with the tab shell |
 | `drift`, `drift_flutter` | Local database |
-| `dio` | HTTP for extractors and photo downloads (replaces `http`) |
-| `html` | Parsing extractor pages |
+| `dio` | HTTP for extractors, photo/video downloads and the GitHub release check (`SiteHttpClient`, `MediaFileDownloader`, `EngineReleaseService`) |
+| `html` | Parsing extractor pages (Facebook) |
 | `path_provider`, `path` | App folders, path handling |
-| `file_picker` | Import from Files, cookies.txt import |
-| `image_picker` | Import from Photos / gallery |
+| `file_picker` | Import from Files and from Photos (media picker), cookies.txt import, macOS Save to Files save panel |
 | `gal` | Save to Photos / gallery (Android, iOS, macOS) |
 | `share_plus` | Share sheet |
-| `permission_handler` | Photos add-only, notifications |
-| `video_player` | Preview playback and Library viewer |
-| `cached_network_image` | Remote thumbnails in the preview |
-| `flutter_image_compress` | Image convert / compress / WebP→JPG, thumbnails |
+| `permission_handler` | Android notification permission for the download foreground service |
+| `video_player` | Preview playback and the Library viewer |
+| `flutter_image_compress` | Image convert / compress, photos → JPG, thumbnails |
 | `flutter_sliding_toast` | Toasts through `ToastUtil` |
-| `url_launcher` | Open source link, help pages |
 | `package_info_plus` | App version in About |
-| `uuid` | Job ids |
+| `uuid` | Job, item and error-log ids |
 | `intl` | Sizes, dates, durations |
 | `equatable` | Value equality for states and models |
 | `material_symbols_icons` | Material Symbols Rounded |
 
-Native, not Dart packages: `youtubedl-android` (Gradle), CPython `Python-Apple-support` + ffmpeg XCFrameworks (iOS), bundled binaries (macOS). See the [engine docs](../engine/media_engine.md).
+Native, not Dart packages: `youtubedl-android` `library` + `ffmpeg` and `kotlinx-coroutines-android` / `androidx.core` (Android Gradle), BeeWare `Python.xcframework` + FFmpegKit full-gpl + yt-dlp zipapp + certifi (iOS, fetched by `ios/scripts/fetch_engine.sh`), `yt-dlp_macos` + static `ffmpeg` / `ffprobe` (+ optional `deno`) (macOS, fetched by `macos/scripts/fetch_engine_binaries.sh`). See the [engine docs](../engine/media_engine.md).
 
 ## Dev
 
 | Package | Why |
 | --- | --- |
 | `build_runner`, `injectable_generator`, `auto_route_generator`, `drift_dev` | Code generation |
-| `pigeon` | Native bridge for the engine and file export |
-| `leancode_lint` | Lints (replaces `flutter_lints`) |
-| `flutter_launcher_icons`, `flutter_native_splash` | Icon and splash |
+| `pigeon` | Native bridges: engine, file export, background work, system monitor |
+| `leancode_lint` | Lints |
 
-## Changes from the current `pubspec.yaml`
-
-- Remove `http` (use `dio`), `flutter_lints` (use `leancode_lint`). Keep `cupertino_icons` only if Cupertino icons get used.
-- Everything else in the table is new.
+There are no test packages: the project has no automated tests.

@@ -1,6 +1,6 @@
 # Architecture
 
-> Status: decided 2026-11-25, not built yet. Follows the same architecture as the vAIolin app.
+> Status: implemented (all v1 steps; untested on devices).
 
 Media Downloader uses **MVVM** (Model-View-ViewModel), following Flutter's official app architecture guidelines. It is **feature-first**, uses **Riverpod** for state management and **get_it + injectable** for dependency injection, and keeps business logic out of widgets.
 
@@ -27,50 +27,51 @@ There is **no backend**. "Remote" here means the social sites themselves (fetche
 ```text
 lib/
 ├── config/
-│   ├── injector/            # get_it + injectable setup, EngineModule (picks the engine per platform)
-│   └── pigeon/              # Pigeon inputs: media_engine_api.dart, file_export_api.dart
+│   ├── injector/            # get_it + injectable setup, PlatformEnv (android / ios / macos)
+│   └── pigeon/              # Pigeon inputs: media_engine_api, file_export_api, background_work_api, system_monitor_api
 ├── core/
 │   ├── clients/
-│   │   ├── database/        # AppDatabase (drift)
-│   │   ├── platform/        # generated Pigeon clients
-│   │   └── remote/          # HttpClient (dio) with a browser User-Agent
-│   ├── constants/
+│   │   ├── database/        # AppDatabase (drift) + tables/
+│   │   └── platform/        # generated Pigeon Dart clients
 │   ├── data/
-│   │   ├── operations/      # RepositoryFetcher helpers
 │   │   └── states/          # DataState, SuccessState, FailureState, LoadingState
-│   ├── errors/              # ErrorHandler, translators, recorders
+│   ├── errors/              # ErrorHandler, error flows, translators, recorders, engine/extractor errors
 │   ├── messages/            # app_messages.dart (every user-facing string)
-│   ├── services/            # FileService, AppDirectories, PermissionService, ThumbnailService
-│   ├── utils/               # url_utils (normalise, strip tracking params), filename_utils, extensions
+│   ├── services/            # AppDirectories, FileService, ClipboardService
+│   ├── types/               # FutureData, FutureList, FutureVoid, StreamData typedefs
+│   ├── utils/               # url_utils, filename_utils, format_utils, mime_utils
 │   └── app_initializer.dart
 ├── data/
 │   ├── models/
-│   │   └── responses/       # DTOs: yt-dlp JSON, extractor page JSON
-│   ├── repositories/        # MediaRepositoryImpl, LibraryRepositoryImpl, ConvertRepositoryImpl, ...
+│   │   ├── mappers/         # MediaInfoMapper, PostMapper, SystemSampleMapper
+│   │   └── responses/       # DTOs: yt-dlp JSON, extracted posts, local media info
+│   ├── repositories/        # Media, Post, Library, Job, Convert, Settings, Cookies, AppInfo, BackgroundWork, SystemMonitor
 │   └── services/
-│       ├── local/           # LibraryLocalService, JobLocalService, SettingsLocalService, CookiesLocalService
-│       ├── platform/        # MediaEngine + engine_android / engine_ios / engine_macos, FileExportService, GalleryService, ShareService, MediaPickerService
-│       └── remote/          # PhotoExtractor + instagram / tiktok / facebook / threads extractors, MediaFileDownloader
+│       ├── local/           # LibraryLocalService, JobLocalService, SettingsLocalService, CookiesLocalService, ErrorLogLocalService
+│       ├── platform/        # media_engine/ (Android + macOS engines, builders, parsers, FfmpegSlot), file_export/, background_work/,
+│       │                    # system_monitor/, GalleryService, ShareService, FilePickerService, MediaPickerService,
+│       │                    # ImageService, ImageConvertService, AppInfoService
+│       └── remote/          # SiteHttpClient, extractors/ (Instagram, TikTok, Facebook, Threads, X), MediaFileDownloader, EngineReleaseService
 ├── domain/
-│   ├── models/              # Site, MediaInfo, FormatOption, DownloadRequest, JobProgress, LibraryItem, ConvertRequest, AppSettings
+│   ├── models/              # Site, MediaInfo, VideoOption, DownloadRequest, DownloadJob, JobProgress, LibraryItem, ConvertRequest, AppSettings, SystemSample, ...
 │   ├── repositories/        # abstract contracts
-│   └── use_cases/           # ResolveLinkUseCase, DownloadMediaUseCase, SaveItemUseCase
+│   └── use_cases/           # ResolveLinkUseCase, DownloadMediaUseCase, ConvertMediaUseCase
 ├── routing/
-│   ├── routes.dart          # auto_route config
-│   └── navigation_client.dart
+│   └── routes.dart          # auto_route config (AppRouter)
 ├── ui/
 │   ├── core/
-│   │   ├── providers/       # BaseNotifier, BaseState, ScreenTypeNotifier
+│   │   ├── providers/       # BaseNotifier, BaseState, ErrorTracking, ScreenTypeNotifier
 │   │   ├── themes/          # design tokens, see design_system.md
 │   │   ├── ui/base/         # design-system widgets
-│   │   └── utils/           # ToastUtil, UIHelpers
+│   │   └── utils/           # ToastUtil, ref extensions, local media helpers
 │   ├── features/
-│   │   ├── home/            # shell: bottom nav / sidebar
-│   │   ├── download/        # paste -> preview -> queue (Share / Remove on finished jobs)
-│   │   ├── library/         # all items, viewer, Save to Photos / Files, Share, Delete
+│   │   ├── home/            # shell: bottom nav / sidebar, 5 tabs
+│   │   ├── download/        # paste -> preview -> queue (Share / Remove on finished jobs), engine status
+│   │   ├── library/         # all items, media viewer, Save to Photos / Files, Share, Delete
 │   │   ├── convert/         # pick -> convert or compress -> result
-│   │   └── settings/        # defaults, cookies, storage, engine update
-│   ├── startup/             # StartupErrorApp, one-time rights notice
+│   │   ├── system/          # system monitor (RAM / CPU / GPU / network)
+│   │   └── settings/        # defaults, cookies, storage, engine update, about, design gallery
+│   ├── startup/             # runMediaDownloaderApp, StartupErrorApp, one-time rights notice
 │   └── application.dart     # MediaDownloaderApp (MaterialApp.router)
 └── main.dart
 ```
@@ -115,13 +116,13 @@ flowchart TB
 
 - **Views** render state and forward user actions. They show toasts and dialogs and navigate, reacting to state through `ref.listen`.
 - **Notifiers** hold screen state and call repositories or use cases. They never touch `BuildContext`, never show toasts and never navigate.
-- **Use cases** combine repositories for one flow, e.g. `DownloadMediaUseCase` (engine download → post-process → thumbnail → library row).
+- **Use cases** combine repositories for one flow, e.g. `DownloadMediaUseCase` (engine or direct download → iPhone re-encode / JPG → library row).
 - **Repositories** are the only thing notifiers and use cases talk to. They map DTOs to domain models and return `DataState<T>`.
 - **Services** do one kind of I/O each and wrap every call in `ErrorHandler.execute`.
 
 ## State Management with Riverpod
 
-Same rules as vAIolin:
+Rules:
 
 - Every notifier extends `BaseNotifier` / `BaseAsyncNotifier` / `BaseStreamNotifier`; every state extends `BaseState` (`StateStatus` + `StateMessage`).
 - `copyWith` never keeps the old `message`: it takes the argument as given, so a message can be cleared.
@@ -130,7 +131,7 @@ Same rules as vAIolin:
 - An `.autoDispose` notifier can be disposed during an `await` (e.g. the preview sheet closes mid-probe). Check `ref.mounted` before touching state after an `await`.
 - A notifier that calls another notifier captures it once in `build()`, never through a lazy getter.
 
-Long-running work (downloads, conversions) is owned by **keep-alive** notifiers (`DownloadQueueNotifier`, `ConvertJobNotifier`), so leaving a screen never cancels a job.
+Long-running work (downloads, conversions) is owned by **keep-alive** notifiers (`DownloadQueueNotifier`, `ConvertJobNotifier`, plain `NotifierProvider`s), so leaving a screen never cancels a job. Screen-scoped notifiers (preview sheet, media viewer, cookies, about, storage, system monitor) are `.autoDispose`.
 
 ## Dependency Injection
 
@@ -138,14 +139,20 @@ Long-running work (downloads, conversions) is owned by **keep-alive** notifiers 
 - Platform-specific implementations use injectable **environments**, one per platform (`android`, `ios`, `macos`, in `lib/config/injector/platform_env.dart`). `configureDependencies()` passes the running platform's environment, so only that platform's classes are registered:
 
 ```dart
-@LazySingleton(as: MediaEngine, env: [PlatformEnv.android])
-class AndroidMediaEngine implements MediaEngine { ... }
+// iOS reuses the same Dart engine: its Swift side implements the same Pigeon API.
+@LazySingleton(as: MediaEngine, env: [PlatformEnv.android, PlatformEnv.ios])
+final class AndroidMediaEngine implements MediaEngine { ... }
+
+@LazySingleton(as: MediaEngine, env: [PlatformEnv.macos])
+final class MacosMediaEngine implements MediaEngine { ... }
 
 // app_initializer.dart
 await configureDependencies(environment: PlatformEnv.current); // 'android' | 'ios' | 'macos'
 ```
 
-The same applies to any other service with per-platform code (e.g. `FileExportService`).
+The same applies to `FileExportService` (one implementation per platform) and `BackgroundWorkService` (Android foreground service; a no-op on iOS and macOS).
+
+`configureDependencies` registers the database, the error log and `ErrorHandler` by hand before calling the generated initializer, because everything else depends on them.
 
 ## Data States
 
@@ -159,18 +166,18 @@ Download, from paste to library:
 
 ```mermaid
 flowchart TD
-    A["LinkField: Paste"] --> B["MediaPreviewNotifier.probe(url)"]
+    A["LinkField: Paste"] --> B["MediaPreviewNotifier.start(url)"]
     B --> C["ResolveLinkUseCase"]
-    C -- "normalise URL, follow short links, detect Site" --> D{"Photo post?"}
-    D -- "yes (known photo URL, or engine says 'no video')" --> E["PhotoExtractor (Dart)"]
-    D -- "no" --> F["MediaEngine.probe (yt-dlp -J)"]
+    C -- "extract + normalise URL, follow short links, detect Site" --> D{"Threads, or looks like a photo post?"}
+    D -- "yes" --> E["PostRepository.extract (Dart extractor)"]
+    D -- "no" --> F["MediaRepository.probe (yt-dlp -J)"]
+    F -- "engine says 'no video'" --> E
     E & F --> G["MediaInfo -> preview sheet"]
     G -- "Download" --> H["DownloadQueueNotifier.enqueue"]
     H --> I["DownloadMediaUseCase"]
-    I --> J["MediaEngine.download / MediaFileDownloader"]
-    J --> K["post-process (ffmpeg: iPhone re-encode, JPG)"]
-    K --> L["ThumbnailService"]
-    L --> M["LibraryRepository.add (drift row, file in app folder)"]
+    I --> J["MediaRepository.download (engine) / PostRepository.download (MediaFileDownloader)"]
+    J --> K["post-process (ffmpeg iPhone re-encode, photos to JPG, TikTok slideshow)"]
+    K --> M["LibraryRepository.addDownload / addPost (drift row, file in app folder)"]
     M --> N["JobCard: Done + Share / Remove"]
 ```
 
@@ -178,19 +185,19 @@ Details: [Download](../features/download.md), [Library](../features/library.md),
 
 ## Media Engine
 
-`MediaEngine` is the single Dart interface over yt-dlp and ffmpeg. Each platform has its own implementation in `lib/data/services/platform/media_engine/`:
+`MediaEngine` is the single Dart interface over yt-dlp and ffmpeg. The implementations live in `lib/data/services/platform/media_engine/`:
 
 | Platform | Implementation | How it talks |
 | --- | --- | --- |
 | Android | `AndroidMediaEngine` | Pigeon `@HostApi` + `@EventChannelApi` → Kotlin (youtubedl-android) |
-| iOS | `IosMediaEngine` | Pigeon → Swift → embedded CPython running `yt_dlp` as a module; ffmpeg linked as a library |
+| iOS | `AndroidMediaEngine` (same Dart class) | The same Pigeon API → Swift → embedded CPython running the yt-dlp CLI; ffmpeg from FFmpegKit |
 | macOS | `MacosMediaEngine` | `dart:io` `Process` running bundled `yt-dlp_macos`, `ffmpeg`, `ffprobe` |
 
 See [Media Engine](../engine/media_engine.md).
 
 ## Responsiveness
 
-`ScreenTypeNotifier` tracks the breakpoint (phone / tablet / desktop). The root widget listens for `didChangeMetrics` and updates it in a post-frame callback, the same pattern as vAIolin's `ScreenObserverNotifier`. Layout rules are in the [Design System](../design/design_system.md#layout-and-navigation).
+`ScreenTypeNotifier` tracks the breakpoint (phone / tablet / desktop). The root widget listens for `didChangeMetrics` and updates it in a post-frame callback. Layout rules are in the [Design System](../design/design_system.md#layout-and-navigation).
 
 ## Docs Map
 
@@ -206,5 +213,5 @@ See [Media Engine](../engine/media_engine.md).
 | Files, permissions, thumbnails | [Core Services](../core/core_services.md) |
 | Engine | [Media Engine](../engine/media_engine.md), [Android](../engine/android_engine.md), [iOS](../engine/ios_engine.md), [macOS](../engine/macos_engine.md), [ffmpeg Recipes](../engine/ffmpeg_recipes.md), [Site Support](../engine/site_support.md) |
 | Photo posts | [Photo Extractors](../extractors/photo_extractors.md) |
-| Features | [Download](../features/download.md), [Library](../features/library.md), [Convert](../features/convert.md), [Settings](../features/settings.md) |
+| Features | [Download](../features/download.md), [Library](../features/library.md), [Convert](../features/convert.md), [System](../features/system.md), [Settings](../features/settings.md) |
 | Packages, problems | [Packages](../utils/packages.md), [Troubleshooting](../utils/troubleshooting.md) |

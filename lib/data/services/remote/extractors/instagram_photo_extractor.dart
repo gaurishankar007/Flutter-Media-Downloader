@@ -49,8 +49,7 @@ final class InstagramPhotoExtractor({required final SiteHttpClient _http}) imple
       }
     }
     if (media.isEmpty) {
-      // Private, removed or behind the login wall. gallery-dl with cookies is
-      // the documented fallback; it isn't bundled yet on any platform.
+      // Private, removed or behind the login wall: Instagram cookies fix most.
       throw ExtractorException(.loginRequired, site: site, detail: 'embed page had no media');
     }
 

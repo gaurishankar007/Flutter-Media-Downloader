@@ -1,4 +1,4 @@
-package com.example.media_downloader.system
+package com.gss.mediadownloader.system
 
 import android.app.ActivityManager
 import android.content.Context

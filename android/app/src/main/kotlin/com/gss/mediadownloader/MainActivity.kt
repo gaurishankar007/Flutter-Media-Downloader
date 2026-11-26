@@ -1,13 +1,13 @@
-package com.example.media_downloader
+package com.gss.mediadownloader
 
 import android.content.Intent
-import com.example.media_downloader.background.BackgroundWork
-import com.example.media_downloader.background.BackgroundWorkHostApi
-import com.example.media_downloader.engine.EngineEventsStreamHandler
-import com.example.media_downloader.engine.MediaEngine
-import com.example.media_downloader.engine.MediaEngineHostApi
-import com.example.media_downloader.export.FileExportHostApi
-import com.example.media_downloader.export.FileExporter
+import com.gss.mediadownloader.background.BackgroundWork
+import com.gss.mediadownloader.background.BackgroundWorkHostApi
+import com.gss.mediadownloader.engine.EngineEventsStreamHandler
+import com.gss.mediadownloader.engine.MediaEngine
+import com.gss.mediadownloader.engine.MediaEngineHostApi
+import com.gss.mediadownloader.export.FileExportHostApi
+import com.gss.mediadownloader.export.FileExporter
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 
@@ -25,7 +25,7 @@ class MainActivity : FlutterActivity() {
         BackgroundWorkHostApi.setUp(messenger, work)
         val exporter = FileExporter(this).also { fileExporter = it }
         FileExportHostApi.setUp(messenger, exporter)
-        com.example.media_downloader.system.SystemMonitorHostApi.setUp(messenger, com.example.media_downloader.system.SystemMonitor(this))
+        com.gss.mediadownloader.system.SystemMonitorHostApi.setUp(messenger, com.gss.mediadownloader.system.SystemMonitor(this))
     }
 
     @Deprecated("Deprecated in Java")

@@ -1,4 +1,4 @@
-package com.example.media_downloader.background
+package com.gss.mediadownloader.background
 
 import android.content.Context
 import android.content.Intent

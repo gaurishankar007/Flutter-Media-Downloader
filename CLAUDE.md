@@ -1,7 +1,6 @@
 # Media Downloader — Claude Code Rules (CLAUDE.md)
 
 > These rules apply to Claude Code working in this project. Follow them strictly.
-> The architecture and documentation layout follow the vAIolin Flutter app.
 
 ---
 
@@ -11,7 +10,7 @@
 - **Architecture:** Feature-first MVVM with Riverpod, get_it/injectable, auto_route and drift. See `docs/architecture/architecture.md`.
 - **Platforms:** Android, iOS, macOS. No web, no flavors.
 - **Entry point:** `lib/main.dart`. Package name: `media_downloader`.
-- **Personal-use tool.** Not distributed; built and run from source on your own devices.
+- **Personal-use tool, released on GitHub.** No app stores. Tagged versions publish signed Android APKs and an unsigned macOS DMG to GitHub Releases (`.github/workflows/release.yml`; see `docs/architecture/development.md#releases`). iOS is run from source only.
 
 ---
 
@@ -102,16 +101,16 @@ lib/data/
     ├── repositories/       # implementations
     └── services/
         ├── local/          # drift, settings, cookies files
-        ├── platform/       # MediaEngine (+ android / ios / macos), gallery, file export, share, picker
-        └── remote/         # photo extractors, MediaFileDownloader
+        ├── platform/       # MediaEngine (Android/iOS + macOS), file export, background work, system monitor, gallery, share, pickers, images
+        └── remote/         # SiteHttpClient, photo extractors, MediaFileDownloader, EngineReleaseService
 
 lib/domain/
     ├── models/             # Site, MediaInfo, FormatOption, JobProgress, LibraryItem, ...
     ├── repositories/       # abstract contracts
-    └── use_cases/          # ResolveLinkUseCase, DownloadMediaUseCase, ...
+    └── use_cases/          # ResolveLinkUseCase, DownloadMediaUseCase, ConvertMediaUseCase
 ```
 
-Full tree: `docs/architecture/architecture.md`. Features: `home` (shell), `download`, `library`, `convert`, `settings`.
+Full tree: `docs/architecture/architecture.md`. Features: `home` (shell, 5 tabs: Download, Library, Convert, System, Settings), `download`, `library`, `convert`, `system`, `settings`.
 
 Widget tiers: one screen → `views/<screen>/widgets/`; several screens in one feature → `<feature>/widgets/`; several features → `lib/ui/core/ui/base/<category>/`.
 
@@ -121,9 +120,13 @@ Widget tiers: one screen → `views/<screen>/widgets/`; several screens in one f
 
 ```bash
 dart run build_runner build                                       # routes, DI, drift
-dart run pigeon --input lib/config/pigeon/media_engine_api.dart   # engine bridge
-dart run pigeon --input lib/config/pigeon/file_export_api.dart    # Save to Files bridge
+dart run pigeon --input lib/config/pigeon/media_engine_api.dart     # engine bridge (Android, iOS)
+dart run pigeon --input lib/config/pigeon/file_export_api.dart      # Save to Files bridge
+dart run pigeon --input lib/config/pigeon/background_work_api.dart  # Android foreground service
+dart run pigeon --input lib/config/pigeon/system_monitor_api.dart   # System tab (Android, iOS, macOS)
 ```
+
+Engine files aren't committed: after cloning run `macos/scripts/fetch_engine_binaries.sh` and `ios/scripts/fetch_engine.sh`. See `docs/architecture/development.md`.
 
 ---
 
@@ -174,18 +177,21 @@ dart run pigeon --input lib/config/pigeon/file_export_api.dart    # Save to File
 
 | Topic | Doc |
 | --- | --- |
-| Engine interface, probe, progress, cancel, updates | `docs/engine/media_engine.md` |
-| Android (youtubedl-android), iOS (embedded CPython + ffmpeg library), macOS (bundled binaries) | `docs/engine/android_engine.md`, `ios_engine.md`, `macos_engine.md` |
+| Engine interface, probe, progress, cancel, updates, FfmpegSlot | `docs/engine/media_engine.md` |
+| Android (youtubedl-android), iOS (embedded CPython + FFmpegKit, same Dart engine as Android), macOS (bundled binaries, fetch scripts) | `docs/engine/android_engine.md`, `ios_engine.md`, `macos_engine.md` |
 | Tested yt-dlp / ffmpeg commands, compression presets | `docs/engine/ffmpeg_recipes.md` |
 | What each site supports, cookies | `docs/engine/site_support.md` |
-| Instagram / TikTok / Facebook photos, Threads, gallery-dl fallback | `docs/extractors/photo_extractors.md` |
+| Instagram / TikTok / Facebook photos, Threads, X images, link routing | `docs/extractors/photo_extractors.md` |
 | Download page, preview, job cards, Share/Remove | `docs/features/download.md` |
 | Library, Save to Photos/Files, remove prompt | `docs/features/library.md` |
 | Converter and compressor | `docs/features/convert.md` |
-| Settings, cookies, engine updates | `docs/features/settings.md` |
+| System tab: RAM / CPU / GPU / network monitor per platform | `docs/features/system.md` |
+| Settings, cookies, engine updates, About | `docs/features/settings.md` |
 | Look and feel | `docs/design/design_system.md` |
 
 ### Build order (v1)
+
+All six steps are implemented (untested on devices), plus a System tab (system monitor).
 
 1. Project skeleton (architecture, theme, base widgets) + `MediaEngine` + **Android engine**. Paste → preview → MP4/MP3 with quality → progress → app folder. **Library** with Save to Photos / Save to Files / Share / Delete and the remove prompt; Share / Remove on finished downloads. YouTube, Facebook, Instagram, X, TikTok videos.
 2. Photo extractors (Facebook, Instagram, TikTok) + Threads extractor. A pasted link picks the video or photo route automatically.
@@ -199,6 +205,6 @@ Later: exact-size two-pass compression, batch conversion, HEIC output on Android
 ### Guardrails
 
 - No backend server: everything runs on the device.
-- Not distributed: no store submission, no release builds to share.
+- No store submission; releases go only to GitHub Releases. NEVER commit the release keystore or `android/key.properties` (the keystore lives outside the repo; CI reads it from repository secrets).
 - Show a one-time notice that users are responsible for having the rights to what they download.
 - Don't store or upload cookies, download history or errors anywhere off-device.

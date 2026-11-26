@@ -6,8 +6,8 @@ import 'package:pigeon/pigeon.dart';
   PigeonOptions(
     dartOut: 'lib/core/clients/platform/system_monitor_api.g.dart',
     dartPackageName: 'media_downloader',
-    kotlinOut: 'android/app/src/main/kotlin/com/example/media_downloader/system/SystemMonitorApi.g.kt',
-    kotlinOptions: KotlinOptions(package: 'com.example.media_downloader.system'),
+    kotlinOut: 'android/app/src/main/kotlin/com/gss/mediadownloader/system/SystemMonitorApi.g.kt',
+    kotlinOptions: KotlinOptions(package: 'com.gss.mediadownloader.system'),
     swiftOut: [
       'ios/Runner/SystemMonitor/SystemMonitorApi.g.swift',
       'macos/Runner/SystemMonitor/SystemMonitorApi.g.swift',

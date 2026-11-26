@@ -1,56 +1,65 @@
 # Android Engine
 
-> Status: planned (v1 step 1). Dart: `android_media_engine.dart`. Kotlin: `android/app/src/main/kotlin/.../engine/`.
+> Status: implemented (not yet tested on real devices). Dart: `android_media_engine.dart` (also used on iOS). Kotlin: `android/app/src/main/kotlin/com/gss/mediadownloader/engine/MediaEngine.kt`.
 
 ## Library
 
-`io.github.junkfood02.youtubedl-android`, modules `library` and `ffmpeg` (optionally `aria2c`). It bundles Python + yt-dlp + ffmpeg inside the APK and supports in-app yt-dlp updates. **Look up the current version on Maven Central before adding it**, and follow its README for the required Gradle/manifest settings (at the time of planning: `android:extractNativeLibs="true"` and legacy JNI packaging, so the bundled Python can be extracted).
+`io.github.junkfood02.youtubedl-android`, modules `library` and `ffmpeg`, version **0.18.1** (`android/app/build.gradle.kts`). It bundles Python + yt-dlp + ffmpeg inside the APK and supports in-app yt-dlp updates. Look up the current version on Maven Central before bumping it.
+
+youtubedl-android runs Python and ffmpeg as executables from `nativeLibraryDir`, so native libraries must be extracted on install:
+
+- `AndroidManifest.xml`: `android:extractNativeLibs="true"`.
+- `build.gradle.kts`: `packaging.jniLibs.useLegacyPackaging = true`, and `keepDebugSymbols` for `libpython.zip.so` / `libffmpeg.zip.so` (zip archives named `.so`; stripping them fails).
 
 ## Bridge
 
-Pigeon (`lib/config/pigeon/media_engine_api.dart`):
+Pigeon (`lib/config/pigeon/media_engine_api.dart`; Kotlin output in `engine/MediaEngineApi.g.kt`, Swift output in `ios/Runner/Engine/MediaEngineApi.g.swift`):
 
 ```dart
 @HostApi()
 abstract class MediaEngineHostApi {
-  @async EngineInfoMsg init();
-  @async String probe(String url, String? cookiesPath);          // raw yt-dlp JSON
-  @async void startDownload(String jobId, List<String> args);
-  @async void startFfmpeg(String jobId, List<String> args);
-  @async String probeFile(String path);                          // raw ffprobe JSON
-  @async void cancel(String jobId);
+  @async @SwiftFunction('initialize()') EngineInfoMsg init(); // yt-dlp version + video encoders
+  @async String probe(List<String> args);                     // stdout of yt-dlp -J
+  void startDownload(String jobId, List<String> args);
+  void startFfmpeg(String jobId, List<String> args);
+  bool cancel(String jobId);                                  // whether a process was running
   @async String updateYtDlp();
 }
 
 @EventChannelApi()
-abstract class MediaEngineEvents {
-  EngineEventMsg progress(); // jobId, kind (line | progress | done | error), payload
+abstract class MediaEngineEventsApi {
+  EngineEventMsg engineEvents(); // jobId, kind (line | done | error | cancelled), payload
 }
 ```
 
-- Kotlin runs each request on `Dispatchers.IO` in a coroutine scope tied to the job id.
-- youtubedl-android's callback gives `(progress, etaInSeconds, line)`. The Kotlin side forwards the raw `line` so the Dart progress parser (shared with macOS) does the work.
-- `init()` calls `YoutubeDL.getInstance().init(context)` and `FFmpeg.getInstance().init(context)`, then reads `ffmpeg -encoders` once to report which encoders exist (see [ffmpeg Recipes](ffmpeg_recipes.md#encoder-choice)).
+- One event channel carries every job's events; `AndroidMediaEngine` filters them by job id and subscribes before starting the job, so the first lines aren't missed.
+- Kotlin runs each job on `Dispatchers.IO` in a `SupervisorJob` scope and posts events on the main thread.
+- yt-dlp: `YoutubeDL.execute(request, jobId) { _, _, line -> ... }`. Only the raw `line` is forwarded; the Dart parser (shared with iOS and macOS) does the rest.
+- ffmpeg: the bundled `libffmpeg.so` is started as a `ProcessBuilder` (with `LD_LIBRARY_PATH` set to youtubedl-android's unpacked ffmpeg libs), stdout lines are forwarded, stderr is drained on its own thread and its last 4000 characters become the error payload.
+- `init()` calls `YoutubeDL.getInstance().init(context)` and `FFmpeg.getInstance().init(context)`, then reads `ffmpeg -hide_banner -encoders` once to report the video encoders (see [ffmpeg Recipes](ffmpeg_recipes.md#encoder-choice)).
 
 ## Running in the Background
 
-Downloads must keep going when the app is in the background or the screen is off.
+Downloads keep going when the app is in the background or the screen is off.
 
-- A **foreground service** (`dataSync` type) runs while any job is active, with one notification showing the active job's title and percent, and a **Cancel** action.
-- The service stops itself when the queue is empty.
-- `POST_NOTIFICATIONS` is requested the first time a download starts on Android 13+. If it's denied, downloads still run; only the notification is hidden.
+- A **foreground service** (`DownloadService`, type `dataSync`) runs while any job is active. Its one notification shows the active job's title and percent (indeterminate while unknown) and a **Cancel** action.
+- Dart drives it through Pigeon `lib/config/pigeon/background_work_api.dart`: `BackgroundWorkHostApi.update(work)` starts the service or updates the notification, `stop()` ends it; `BackgroundWorkFlutterApi.cancelRequested(jobId)` sends the notification's Cancel back to Dart. `DownloadQueueNotifier` calls `BackgroundWorkRepository.update` on every state change and stops it when the queue is idle.
+- On iOS and macOS `NoopBackgroundWorkService` stands in.
+- `POST_NOTIFICATIONS` is requested (`permission_handler`) when a download is added on Android 13+. If it's denied, downloads still run; only the notification is hidden.
+- Android 15+ limits `dataSync` services per day; on `onTimeout` the service stops itself.
+- Swiping the app away from recents ends the Dart side, so the queue stops tracking jobs.
 
 ## Storage
 
-Files go to the app's own folder (`filesDir/downloads`). Nothing goes to MediaStore until the user taps **Save to Photos** (gallery, via `gal`) or **Save to Files** (SAF). See [Core Services](../core/core_services.md#platform-services).
+Files go to the app's own folder (`AppDirectories`, under Application Support). Nothing goes to MediaStore until the user taps **Save to Photos** (gallery, via `gal`) or **Save to Files** (SAF `ACTION_CREATE_DOCUMENT` through Pigeon `file_export_api.dart`, Kotlin `export/FileExporter.kt`). See [Library](../features/library.md).
 
 ## Quality Strategy on Android
 
-- ≤ 1080p with iPhone-compatible on: select `avc1` video + `m4a` audio so the result only needs a remux (`-c copy`). Fast and no quality loss.
-- 1440p / 4K: YouTube only has VP9/AV1, so re-encode with the best encoder the bundled ffmpeg has. Check `ffmpeg -encoders`: `hevc_mediacodec` if present, else `libx264`. This is slow on phones; the preview warns about it.
-- iPhone-compatible off: keep the original codecs in MKV/MP4, no re-encode.
+- iPhone-compatible on and the tier has H.264: select `avc1` video + `m4a` audio so the result is only a remux into MP4. Fast and no quality loss.
+- No H.264 at that height (YouTube 1440p / 4K): download the best streams into MKV, then re-encode. Encoders are tried in order: `hevc_mediacodec` (if `ffmpeg -encoders` lists it), then `libx264 -preset veryfast`. This is slow on phones; the preview warns about it.
+- iPhone-compatible off: keep the original codecs (MP4 if they fit, else MKV), no re-encode.
 
 ## Known Limits
 
-- The app grows by roughly 30–70 MB per ABI because of Python + ffmpeg, so first install and build times are longer.
-- gallery-dl isn't included. The Dart photo extractors cover photos; see [Photo Extractors](../extractors/photo_extractors.md#fallback-gallery-dl).
+- The app grows by roughly 30–70 MB per ABI because of Python + ffmpeg.
+- gallery-dl isn't included. Photo posts go through the Dart extractors; see [Photo Extractors](../extractors/photo_extractors.md).

@@ -1,41 +1,53 @@
 # macOS Engine
 
-> Status: planned (v1 step 4). Dart: `macos_media_engine.dart`. No native code for the engine itself.
+> Status: implemented (not yet tested beyond the development Mac). Dart: `macos_media_engine.dart`. No native code for the engine itself.
 
 ## Binaries
 
-Bundled in `Contents/Resources/bin/` (source folder `macos/Runner/Resources/bin/`, not committed):
+Bundled in `Contents/Resources/bin/` (source folder `macos/Runner/Resources/bin/`, not committed; only `.gitkeep` is):
 
-| Binary | Where to get it |
+| Binary | Where it comes from |
 | --- | --- |
-| `yt-dlp_macos` | https://github.com/yt-dlp/yt-dlp/releases (standalone, universal) |
-| `ffmpeg`, `ffprobe` | Static macOS builds (universal or arm64 + x86_64) with `videotoolbox` and `libmp3lame` |
-| `gallery-dl` (optional) | Standalone build, or Homebrew/pip during development |
+| `yt-dlp_macos` | Official standalone universal2 build from https://github.com/yt-dlp/yt-dlp/releases (latest), checked against `SHA2-256SUMS` |
+| `ffmpeg`, `ffprobe` | Static builds from ffmpeg.martin-riedl.de (VideoToolbox, libmp3lame, libx264, x265) |
+| `deno` (optional) | https://github.com/denoland/deno/releases, for YouTube's JavaScript challenges |
 
-A Run Script build phase copies them into the bundle and signs each one (ad-hoc, `codesign --force --sign - "$BIN"`), so macOS lets them run. In development, clear the quarantine flag once: `xattr -d com.apple.quarantine macos/Runner/Resources/bin/*`.
+### Fetch script
+
+Run once after cloning, and again to refresh:
+
+```bash
+macos/scripts/fetch_engine_binaries.sh               # this Mac's arch
+macos/scripts/fetch_engine_binaries.sh --universal   # arm64 + x86_64 ffmpeg (lipo)
+macos/scripts/fetch_engine_binaries.sh --with-deno   # also bundle deno
+```
+
+It downloads into `macos/Runner/Resources/bin/`, makes the files executable, clears quarantine attributes and prints the versions.
+
+### Bundle script
+
+`macos/scripts/bundle_engine_binaries.sh` is a Run Script build phase of the Runner target. It copies every file in `Runner/Resources/bin/` into `Contents/Resources/bin/`, clears extended attributes and signs each one ad-hoc (`codesign --force --sign -`) so macOS lets them run. Unchanged binaries (same mtime) are skipped so incremental builds stay fast. If `yt-dlp_macos` or `ffmpeg` is missing it prints a build warning and the app builds anyway (the engine then fails to start with "Engine binaries missing").
 
 ## Running
 
-- `MacosMediaEngine` runs them with `dart:io` `Process.start`, reading stdout/stderr line by line.
+- `MacosMediaEngine` runs the binaries with `dart:io` `Process.run` (probe, `--version`, `-encoders`, `-U`) and `Process.start` (downloads, ffmpeg jobs), reading stdout line by line as UTF-8 and keeping the last 4000 characters of stderr for errors.
+- **Environment:** a GUI app starts with a bare `PATH` and no locale, so every process gets `PATH = <bin>:/opt/homebrew/bin:/usr/local/bin:<inherited PATH>` (the bundled tools first, then Homebrew for a `deno` that isn't bundled) and `LANG` / `LC_ALL = en_US.UTF-8`, `PYTHONUTF8=1`, `PYTHONIOENCODING=utf-8`, so titles and file names survive.
+- **Extra yt-dlp args** the shared builder can't know: `--ffmpeg-location <bin>`, and `--js-runtimes deno:<bin>/deno` when `deno` is bundled.
 - yt-dlp progress comes from `--newline` + the `[MD]` progress template (see [Media Engine: Download Args](media_engine.md#download-args)); ffmpeg progress from `-progress pipe:1`.
-- yt-dlp is pointed at the bundled ffmpeg with `--ffmpeg-location`.
-- Cookies: either an imported cookies.txt (`--cookies`) or, macOS only, `--cookies-from-browser safari|chrome|firefox` (Settings → Cookies).
+- **Cookies:** the site's imported cookies.txt (`--cookies`), else, macOS only, `--cookies-from-browser safari|chrome|firefox` from Settings → Cookies.
+- **Cancel:** `yt-dlp_macos` is a bootloader with Python (and ffmpeg) below it, so cancel sends SIGTERM to the process and all its descendants (`pgrep -P`), then SIGKILL after 3 s.
 
 ## App Sandbox: off
 
-Running bundled binaries and reading browser cookies needs the sandbox off. Remove `com.apple.security.app-sandbox` from `macos/Runner/DebugProfile.entitlements` and `Release.entitlements`. The app only runs from source on your own Mac, so that's fine. Photos access needs `NSPhotoLibraryAddUsageDescription` in `Info.plist`.
+Running bundled binaries and reading browser cookies needs the sandbox off. `com.apple.security.app-sandbox` is `<false/>` in `macos/Runner/DebugProfile.entitlements` and `Release.entitlements` (both also have network client, user-selected read-write files and the Photos library entitlement). The app only runs from source on your own Mac, so that's fine. `Info.plist` has `NSPhotoLibraryAddUsageDescription` and `NSPhotoLibraryUsageDescription`.
 
 ## Updating yt-dlp
 
-The app bundle is read-only after signing (changing a file inside it breaks the signature). On first launch, `yt-dlp_macos` is copied to `~/Library/Application Support/<bundle id>/engine/` and that copy is the one that runs; `yt-dlp -U` updates it in place. If the copy is missing or broken, the engine falls back to the bundled one.
+The app bundle is read-only after signing (changing a file inside it breaks the signature). Before first use, `yt-dlp_macos` is copied to `~/Library/Application Support/<bundle id>/engine/yt-dlp_macos` (`chmod 755`) and that copy is the one that runs; `yt-dlp -U` updates it in place. If the copy is missing or `--version` fails, it's copied again; if that still fails the engine falls back to the bundled binary (which can't be updated, so **Update** reports a failure).
 
 ## Saving
 
 - **Save to Photos:** `gal` (Photos add-only permission).
-- **Save to Files:** `NSSavePanel` through Pigeon `FileExportService`, defaulting to `~/Downloads`.
-- **Show in Finder:** extra action on macOS (`NSWorkspace.activateFileViewerSelecting`).
+- **Save to Files:** the `NSSavePanel` from `file_picker` (`FilePicker.saveFile`, defaulting to the item's name), then a streamed copy to the chosen path (`MacosFileExportService`). No Pigeon on macOS.
 
-## Drag and Drop
-
-- Dropping a URL (from a browser) on the window → Download tab, link pasted, preview opens.
-- Dropping files → Convert tab with them as the input.
+There is no **Show in Finder** action and no drag-and-drop target yet.

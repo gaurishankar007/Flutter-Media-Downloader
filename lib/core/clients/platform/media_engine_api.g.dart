@@ -9,14 +9,22 @@ import 'dart:typed_data' show Float64List, Int32List, Int64List;
 import 'package:flutter/services.dart';
 import 'package:meta/meta.dart' show immutable, protected, visibleForTesting;
 
-Object? _extractReplyValueOrThrow(List<Object?>? replyList, String channelName, {required bool isNullValid}) {
+Object? _extractReplyValueOrThrow(
+    List<Object?>? replyList,
+    String channelName, {
+    required bool isNullValid,
+}) {
   if (replyList == null) {
     throw PlatformException(
       code: 'channel-error',
       message: 'Unable to establish connection on channel: "$channelName".',
     );
   } else if (replyList.length > 1) {
-    throw PlatformException(code: replyList[0]! as String, message: replyList[1] as String?, details: replyList[2]);
+    throw PlatformException(
+      code: replyList[0]! as String,
+      message: replyList[1] as String?,
+      details: replyList[2],
+    );
   } else if (!isNullValid && (replyList.isNotEmpty && replyList[0] == null)) {
     throw PlatformException(
       code: 'null-error',
@@ -37,7 +45,9 @@ bool _deepEquals(Object? a, Object? b) {
     return a == b;
   }
   if (a is List && b is List) {
-    return a.length == b.length && a.indexed.every(((int, dynamic) item) => _deepEquals(item.$2, b[item.$1]));
+    return a.length == b.length &&
+        a.indexed
+            .every(((int, dynamic) item) => _deepEquals(item.$2, b[item.$1]));
   }
   if (a is Map && b is Map) {
     if (a.length != b.length) {
@@ -86,39 +96,45 @@ int _deepHash(Object? value) {
   return value.hashCode;
 }
 
+
 enum EngineEventKind {
   /// One stdout line (progress, stage markers).
   line,
-
   /// Finished successfully. Payload: empty.
   done,
-
   /// Failed. Payload: stderr.
   error,
-
   /// Stopped by `cancel`.
-  cancelled,
+  cancelled;
 }
 
 /// What `init` found: yt-dlp version and the video encoders ffmpeg has.
 class EngineInfoMsg {
-  EngineInfoMsg({required this.ytDlpVersion, required this.encoders});
+  EngineInfoMsg({
+    required this.ytDlpVersion,
+    required this.encoders,
+  });
 
   String ytDlpVersion;
 
   List<String> encoders;
 
   List<Object?> _toList() {
-    return <Object?>[ytDlpVersion, encoders];
+    return <Object?>[
+      ytDlpVersion,
+      encoders,
+    ];
   }
 
   Object encode() {
-    return _toList();
-  }
+    return _toList();  }
 
   static EngineInfoMsg decode(Object result) {
     result as List<Object?>;
-    return EngineInfoMsg(ytDlpVersion: result[0]! as String, encoders: (result[1]! as List<Object?>).cast<String>());
+    return EngineInfoMsg(
+      ytDlpVersion: result[0]! as String,
+      encoders: (result[1]! as List<Object?>).cast<String>(),
+    );
   }
 
   @override
@@ -145,7 +161,11 @@ class EngineInfoMsg {
 
 /// One event of a running job.
 class EngineEventMsg {
-  EngineEventMsg({required this.jobId, required this.kind, required this.payload});
+  EngineEventMsg({
+    required this.jobId,
+    required this.kind,
+    required this.payload,
+  });
 
   String jobId;
 
@@ -154,12 +174,15 @@ class EngineEventMsg {
   String payload;
 
   List<Object?> _toList() {
-    return <Object?>[jobId, kind, payload];
+    return <Object?>[
+      jobId,
+      kind,
+      payload,
+    ];
   }
 
   Object encode() {
-    return _toList();
-  }
+    return _toList();  }
 
   static EngineEventMsg decode(Object result) {
     result as List<Object?>;
@@ -192,6 +215,7 @@ class EngineEventMsg {
   }
 }
 
+
 class _PigeonCodec extends StandardMessageCodec {
   const _PigeonCodec();
   @override
@@ -199,13 +223,13 @@ class _PigeonCodec extends StandardMessageCodec {
     if (value is int) {
       buffer.putUint8(4);
       buffer.putInt64(value);
-    } else if (value is EngineEventKind) {
+    }    else if (value is EngineEventKind) {
       buffer.putUint8(129);
       writeValue(buffer, value.index);
-    } else if (value is EngineInfoMsg) {
+    }    else if (value is EngineInfoMsg) {
       buffer.putUint8(130);
       writeValue(buffer, value.encode());
-    } else if (value is EngineEventMsg) {
+    }    else if (value is EngineEventMsg) {
       buffer.putUint8(131);
       writeValue(buffer, value.encode());
     } else {
@@ -237,19 +261,22 @@ class MediaEngineHostApi {
   /// Constructor for [MediaEngineHostApi]. The [binaryMessenger] named argument is
   /// available for dependency injection. If it is left null, the default
   /// BinaryMessenger will be used which routes to the host platform.
-  MediaEngineHostApi({BinaryMessenger? binaryMessenger, String messageChannelSuffix = ''})
-    : pigeonVar_binaryMessenger = binaryMessenger,
-      pigeonVar_messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
+  MediaEngineHostApi({
+      BinaryMessenger? binaryMessenger, 
+      String messageChannelSuffix = '', 
+      })
+      : pigeonVar_binaryMessenger = binaryMessenger,
+        pigeonVar_messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
 
   final BinaryMessenger? pigeonVar_binaryMessenger;
   static const MessageCodec<Object?> pigeonChannelCodec = _PigeonCodec();
 
   final String pigeonVar_messageChannelSuffix;
 
+
   /// Unpacks Python, yt-dlp and ffmpeg (slow on first launch).
   Future<EngineInfoMsg> init() async {
-    final pigeonVar_channelName =
-        'dev.flutter.pigeon.media_downloader.MediaEngineHostApi.init$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.media_downloader.MediaEngineHostApi.init$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -258,17 +285,17 @@ class MediaEngineHostApi {
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-      pigeonVar_replyList,
-      pigeonVar_channelName,
-      isNullValid: false,
-    );
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
     return pigeonVar_replyValue! as EngineInfoMsg;
   }
 
   /// Runs yt-dlp with [args] and returns its stdout (the `-J` JSON).
   Future<String> probe(List<String> args) async {
-    final pigeonVar_channelName =
-        'dev.flutter.pigeon.media_downloader.MediaEngineHostApi.probe$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.media_downloader.MediaEngineHostApi.probe$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -277,17 +304,17 @@ class MediaEngineHostApi {
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[args]);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-      pigeonVar_replyList,
-      pigeonVar_channelName,
-      isNullValid: false,
-    );
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
     return pigeonVar_replyValue! as String;
   }
 
   /// Starts yt-dlp for [jobId]; progress and the result arrive as events.
   Future<void> startDownload(String jobId, List<String> args) async {
-    final pigeonVar_channelName =
-        'dev.flutter.pigeon.media_downloader.MediaEngineHostApi.startDownload$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.media_downloader.MediaEngineHostApi.startDownload$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -295,13 +322,17 @@ class MediaEngineHostApi {
     );
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[jobId, args]);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
-    _extractReplyValueOrThrow(pigeonVar_replyList, pigeonVar_channelName, isNullValid: true);
+    _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
   }
 
   /// Starts ffmpeg for [jobId]; progress and the result arrive as events.
   Future<void> startFfmpeg(String jobId, List<String> args) async {
-    final pigeonVar_channelName =
-        'dev.flutter.pigeon.media_downloader.MediaEngineHostApi.startFfmpeg$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.media_downloader.MediaEngineHostApi.startFfmpeg$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -309,13 +340,17 @@ class MediaEngineHostApi {
     );
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[jobId, args]);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
-    _extractReplyValueOrThrow(pigeonVar_replyList, pigeonVar_channelName, isNullValid: true);
+    _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
   }
 
   /// Stops [jobId]'s process. Returns whether one was running.
   Future<bool> cancel(String jobId) async {
-    final pigeonVar_channelName =
-        'dev.flutter.pigeon.media_downloader.MediaEngineHostApi.cancel$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.media_downloader.MediaEngineHostApi.cancel$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -324,17 +359,17 @@ class MediaEngineHostApi {
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[jobId]);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-      pigeonVar_replyList,
-      pigeonVar_channelName,
-      isNullValid: false,
-    );
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
     return pigeonVar_replyValue! as bool;
   }
 
   /// Updates yt-dlp. Returns the version after the update.
   Future<String> updateYtDlp() async {
-    final pigeonVar_channelName =
-        'dev.flutter.pigeon.media_downloader.MediaEngineHostApi.updateYtDlp$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.media_downloader.MediaEngineHostApi.updateYtDlp$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -343,10 +378,11 @@ class MediaEngineHostApi {
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-      pigeonVar_replyList,
-      pigeonVar_channelName,
-      isNullValid: false,
-    );
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
     return pigeonVar_replyValue! as String;
   }
 }
@@ -357,15 +393,14 @@ class MediaEngineHostApi {
 /// not be called multiple times for the same `instanceName`. To deliver
 /// events to multiple listeners, call this method once and listen to the
 /// returned broadcast stream multiple times instead.
-Stream<EngineEventMsg> engineEvents({String instanceName = ''}) {
+Stream<EngineEventMsg> engineEvents( {String instanceName = ''}) {
   if (instanceName.isNotEmpty) {
     instanceName = '.$instanceName';
   }
-  final EventChannel engineEventsChannel = EventChannel(
-    'dev.flutter.pigeon.media_downloader.MediaEngineEventsApi.engineEvents$instanceName',
-    pigeonMethodCodec,
-  );
+  final EventChannel engineEventsChannel =
+      EventChannel('dev.flutter.pigeon.media_downloader.MediaEngineEventsApi.engineEvents$instanceName', pigeonMethodCodec);
   return engineEventsChannel.receiveBroadcastStream().map((dynamic event) {
     return event as EngineEventMsg;
   });
 }
+    

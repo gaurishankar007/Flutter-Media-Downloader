@@ -10,9 +10,8 @@ import 'package:media_downloader/ui/core/providers/base/base_notifier.dart';
 
 part 'system_monitor_state.dart';
 
-/// Polls the device stats once a second while something watches it (the
-/// strip on the Download page or the System page); autoDispose stops the
-/// timer as soon as neither is on screen. Failures stay in the error log
+/// Polls the device stats once a second while the System tab watches it;
+/// autoDispose stops the timer as soon as the tab is off screen. Failures stay in the error log
 /// only: a background monitor never toasts.
 class SystemMonitorNotifier extends BaseNotifier<SystemMonitorState> {
   static const interval = Duration(seconds: 1);
@@ -33,7 +32,7 @@ class SystemMonitorNotifier extends BaseNotifier<SystemMonitorState> {
     _repository = GetIt.I<SystemMonitorRepository>();
     ref.onDispose(() => _timer?.cancel());
     final known = _repository.knownMetrics;
-    // Cached after the first time, so a returning strip keeps its layout.
+    // Cached after the first time, so returning to the tab keeps its layout.
     Future.microtask(_loadMetrics);
     return SystemMonitorState(metrics: known ?? const [], metricsKnown: known != null);
   }

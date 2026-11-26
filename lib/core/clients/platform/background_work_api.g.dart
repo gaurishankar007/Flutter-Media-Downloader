@@ -9,14 +9,22 @@ import 'dart:typed_data' show Float64List, Int32List, Int64List;
 import 'package:flutter/services.dart';
 import 'package:meta/meta.dart' show immutable, protected, visibleForTesting;
 
-Object? _extractReplyValueOrThrow(List<Object?>? replyList, String channelName, {required bool isNullValid}) {
+Object? _extractReplyValueOrThrow(
+    List<Object?>? replyList,
+    String channelName, {
+    required bool isNullValid,
+}) {
   if (replyList == null) {
     throw PlatformException(
       code: 'channel-error',
       message: 'Unable to establish connection on channel: "$channelName".',
     );
   } else if (replyList.length > 1) {
-    throw PlatformException(code: replyList[0]! as String, message: replyList[1] as String?, details: replyList[2]);
+    throw PlatformException(
+      code: replyList[0]! as String,
+      message: replyList[1] as String?,
+      details: replyList[2],
+    );
   } else if (!isNullValid && (replyList.isNotEmpty && replyList[0] == null)) {
     throw PlatformException(
       code: 'null-error',
@@ -25,6 +33,7 @@ Object? _extractReplyValueOrThrow(List<Object?>? replyList, String channelName, 
   }
   return replyList.firstOrNull;
 }
+
 
 List<Object?> wrapResponse({Object? result, PlatformException? error, bool empty = false}) {
   if (empty) {
@@ -35,7 +44,6 @@ List<Object?> wrapResponse({Object? result, PlatformException? error, bool empty
   }
   return <Object?>[error.code, error.message, error.details];
 }
-
 bool _deepEquals(Object? a, Object? b) {
   if (identical(a, b)) {
     return true;
@@ -47,7 +55,9 @@ bool _deepEquals(Object? a, Object? b) {
     return a == b;
   }
   if (a is List && b is List) {
-    return a.length == b.length && a.indexed.every(((int, dynamic) item) => _deepEquals(item.$2, b[item.$1]));
+    return a.length == b.length &&
+        a.indexed
+            .every(((int, dynamic) item) => _deepEquals(item.$2, b[item.$1]));
   }
   if (a is Map && b is Map) {
     if (a.length != b.length) {
@@ -96,9 +106,15 @@ int _deepHash(Object? value) {
   return value.hashCode;
 }
 
+
 /// What the download notification shows.
 class BackgroundWorkMsg {
-  BackgroundWorkMsg({required this.jobId, required this.title, this.percent, required this.activeCount});
+  BackgroundWorkMsg({
+    required this.jobId,
+    required this.title,
+    this.percent,
+    required this.activeCount,
+  });
 
   /// The job the notification's Cancel action stops.
   String jobId;
@@ -112,12 +128,16 @@ class BackgroundWorkMsg {
   int activeCount;
 
   List<Object?> _toList() {
-    return <Object?>[jobId, title, percent, activeCount];
+    return <Object?>[
+      jobId,
+      title,
+      percent,
+      activeCount,
+    ];
   }
 
   Object encode() {
-    return _toList();
-  }
+    return _toList();  }
 
   static BackgroundWorkMsg decode(Object result) {
     result as List<Object?>;
@@ -138,10 +158,7 @@ class BackgroundWorkMsg {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(jobId, other.jobId) &&
-        _deepEquals(title, other.title) &&
-        _deepEquals(percent, other.percent) &&
-        _deepEquals(activeCount, other.activeCount);
+    return _deepEquals(jobId, other.jobId) && _deepEquals(title, other.title) && _deepEquals(percent, other.percent) && _deepEquals(activeCount, other.activeCount);
   }
 
   @override
@@ -154,6 +171,7 @@ class BackgroundWorkMsg {
   }
 }
 
+
 class _PigeonCodec extends StandardMessageCodec {
   const _PigeonCodec();
   @override
@@ -161,7 +179,7 @@ class _PigeonCodec extends StandardMessageCodec {
     if (value is int) {
       buffer.putUint8(4);
       buffer.putInt64(value);
-    } else if (value is BackgroundWorkMsg) {
+    }    else if (value is BackgroundWorkMsg) {
       buffer.putUint8(129);
       writeValue(buffer, value.encode());
     } else {
@@ -186,19 +204,22 @@ class BackgroundWorkHostApi {
   /// Constructor for [BackgroundWorkHostApi]. The [binaryMessenger] named argument is
   /// available for dependency injection. If it is left null, the default
   /// BinaryMessenger will be used which routes to the host platform.
-  BackgroundWorkHostApi({BinaryMessenger? binaryMessenger, String messageChannelSuffix = ''})
-    : pigeonVar_binaryMessenger = binaryMessenger,
-      pigeonVar_messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
+  BackgroundWorkHostApi({
+      BinaryMessenger? binaryMessenger, 
+      String messageChannelSuffix = '', 
+      })
+      : pigeonVar_binaryMessenger = binaryMessenger,
+        pigeonVar_messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
 
   final BinaryMessenger? pigeonVar_binaryMessenger;
   static const MessageCodec<Object?> pigeonChannelCodec = _PigeonCodec();
 
   final String pigeonVar_messageChannelSuffix;
 
+
   /// Starts the service, or updates its notification when it's running.
   Future<void> update(BackgroundWorkMsg work) async {
-    final pigeonVar_channelName =
-        'dev.flutter.pigeon.media_downloader.BackgroundWorkHostApi.update$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.media_downloader.BackgroundWorkHostApi.update$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -206,13 +227,17 @@ class BackgroundWorkHostApi {
     );
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[work]);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
-    _extractReplyValueOrThrow(pigeonVar_replyList, pigeonVar_channelName, isNullValid: true);
+    _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
   }
 
   /// Stops the service and removes the notification.
   Future<void> stop() async {
-    final pigeonVar_channelName =
-        'dev.flutter.pigeon.media_downloader.BackgroundWorkHostApi.stop$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.media_downloader.BackgroundWorkHostApi.stop$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -220,7 +245,12 @@ class BackgroundWorkHostApi {
     );
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
-    _extractReplyValueOrThrow(pigeonVar_replyList, pigeonVar_channelName, isNullValid: true);
+    _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
   }
 }
 
@@ -231,18 +261,16 @@ abstract class BackgroundWorkFlutterApi {
   /// The notification's Cancel action was tapped.
   void cancelRequested(String jobId);
 
-  static void setUp(
-    BackgroundWorkFlutterApi? api, {
+  static void setUp(BackgroundWorkFlutterApi? api, {
     BinaryMessenger? binaryMessenger,
     String messageChannelSuffix = '',
-  }) {
+  }) 
+{
     messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
     {
       final pigeonVar_channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.media_downloader.BackgroundWorkFlutterApi.cancelRequested$messageChannelSuffix',
-        pigeonChannelCodec,
-        binaryMessenger: binaryMessenger,
-      );
+          'dev.flutter.pigeon.media_downloader.BackgroundWorkFlutterApi.cancelRequested$messageChannelSuffix', pigeonChannelCodec,
+          binaryMessenger: binaryMessenger);
       if (api == null) {
         pigeonVar_channel.setMessageHandler(null);
       } else {
@@ -254,10 +282,8 @@ abstract class BackgroundWorkFlutterApi {
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          } catch (e) {
-            return wrapResponse(
-              error: PlatformException(code: 'error', message: e.toString()),
-            );
+          }          catch (e) {
+            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
           }
         });
       }

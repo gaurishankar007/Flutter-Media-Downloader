@@ -2,7 +2,7 @@
 // See also: https://pub.dev/packages/pigeon
 @file:Suppress("UNCHECKED_CAST", "ArrayInDataClass")
 
-package com.example.media_downloader.system
+package com.gss.mediadownloader.system
 
 import android.util.Log
 import io.flutter.plugin.common.BasicMessageChannel

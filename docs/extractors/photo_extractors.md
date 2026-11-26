@@ -1,8 +1,8 @@
 # Photo Extractors
 
-> Status: planned (v1 step 2). Files: `lib/data/services/remote/extractors/`.
+> Status: built (untested against every live site). Files: `lib/data/services/remote/extractors/`, `lib/data/services/remote/site_http_client.dart`, `lib/data/services/remote/media_file_downloader.dart`, `lib/data/repositories/post_repository_impl.dart`.
 
-yt-dlp only extracts video. On an Instagram photo post it fails with `There is no video in this post`. Photos (and Threads, which yt-dlp doesn't support at all) go through small Dart extractors. They're plain HTTP + HTML/JSON parsing, so they work the same on Android, iOS and macOS with no native code.
+yt-dlp only extracts video. On an Instagram photo post it fails with `There is no video in this post`. Photos (and Threads, which yt-dlp doesn't support at all) go through small Dart extractors. They're plain HTTP + HTML/JSON parsing, so they work the same on Android, iOS and macOS with no native code, and they keep working when the engine failed to start.
 
 ## Interface
 
@@ -14,90 +14,125 @@ abstract interface class PhotoExtractor {
 }
 ```
 
-`ExtractedPostDto` has: post id, author, caption, a list of media (each: URL, kind image/video, width, height), and optional music URL (TikTok slideshows). `MediaInfoMapper` turns it into the same `MediaInfo` the preview uses for videos, with `images` filled.
+- `ExtractedPostDto`: `postId`, `media` (each `ExtractedMediaDto`: `url`, `isVideo`, `width`, `height`, `thumbnailUrl` for a video's still), `author`, `caption`, and `musicUrl` (TikTok slideshows).
+- `PostMapper.fromDto` turns it into the same `MediaInfo` the preview uses for videos, with `postMedia` filled. The title is the caption's first line (max 100 characters), else `@author`, else the site name. A post that is a single video gets a `previewStream`, so it plays inline in the preview.
+- `PhotoExtractors` (`photo_extractors.dart`) holds all five and answers `supports(site)` and `forUrl(url, site)`.
+- Extractors throw `ExtractorException(failure, site:, detail:)` with `ExtractorFailure.loginRequired` / `notFound` / `noMedia` / `broken`, or a `DioException`. `PostRepository.extract` wraps them in `ErrorHandler.execute(action: 'extractor.<site>')`; see [Error Handling](../core/error_handling.md#translators) for the messages.
+- `ExtractorHtml` (`extractor_html.dart`) holds the shared helpers: `meta` (og: tags), `scriptJson(id)`, `jsonScripts` (every `<script type="application/json">`), `objects` (walks every JSON object depth first), `at(path)`, `widestInSrcset`, `asInt`.
 
-All requests go through `HttpClient` (dio) with a normal browser User-Agent and `Accept-Language: en`. When the user has imported cookies for that site, they're sent **only** to that site's domain.
+## SiteHttpClient
+
+Every request of the extractors and direct downloads goes through `SiteHttpClient` (dio), never a general HTTP client:
+
+- A normal browser User-Agent (desktop Chrome; `mobile: true` uses iPhone Safari), `Accept-Language: en`.
+- Page requests follow redirects **one hop at a time** (max 10). On every hop the `Cookie` header is rebuilt by `CookiesLocalService.cookieHeader(site, url)`, which returns nothing for hosts outside that site. So imported cookies are sent **only** to the site they belong to, even after a redirect.
+- `resolveRedirects(url)` follows short links: HEAD first, GET when the host answers HEAD with an error.
+- `download(url, path)` uses a second dio for CDN files: it follows redirects itself and **never sends cookies**.
+- Nothing logs headers or bodies. `DioErrorTranslator` keeps only host + path.
 
 ## Routing a Link
 
-`ResolveLinkUseCase` (`lib/domain/use_cases/resolve_link_use_case.dart`):
+`ResolveLinkUseCase` (`lib/domain/use_cases/resolve_link_use_case.dart`), called by `MediaPreviewNotifier`:
 
 ```mermaid
 flowchart TD
     A["Pasted text"] --> B["UrlUtils.extractUrl + normalise"]
-    B --> C{"Short link? (vm.tiktok, fb.watch, t.co)"}
-    C -- yes --> D["Follow redirects (HEAD, then GET)"]
+    B --> C{"isShortLink? (vm/vt.tiktok, fb.watch, t.co, instagr.am, facebook /share/)"}
+    C -- yes --> D["PostRepository.followShortLink (SiteHttpClient.resolveRedirects)"]
     C -- no --> E
-    D --> E["detectSite"]
-    E --> F{"Threads?"}
-    F -- yes --> T["ThreadsExtractor"]
-    F -- no --> G{"looksLikePhotoPost?"}
-    G -- yes --> P["PhotoExtractor for site"]
-    G -- no --> H["MediaEngine.probe"]
-    H -- "NoVideoFailure" --> P
-    H -- success --> OK(("MediaInfo"))
-    P & T --> OK
+    D -- "on failure, keep the short link (the engine can follow it)" --> E["detectSite"]
+    E -- "null" --> U(("Unsupported link"))
+    E --> F{"Threads, looksLikePhotoPost, or engine not usable?"}
+    F -- yes --> P["PostRepository.extract (extractor for site)"]
+    F -- no --> H["MediaRepository.probe (engine)"]
+    H -- success --> W{"Instagram /p/ or X?"}
+    W -- yes --> X["Also extract the post; if it has photos, add a Photos choice"]
+    W -- no --> OK(("MediaInfo"))
+    X --> OK
+    H -- "failure, site has an extractor" --> P2["PostRepository.extract"]
+    P2 -- success --> OK
+    P2 -- failure --> R(("Engine failure shown, unless it was 'no video': then the extractor's failure"))
+    P --> OK
 ```
+
+- `useEngine: false` (engine still failed / missing) skips the probe for sites with an extractor; `worksWithoutEngine(site)` tells the preview whether that's possible.
+- **Mixed posts** (an Instagram carousel or a tweet with a video and photos) get both: the engine's Video / Audio choices plus a Photos choice (`MediaInfo.withPost`).
 
 ## Instagram
 
-Tested 2026-11-25 on a public photo post; worked without login.
+`InstagramPhotoExtractor`. Tested 2026-11-25 on a public photo post; worked without login.
 
-1. Strip tracking params (`?igsh=…`, `?fqnt=…`) and get the shortcode from `/p/<code>/` (also `/reel/`, `/tv/`).
-2. Fetch `https://www.instagram.com/p/<shortcode>/embed/captioned/` with a browser User-Agent.
-3. Take the `<img class="EmbeddedMediaImage">` element and pick the **widest entry in its `srcset`** (gave 1152×1440 WebP).
-4. **Carousels:** also read every slide from the embed page's JSON, in order.
-5. Images are WebP; converted to JPG on save by default.
+1. Get the shortcode from `/p/<code>/`, `/reel/`, `/reels/` or `/tv/` (tracking params are already stripped by `UrlUtils.normalise`).
+2. Fetch `https://www.instagram.com/p/<shortcode>/embed/captioned/` (with Instagram cookies only if they're imported).
+3. Look for the `shortcode_media` object in the page's scripts (`"contextJSON"` escaped string, or `__additionalDataLoaded(...)`). Carousels: every `edge_sidecar_to_children` slide, in order. Photos take the widest `display_resources` entry; videos take `video_url` with `display_url` as the still.
+4. No JSON: take `<img class="EmbeddedMediaImage">` and pick the **widest entry in its `srcset`**.
+5. Author from `owner.username` (or `.UsernameText`), caption from the first caption edge.
 
-Fallback when the embed page has nothing (private, removed, or login wall): if Instagram cookies are imported, try gallery-dl (macOS/iOS); otherwise `LoginRequiredFailure(instagram)`.
+Nothing found (private, removed, or the login wall) → `loginRequired` ("This post needs you to be logged in. Import Instagram cookies in Settings."). There is **no gallery-dl fallback**: it isn't bundled on any platform.
 
 ## TikTok Photo Posts (slideshows)
 
-1. Resolve `vm.tiktok.com` / `vt.tiktok.com` short links by following redirects. Photo posts look like `/@user/photo/<id>`.
-2. Fetch the post page.
-3. Parse `<script id="__UNIVERSAL_DATA_FOR_REHYDRATION__">` JSON. Images are at `imagePost.images[].imageURL.urlList[]`: take the **first URL of each image**, in order.
-4. Music: `music.playUrl` in the same JSON (used for "Save as video", see [ffmpeg Recipes](../engine/ffmpeg_recipes.md#tiktok-slideshow--video-optional)).
+`TikTokPhotoExtractor`, for `/photo/<id>` and `/video/<id>` paths.
 
-TikTok changes this JSON path now and then. **Check it against a live post when implementing**, and keep the path in one constant.
+1. Short links (`vm.tiktok.com`, `vt.tiktok.com`) are already followed by `ResolveLinkUseCase`.
+2. Fetch the post page (with TikTok cookies when imported).
+3. Parse `<script id="__UNIVERSAL_DATA_FOR_REHYDRATION__">`. The post is at `__DEFAULT_SCOPE__ → webapp.video-detail → itemInfo → itemStruct` (one constant, `_itemPath`; a missing item with a `statusCode` → `notFound`, else `broken`).
+4. Images: `imagePost.images[].imageURL.urlList[]`, the **first URL of each image**, in order, with `imageWidth` / `imageHeight`.
+5. Music: `music.playUrl`, used for **Save as video**.
+
+TikTok moves this JSON path now and then. Check it against a live post and update `_itemPath`.
+
+### Save as video
+
+On a TikTok slideshow the preview offers **Save as video** (`DownloadRequest.slideshowVideo`). The repository then also downloads the music, `DownloadMediaUseCase` converts the photos to JPG and asks the engine for one MP4 (`MediaRepository.makeSlideshow`, see [ffmpeg Recipes](../engine/ffmpeg_recipes.md)). The first photo becomes the video's thumbnail and the Library gets one video item.
 
 ## Facebook Photos
 
-1. Accept `/photo/?fbid=…`, `/photo.php?fbid=…`, `/<page>/photos/…`, `/share/p/…` (follow the redirect), and post URLs that turn out to contain photos.
-2. Fetch the page (mobile UA works better for some posts). Read `og:image` for single photos; albums and multi-photo posts list several images in the embedded JSON.
-3. Many photo posts need a login. Without cookies → `LoginRequiredFailure(facebook)` with "Import Facebook cookies in Settings."
+`FacebookPhotoExtractor` handles any Facebook URL routed to it (`canHandle` is always true): `/photo/?fbid=…`, `/photo.php?fbid=…`, `/<page>/photos/…`, `/share/p/…` (followed first), and posts the engine says have no video.
 
-**Check against a live public post when implementing**; this one hasn't been tested yet.
+1. Fetch the page with the desktop User-Agent; if nothing is found, again with the mobile one. A redirect to `/login` stops early.
+2. Collect full-size photos from the page's JSON scripts: every `viewer_image` / `photo_image` object (`uri`, `width`, `height`), in order, de-duplicated by path (the same photo appears with different signatures).
+3. Nothing in the JSON: `og:image`.
+4. Caption from `og:description` / `og:title`; post id from `fbid`, `story_fbid` or the last long number in the path.
+
+Nothing found → `loginRequired` without cookies ("Import Facebook cookies in Settings."), `noMedia` with cookies. **Not yet checked against a live public post.**
 
 ## Threads
 
-yt-dlp has no Threads extractor, so this handles both videos and images.
+`ThreadsExtractor`, for `/post/<code>` on `threads.net` or `threads.com`. yt-dlp has no Threads extractor, so this handles both videos and images.
 
-1. Fetch the post HTML (`threads.net` or `threads.com`).
-2. Read `og:video` / `og:image` meta, or the embedded JSON for carousels and video URLs.
-3. Videos are downloaded directly (`MediaFileDownloader`), then go through the same ffmpeg step as engine downloads (remux / iPhone re-encode, thumbnail).
+1. Fetch the post HTML.
+2. Find the post object in the embedded JSON scripts: the object whose `code` matches and that has `image_versions2`, `carousel_media` or `video_versions`.
+3. Each item (or each `carousel_media` entry): a video from the first `video_versions` URL (with the widest image candidate as its still), else the widest `image_versions2.candidates` image.
+4. No JSON: `og:video`, or `og:image` when the post was found.
 
-Expect this to break when Meta changes the page. Keep it isolated and easy to fix.
+Expect this to break when Meta changes the page. It's one isolated file.
 
 ## X Images
 
-Tweet images come from yt-dlp's metadata when the tweet also has video, otherwise from `og:image` / the tweet's media JSON. Ask for `name=orig` on `pbs.twimg.com` URLs to get the full-size image.
+`XImageExtractor`, for `/status/<id>` links. It doesn't scrape x.com: it reads X's public **syndication endpoint**, `https://cdn.syndication.twimg.com/tweet-result?id=<id>&lang=en&token=a` (the token is required but any value works; checked 2026-11-25). The host is on twimg.com, so no X cookies go along.
+
+- A tombstone or missing `id_str` → `notFound`.
+- `mediaDetails[]`: photos use `media_url_https` rewritten to `pbs.twimg.com/media/<id>?format=<ext>&name=orig` (full size); videos and GIFs use the highest-bitrate `video/mp4` variant, with the photo URL as the still.
+- Author `user.screen_name`, caption `text`.
+
+For a tweet with a video, the engine probe wins and the extractor only adds a Photos choice when the tweet also has photos.
 
 ## Downloading the Images
 
-`MediaFileDownloader` (dio) downloads each selected image to `work/<jobId>/`, reporting progress across all images (bytes if known, else count). Then, per image: convert to JPG (unless "keep original"), name it `<user> <postid> 01.jpg`, `02.jpg`, … and add one Library row per image with a shared `groupId`.
+A request whose `isPost` is true skips the engine. `PostRepositoryImpl.download` uses `MediaFileDownloader`:
 
-## Fallback: gallery-dl
+1. Each chosen item is downloaded in order to `work/<jobId>/01.<ext>`, `02.<ext>`, … with a `Referer` of the site's home page. The extension comes from the response's `Content-Type` (CDN URLs often have none), else the URL, else `jpg` / `mp4`.
+2. Progress is reported across all items (index + the current file's fraction), at most every 250 ms, with an average speed.
+3. A video's still is downloaded next to it (best-effort) for its thumbnail.
+4. Cancel uses a dio `CancelToken` per job; a cancelled job ends as `DownloadCancelled`.
 
-gallery-dl is a Python tool like yt-dlp, for images.
+Then `DownloadMediaUseCase`:
 
-| Platform | Status |
-| --- | --- |
-| macOS | Bundle it (or use the Homebrew/pip one during development). |
-| iOS | Install as a pure-Python package next to yt-dlp in the embedded Python. |
-| Android | Not included in youtubedl-android. Only add it if the Dart extractors aren't enough (would mean Chaquopy, or packaging gallery-dl into the app's Python). |
-
-gallery-dl's Instagram support needs a login (tested: `401 Unauthorized` without cookies), so use it for Instagram only when the user has imported cookies.
+- **Direct videos skip ffmpeg:** Threads, Instagram carousel and X videos come as MP4 from the CDN and go to the Library as downloaded (no remux, no iPhone re-encode).
+- **Photos to JPG** (Settings → "Convert photos to JPG", on by default): every non-JPG photo (WebP, HEIC, PNG…) is re-encoded with `ImageService.toJpg` (`flutter_image_compress`, quality 92). Videos are left alone.
+- `LibraryRepository.addPost` names each file with `FilenameUtils.forPostItem` (`<user> <postid> 01.jpg`, …), makes a thumbnail for each photo, and adds one Library row per item. Items of a multi-item post share a `groupId` (with `groupIndex` for their order), so the Library shows them as one group.
 
 ## When an extractor breaks
 
-Each extractor is one isolated file. Paste a known public post in a debug build, read the failure in the error log, compare the live page with what the parser expects, and update the parser.
+Each extractor is one isolated file. Paste a known public post in a debug build, read the failure in Settings → About → Error log (the `detail` of `ExtractorException` says which step found nothing), compare the live page with what the parser expects, and update the parser.

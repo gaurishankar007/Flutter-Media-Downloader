@@ -1,37 +1,37 @@
 # Routing
 
-> Status: planned. Files: `lib/routing/routes.dart`, `lib/routing/navigation_client.dart`.
+> Status: built. File: `lib/routing/routes.dart` (generated `routes.gr.dart`).
 
-`auto_route` with one shell route for the four tabs. `NavigationClient` allows navigation without a `BuildContext` (used by toasts and deep links), but only Views trigger navigation: notifiers set state and the View decides.
+`auto_route` with one shell route for the five tabs. Only Views navigate (`context.router` / `context.tabsRouter`): notifiers set state and the View decides. There is no navigation client outside the widget tree.
 
 ## Route Tree
 
 ```mermaid
 flowchart TD
-    Root["HomeShellRoute (bottom nav / sidebar)"]
-    Root --> D["DownloadRoute (tab 1, initial)"]
-    Root --> L["LibraryRoute (tab 2)"]
-    Root --> C["ConvertRoute (tab 3)"]
-    Root --> S["SettingsRoute (tab 4)"]
-    L --> V["MediaViewerRoute (full screen: video player / photo pager)"]
-    S --> K["CookiesRoute"]
-    S --> A["AboutRoute (rights notice, versions, licenses)"]
+    Root["HomeShellRoute '/' (bottom nav / sidebar)"]
+    Root --> D["DownloadRoute 'download' (tab 1, initial)"]
+    Root --> L["LibraryRoute 'library' (tab 2)"]
+    Root --> C["ConvertRoute 'convert' (tab 3)"]
+    Root --> Y["SystemRoute 'system' (tab 4)"]
+    Root --> S["SettingsRoute 'settings' (tab 5)"]
+    V["MediaViewerRoute '/viewer' (full screen: video / audio / photo pager)"]
+    K["CookiesRoute '/settings/cookies'"]
+    A["AboutRoute '/settings/about' (rights notice, versions, licenses)"]
+    G["DesignGalleryRoute '/design-gallery' (debug builds only)"]
 ```
 
-- Each tab keeps its own navigation stack (`AutoTabsRouter`), so switching tabs doesn't lose scroll position or an open viewer.
-- `MediaViewerRoute` is pushed **above** the shell (full screen, no nav bar). It takes a `LibraryItem` id plus the ids of the current filtered list, so you can swipe to the next item.
-- The **preview** after pasting is a bottom sheet (`AppBottomSheet`) on phones and a side panel on wide screens, not a route: closing it keeps you on Download with the link still in the field.
-- Convert can be opened with an input: `ConvertRoute(initialItemId: ...)` from a Library item's **Convert** action switches to tab 3 with that item preselected.
+- The shell is an `AutoTabsRouter` over `DownloadRoute`, `LibraryRoute`, `ConvertRoute`, `SystemRoute`, `SettingsRoute` (order matches `NavDestination` in `lib/ui/features/home/models/nav_destination.dart`). Switching tabs keeps each tab's state.
+- `MediaViewerRoute`, `CookiesRoute`, `AboutRoute` and `DesignGalleryRoute` are top-level routes, pushed **above** the shell (full screen, no nav bar).
+- `MediaViewerRoute(initialId:, ids:)` takes the tapped item's id plus the ids to page through (the current filtered Library list, or the items of one carousel group / one finished job), so you can swipe to the next item. It's opened from the Library grid and from a finished job card on Download.
+- `CookiesRoute` is pushed from Settings → Cookies and from the **Cookies** button on a failed job card; `AboutRoute` from Settings → About.
+- `DesignGalleryRoute` is registered in every build, but its Settings entry is shown only when `kDebugMode`.
+- The **preview** after pasting is a bottom sheet (`showAppBottomSheet`, max width 640) on every screen size, not a route: closing it keeps you on Download with the link still in the field.
+- A Library item's **Convert** action calls `ConvertSourceNotifier.pickFromLibrary(id)` and then `context.router.navigate(const ConvertRoute())`, which switches to tab 3 with that item already chosen. `ConvertRoute` takes no arguments.
 
 ## Guards
 
-None for now: no login, no roles. The one-time rights notice is a dialog shown by the shell, not a guard (see [App Startup](../architecture/app_startup.md#one-time-rights-notice)).
+None: no login, no roles. The one-time rights notice is a dialog shown by the shell after the first frame, not a guard (see [App Startup](../architecture/app_startup.md#one-time-rights-notice)).
 
-## macOS Menu and Shortcuts
+## Keyboard Shortcuts
 
-| Shortcut | Action |
-| --- | --- |
-| ⌘V (anywhere) | Switch to Download and paste |
-| ⌘1–⌘4 | Switch tab |
-| ⌘, | Settings |
-| ⌘⌫ | Delete selected Library item (confirm first) |
+None yet (no macOS menu items or ⌘ shortcuts are wired up).

@@ -1,6 +1,6 @@
 # Design System
 
-> Status: decided 2026-11-25, not built yet. Code lives in `lib/ui/core/themes/` (tokens) and `lib/ui/core/ui/base/` (widgets).
+> Status: implemented (untested on devices). Code lives in `lib/ui/core/themes/` (tokens) and `lib/ui/core/ui/base/` (widgets).
 
 The look is a **dark-first media app**, in the style of Spotify, Linear and Arc: deep near-black surfaces, one vivid gradient accent, big rounded cards, large thumbnails and generous spacing. Content (thumbnails, photos, video) is the colour on screen; the chrome stays quiet so it doesn't compete. Light mode is a full first-class theme, not an afterthought. The app follows the system setting, with an override in Settings.
 
@@ -112,9 +112,9 @@ Material Symbols **Rounded**, weight 400, filled for the selected state, outline
 | --- | --- | --- | --- |
 | `fast` | 150ms | `easeOutCubic` | Press states, chip selection |
 | `normal` | 250ms | `easeOutCubic` | Sheet open, card expand, tab switch |
-| `slow` | 400ms | `easeInOutCubicEmphasized` | Hero thumbnail from preview to queue card |
+| `slow` | 400ms | `easeInOutCubicEmphasized` | Larger, emphasised transitions |
 
-- The preview thumbnail flies (Hero) into its job card when you tap **Download**.
+- A Library thumbnail flies (Hero) into the media viewer when you open it.
 - Progress bars animate between values instead of jumping.
 - Completed jobs pulse once with `success` and a light haptic (mobile).
 - When `MediaQuery.disableAnimations` is on, drop to instant changes.
@@ -123,13 +123,15 @@ Material Symbols **Rounded**, weight 400, filled for the selected state, outline
 
 | Width | Layout |
 | --- | --- |
-| < 600 (phones) | Bottom nav bar (blurred, 4 tabs), single column |
-| 600–839 (small tablets) | Bottom nav, 2-column grids |
-| ≥ 840 (tablets, macOS) | Left sidebar (NavigationRail, expanded with labels on macOS), two panes where it helps: Library grid + detail, Download queue + preview |
+| < 600 (phones) | Floating bottom nav bar (blurred, 5 tabs), single column |
+| 600–839 (small tablets) | Bottom nav, wider grids |
+| ≥ 840 (tablets, macOS) | Left sidebar (`AppSidebar`) with labels; screen content capped at a readable width (`AppSpacing.maxContentWidth`, 760) |
 
-Four tabs, in this order: **Download**, **Library**, **Convert**, **Settings**. On macOS the window has a minimum size of 900×600 and the whole Download and Convert screens accept dropped links and files.
+Five tabs, in this order: **Download**, **Library**, **Convert**, **System**, **Settings**. An engine update puts a badge dot on the Settings tab. Full-screen pages above the tabs: the Library media viewer, Settings → Cookies and Settings → About (and the debug-only design gallery).
 
-The screen-size breakpoint is tracked by a `ScreenTypeNotifier` (same idea as vAIolin's `ScreenObserverNotifier`), so only widgets that care rebuild when the window resizes.
+Not built yet: a minimum macOS window size, drag and drop of links/files onto the Download and Convert screens, and two-pane layouts.
+
+The screen-size breakpoint is tracked by a `ScreenTypeNotifier`, so only widgets that care rebuild when the window resizes.
 
 ## Components
 
@@ -138,16 +140,23 @@ All under `lib/ui/core/ui/base/<category>/`, plain props only (no providers), on
 | Category | Widgets |
 | --- | --- |
 | `buttons/` | `GradientButton` (primary), `TonalButton` (secondary), `GhostButton` (tertiary), `AppIconButton` (circle, 40px) |
-| `cards/` | `AppCard`, `MediaCard` (thumbnail + title + metadata + badge), `JobCard` (MediaCard + progress + actions) |
-| `media/` | `MediaThumbnail` (local or remote, rounded, duration pill, kind icon), `SiteBadge`, `PreviewPlayer` (inline video with play/pause/scrub), `PhotoGrid` (selectable) |
+| `cards/` | `AppCard`, `MediaCard` (thumbnail + title + metadata + badge; long-press / right-click for actions), `JobCard` (thumbnail + stage + progress + actions; pulses with a light haptic when done) |
+| `media/` | `MediaThumbnail` (local or remote, rounded, duration pill, saved check, kind icon fallback, optional Hero tag), `SiteBadge`, `PhotoGrid` (selectable, numbered checks) |
 | `progress/` | `GradientProgressBar`, `StageLabel` (Queued / Downloading / Processing / Saving / Done / Failed) |
 | `chips/` | `SelectChip` (quality, format, filter), `ChipRow` (horizontal scroll) |
 | `form/` | `LinkField` (big rounded field with Paste button and site icon that appears when the URL is recognised), `AppSlider`, `AppSwitchTile`, `SegmentedPicker` (Video / Audio / Photos) |
-| `sheets/` | `AppBottomSheet` (drag handle, `xl` radius, blurred scrim), `ActionSheet` (list of icon + label actions) |
+| `sheets/` | `AppBottomSheet` (drag handle, `xl` radius, scrim, keyboard-aware; optional `bottomAction` pinned under the scrolling body), `ActionSheet` (list of icon + label actions) |
 | `dialog/` | `ConfirmDialog` (title, body, destructive variant), `SavedRemovePrompt` (the "Saved. Remove from app?" dialog with "Don't ask again") |
-| `states/` | `EmptyState` (illustration + title + action), `ErrorState` (message + Retry), `ShimmerBox` (loading placeholder matching the final layout) |
+| `states/` | `EmptyState` (icon + title + body + action), `ErrorState` (message + Retry), `ShimmerBox` (loading placeholder matching the final layout) |
+| `layout/` | `ScreenScrollView` (safe area, side padding by breakpoint, max content width, room for the floating nav; optional `bottomAction`), `PinnedActionBar` (holds the primary action at the bottom under the scrolling content, with a short fade above it), `ScreenHeader` (large title + subtitle), `ScreenBackButton` (pushed screens), `AuroraGlow` (header glow) |
+| `icons/` | `GradientIconTile` (Aurora-painted icon on a tinted square) |
+| `text/` | `SectionHeader` (section title + optional trailing widget) |
 
-Messages use `ToastUtil` on top of `flutter_sliding_toast` (the same setup as vAIolin), never a raw `SnackBar`.
+**Pinned primary actions.** A screen's or sheet's main button (Download in the preview sheet, Convert, the media viewer's actions) never scrolls away: pass it as `bottomAction` to `ScreenScrollView` / `AppBottomSheet`, which wrap it in a `PinnedActionBar` above the nav bar or home indicator.
+
+Messages use `ToastUtil` on top of `flutter_sliding_toast`, never a raw `SnackBar`. Toasts slide in at the top, stack like notifications, are coloured by kind (info `primary`, `success`, `warning`, `error`), show text capped at **4 lines** (ellipsis), stay 2.5 s, and an identical toast isn't repeated while it's still showing.
+
+**Design gallery** (Settings, debug builds only): every base widget in its states — controls, jobs, library cards, overlays, empty/error/loading states, and a **Toasts** section that fires each toast kind through `ToastUtil.showStateMessage`.
 
 ## Key Screens
 
@@ -174,7 +183,7 @@ Messages use `ToastUtil` on top of `flutter_sliding_toast` (the same setup as vA
 │ │ 720p MP4 · 84 MB  [Share][🗑] │ │  Share / Remove
 │ └──────────────────────────────┘ │
 ├──────────────────────────────────┤
-│  ⬇ Download  ▦ Library  ⇄  ⚙    │  blurred nav
+│  ⬇   ▦   ⇄   ◔   ⚙               │  blurred nav (5 tabs)
 └──────────────────────────────────┘
 ```
 
@@ -194,7 +203,7 @@ Messages use `ToastUtil` on top of `flutter_sliding_toast` (the same setup as vA
 │ (Best)(4K 1.2GB)(1080p 310MB)…   │  quality chips with sizes
 │ iPhone-compatible  ●──           │
 │                                  │
-│ [      ⬇  Download 310 MB     ]  │  GradientButton
+│ [      ⬇  Download 310 MB     ]  │  GradientButton, pinned
 └──────────────────────────────────┘
 ```
 
@@ -202,11 +211,15 @@ Photo posts show a `PhotoGrid` instead of the player, all images pre-selected, w
 
 ### Library
 
-Grid of `MediaCard`s (2 columns on phones, adaptive on wider screens), filter chips on top (All · Videos · Audio · Photos, then site chips), search in the app bar, sort menu (Newest, Oldest, Largest). Long-press (or right-click on macOS) opens an `ActionSheet`: Save to Photos, Save to Files, Share, Convert, Delete. Items already saved show a small ✓ on the thumbnail.
+Grid of `MediaCard`s (2 columns on phones, adaptive on wider screens), filter chips on top (All · Videos · Audio · Photos, then site chips), search in the app bar, sort menu (Newest, Oldest, Largest). Long-press (or right-click on macOS) opens an `ActionSheet`: Save to Photos, Save to Files, Share, Convert, Delete. Items already saved show a small ✓ on the thumbnail. Tapping an item opens the full-screen media viewer. See [Library](../features/library.md).
 
 ### Convert
 
-A three-step flow in one screen: **1. Pick** (three big tiles: From Library · From Photos · From Files; drop zone on macOS) → **2. Choose** (`SegmentedPicker`: Convert / Compress, then format chips or preset chips + slider) → **3. Result** (before → after size, with a "−62%" badge in `success`, Save / Share / Keep in Library).
+A three-step flow in one screen: **1. Pick** (three big tiles: From Library · From Photos · From Files) → **2. Choose** (`SegmentedPicker`: Convert / Compress, then format chips or preset chips + slider; **Convert** pinned at the bottom) → **3. Result** shown inline (before → after size with the change in percent, Save to Photos / Save to Files / Share / Done). See [Convert](../features/convert.md).
+
+### System
+
+Cards for the metrics this device can report (RAM, CPU, GPU, network), each with its current value and a 60-second sparkline. See [System](../features/system.md).
 
 ## Accessibility
 
@@ -214,7 +227,7 @@ A three-step flow in one screen: **1. Pick** (three big tiles: From Library · F
 - Text scales to 200% without clipping; cards grow taller, chips wrap.
 - Every icon-only button has a semantic label from the message catalog.
 - Colour is never the only signal: stages have text labels, saved items have an icon.
-- Focus rings and keyboard shortcuts on macOS: ⌘V pastes a link anywhere, ⌘⌫ deletes the selected Library item (with confirm), Space plays/pauses a preview.
+- Focus rings on macOS. Keyboard shortcuts (⌘V to paste a link anywhere, ⌘⌫ to delete, Space to play/pause) are not built yet.
 
 ## Code Structure
 

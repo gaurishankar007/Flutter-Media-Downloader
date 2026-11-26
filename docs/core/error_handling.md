@@ -1,10 +1,10 @@
 # Error Handling
 
-> Status: planned. Files: `lib/core/errors/`. Same design as vAIolin, minus Crashlytics: errors never leave the device.
+> Status: built. Files: `lib/core/errors/`, `lib/ui/core/providers/base/error_tracking.dart`. No crash reporting: errors never leave the device.
 
 ## Overview
 
-An exception is caught at the bottom (in a service), translated into a `FailureState`, recorded, and travels back up. A notifier then decides whether to show it.
+An exception is caught at the bottom (in a service or repository), translated into a `FailureState` with a user message, recorded, and travels back up. A notifier then decides whether to show it.
 
 ```mermaid
 flowchart TB
@@ -12,7 +12,7 @@ flowchart TB
     N -- "calls" --> R["Repository"]
     R -- "calls" --> S["Service"]
     S -- "wraps call in" --> EH["ErrorHandler.execute(action:)"]
-    EH -- "1. runs, catches a throw" --> CB["Engine / dio / drift / File I/O"]
+    EH -- "1. runs, catches a throw" --> CB["Engine / dio / drift / File I/O / gal"]
     EH -- "2. translates with" --> T["ErrorTranslators"]
     EH -- "3. reports to" --> REC["ErrorRecorders"]
     REC --> AR["AppErrorRecorder (local error log table)"]
@@ -26,53 +26,68 @@ flowchart TB
 
 ## ErrorHandler
 
-- `execute<T>(callback, action:)`: runs the callback; on a throw, translates it to `FailureState<T>`, records it and returns it. The `action:` label names the exact operation (`'engine.probe'`, `'extractor.instagram'`, `'library.delete'`).
-- `executeSafe()` / `executeSafeReturn()`: record but don't propagate (used for best-effort work such as thumbnail generation or deleting temp files).
+`ErrorHandler` (`error_handler.dart`, registered through `ErrorHandlerProvider.register` in `lib/config/injector/injector.dart`):
+
+- `execute<T>(callback, action:)`: runs the callback; on a throw, translates it to `FailureState<T>`, gives it an error id and stack trace, records it and returns it. A returned `FailureState` gets the `action` added to its action path too. The `action:` label names the exact operation (`'engine.probe'`, `'extractor.instagram'`, `'library.deleteByIds'`).
+- `executeSafe()` / `executeSafeReturn(onError:)`: record but don't propagate (best-effort work such as a video still for a thumbnail or deleting temp files).
+- `configureErrorHandlers()` hooks every recorder into uncaught errors (`FlutterError.onError`, `PlatformDispatcher.onError`).
+
+`ErrorFlow` (`error_flow.dart`) carries the current user flow (`action`) and notifier (`source`) in a `Zone`, so an error recorded deep in the data layer knows which flow it broke without every method taking a parameter.
 
 ## Translators
 
-| Translator | Turns | Into |
+Tried in this order; the first that matches wins. Anything unmatched becomes a `FailureState` whose message defaults to `CommonMessages.genericError`.
+
+| Translator | Turns | Into the message |
 | --- | --- | --- |
-| `EngineErrorTranslator` | yt-dlp / ffmpeg error output (from any engine) | Typed failures, see below |
-| `DioErrorTranslator` | `DioException` (extractors, photo downloads) | `NetworkFailure`, `HttpStatusFailure(code)`, `TimeoutFailure` |
-| `FileSystemErrorTranslator` | `FileSystemException`, `PathNotFoundException` | `StorageFailure` (disk full, missing file, no permission) |
-| `PlatformErrorTranslator` | `PlatformException` from Pigeon / gal / share | `PermissionFailure`, `PlatformFailure` |
-| `DefaultErrorTranslator` | anything else | `UnknownFailure` |
+| `FileSystemErrorTranslator` | `FileSystemException` | `CommonMessages.noSpace` (errno 28) or `storageError` |
+| `GalleryErrorTranslator` | `GalException` (Save to Photos) | Photos access denied / no space / unsupported format / save failed |
+| `ExtractorErrorTranslator` | `ExtractorException` from a photo extractor | `ExtractorMessages` for `loginRequired` (names the site), `notFound`, `noMedia`, `broken` |
+| `DioErrorTranslator` | `DioException` (extractors, direct downloads) | 401/403 → forbidden, 404/410 → not found, 429 → rate limited, timeouts/connection → network, else download failed. The logged error keeps host + path only. |
+| `EngineErrorTranslator` | `EngineException` (stderr, thrown in Dart) and `PlatformException` (from the native engine) | Matched by text, see below |
+
+Failures carry a **message string**, not typed failure classes: the UI compares the message (e.g. a failed job card offers **Update engine** for `EngineMessages.extractorBroken` and **Cookies** for `needsLogin` / `botCheck`).
 
 ### Engine error mapping
 
-yt-dlp's messages are matched by text, since they're the only signal. Keep the patterns in one table (`engine_error_patterns.dart`) so they're easy to update when yt-dlp changes wording.
+yt-dlp's messages are matched by text, since they're the only signal. The patterns live in one table, `EngineErrors` (`engine_errors.dart`), most specific first, so they're easy to update when yt-dlp changes wording.
 
-| yt-dlp / ffmpeg output contains | Failure | What the user sees |
+| yt-dlp / ffmpeg output matches | Message (`EngineMessages`) | Notes |
 | --- | --- | --- |
-| `There is no video in this post` | `NoVideoFailure` | Not shown: `ResolveLinkUseCase` retries with the photo extractor |
-| `Private video`, `This video is private`, `login required`, `cookies` | `LoginRequiredFailure(site)` | "This post needs you to be logged in. Import cookies in Settings." + **Open Settings** |
-| `Sign in to confirm you're not a bot` | `BotCheckFailure` | "YouTube wants a sign-in. Import YouTube cookies, or try again later." |
-| `Video unavailable`, `HTTP Error 404` | `NotFoundFailure` | "This post was deleted or isn't available." |
-| `Unsupported URL` | `UnsupportedSiteFailure` | "This link isn't supported." |
-| `HTTP Error 429`, `rate-limit` | `RateLimitedFailure` | "The site is limiting downloads. Try again in a few minutes." |
-| `Requested format is not available` | `FormatUnavailableFailure` | "That quality isn't available. Pick another one." |
-| `No space left on device` | `StorageFailure` | "Not enough storage." |
-| extractor / `ERROR: [..] Unable to extract` | `ExtractorBrokenFailure` | "The site changed. Update the engine in Settings." + **Update** |
+| `not a bot` | `botCheck`: "YouTube wants a sign-in. Import YouTube cookies in Settings, or try again later." | Job card: **Cookies** |
+| `private`, `log in`, `login required`, `sign in`, `members-only`, `age-restricted` | `needsLogin`: "…Import cookies for this site in Settings." | Job card: **Cookies** |
+| `Unsupported URL` | `unsupported` | |
+| `No video formats found`, `There is no video`, `No video could be found` | `noVideo` | `ResolveLinkUseCase` tries the photo extractor instead |
+| `unavailable`, `has been removed`, `does not exist`, `not found`, `HTTP Error 404` | `unavailable` | |
+| `Requested format is not available` | `formatUnavailable` | |
+| `HTTP Error 403`, `Forbidden` | `forbidden` | |
+| `Unable to download webpage`, `getaddrinfo`, `Network is unreachable`, `timed out`, `Connection reset`, `SSL` | `network` | |
+| `No space left` | `CommonMessages.noSpace` | |
+| `Unable to extract`, `Unable to parse`, `please report this issue`, `KeyError`, `JSONDecodeError` | `extractorBroken`: "The site changed. Update the download engine, then try again." | Job card: **Update engine** |
+| anything else | `failed` | |
 
 ## Recorders
 
-- `AppErrorRecorder`: writes to the `ErrorLogLocal` drift table (time, action path, failure type, short message, whether it was shown). Capped at the last 500 entries. Visible in Settings → About → Error log, with **Copy** so the user can paste it into an issue themselves.
-- `LoggerErrorRecorder`: prints in debug builds.
+- `AppErrorRecorder`: writes to the `ErrorLogLocal` drift table (time, action path, source notifier, message, error, whether it was shown). Capped at the last 500 entries. `trackFailure` marks an already-recorded failure as shown instead of adding a second row. Visible in Settings → About → Error log as a **Copy** button, so the user can paste it into an issue themselves.
+- `LoggerErrorRecorder`: prints in debug builds only.
 - No Crashlytics or any other remote reporting (see the guardrails in `CLAUDE.md`).
 
-Never record cookies, full cookie file contents or authorisation headers. Recorders strip query strings from URLs.
+Never record cookies, full cookie file contents or authorisation headers. `AppErrorRecorder` strips query strings and fragments from every URL it stores; `ExtractorException.detail` and the dio translator never include them.
 
 ## In Notifiers
 
+`ErrorTracking` (mixed into the base notifiers) gives `runFlow`, `trackFailure` and `trackError`:
+
 ```dart
-Future<void> probe(String link) => runFlow('download.probe', () async {
-  final result = await _resolveLink(link);
+Future<void> _resolve({bool useEngine = true}) => runFlow('download.probe', () async {
+  final result = await _resolveLink.run(url, useEngine: useEngine);
   switch (result) {
-    case SuccessState(:final data): state = state.copyWith(status: .loaded, info: data);
-    case FailureState(): trackFailure(result);
+    case SuccessState(:final data?):
+      state = state.copyWith(previewStatus: .loaded, info: data);
+    default:
+      state = state.copyWith(previewStatus: .failed, errorText: trackFailure(result).text);
   }
 });
 ```
 
-One label per user flow; data-layer labels are different, so the action path in the log (`download.probe > engine.probe`) shows which step failed.
+One label per user flow; data-layer labels are different, so the action path in the log (`download.probe > engine.probe`) shows which step failed. `trackFailure` / `trackError` assert they're called inside `runFlow` (or with an explicit `action:`).

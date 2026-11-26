@@ -1,0 +1,129 @@
+# Builds the Android APKs and the macOS DMG and publishes them as a GitHub Release.
+# Trigger: push a tag like v1.2.0 (the tag becomes the version), or run it by hand.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version without the v (e.g. 1.2.0). A tag v<version> is created.'
+        required: true
+
+permissions:
+  contents: write
+
+env:
+  FLUTTER_VERSION: '3.50.1'
+  VERSION: ${{ inputs.version || github.ref_name }}
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - name: Version
+        run: echo "BUILD_NAME=${VERSION#v}" >> "$GITHUB_ENV"
+      - name: Signing key
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/release.jks"
+          cat > android/key.properties <<EOF
+          storeFile=$RUNNER_TEMP/release.jks
+          storePassword=$KEYSTORE_PASSWORD
+          keyPassword=$KEYSTORE_PASSWORD
+          keyAlias=$KEY_ALIAS
+          EOF
+      - run: flutter pub get
+      - name: Build APKs
+        run: |
+          flutter build apk --release --split-per-abi \
+            --build-name "$BUILD_NAME" --build-number "${{ github.run_number }}"
+          mkdir -p dist
+          for abi in arm64-v8a armeabi-v7a x86_64; do
+            cp "build/app/outputs/flutter-apk/app-$abi-release.apk" "dist/MediaDownloader-$BUILD_NAME-android-$abi.apk"
+          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android
+          path: dist/*.apk
+
+  macos:
+    runs-on: macos-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - name: Version
+        run: echo "BUILD_NAME=${VERSION#v}" >> "$GITHUB_ENV"
+      - name: Fetch engine binaries (yt-dlp, ffmpeg, ffprobe, deno)
+        run: macos/scripts/fetch_engine_binaries.sh --universal --with-deno
+      - run: flutter pub get
+      - name: Build app
+        run: flutter build macos --release --build-name "$BUILD_NAME" --build-number "${{ github.run_number }}"
+      - name: Package DMG
+        run: |
+          APP=$(ls -d build/macos/Build/Products/Release/*.app | head -1)
+          STAGE="$RUNNER_TEMP/dmg"
+          mkdir -p "$STAGE" dist
+          ditto "$APP" "$STAGE/Media Downloader.app"
+          ln -s /Applications "$STAGE/Applications"
+          hdiutil create -volname "Media Downloader" -srcfolder "$STAGE" -ov -format UDZO \
+            "dist/MediaDownloader-$BUILD_NAME-macos.dmg"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos
+          path: dist/*.dmg
+
+  release:
+    needs: [android, macos]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Tag name
+        run: |
+          V="${VERSION#v}"
+          echo "TAG=v$V" >> "$GITHUB_ENV"
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG }}
+          name: Media Downloader ${{ env.TAG }}
+          generate_release_notes: true
+          files: dist/*
+          body: |
+            ## Download
+
+            **Android:** download `MediaDownloader-…-android-arm64-v8a.apk` (almost every phone from the last 8 years).
+            Use `armeabi-v7a` for very old phones and `x86_64` for emulators or Chromebooks.
+            Open the file on your phone and allow "Install unknown apps" for your browser or Files app when asked.
+
+            **macOS:** download `MediaDownloader-…-macos.dmg`, open it and drag **Media Downloader** into **Applications**.
+            The app isn't notarized by Apple, so the first launch is blocked. To open it:
+            1. Open the app once, and click **Done** when macOS warns you.
+            2. Go to **System Settings → Privacy & Security**, scroll down and click **Open Anyway** next to Media Downloader.
+            (Or in Terminal: `xattr -dr com.apple.quarantine "/Applications/Media Downloader.app"`.)
+
+            iPhone isn't available as a download (Apple only allows installs from the App Store or a developer's Mac).
+
+            You're responsible for having the rights to anything you download.

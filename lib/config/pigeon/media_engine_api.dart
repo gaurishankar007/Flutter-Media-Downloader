@@ -6,8 +6,8 @@ import 'package:pigeon/pigeon.dart';
   PigeonOptions(
     dartOut: 'lib/core/clients/platform/media_engine_api.g.dart',
     dartPackageName: 'media_downloader',
-    kotlinOut: 'android/app/src/main/kotlin/com/example/media_downloader/engine/MediaEngineApi.g.kt',
-    kotlinOptions: KotlinOptions(package: 'com.example.media_downloader.engine'),
+    kotlinOut: 'android/app/src/main/kotlin/com/gss/mediadownloader/engine/MediaEngineApi.g.kt',
+    kotlinOptions: KotlinOptions(package: 'com.gss.mediadownloader.engine'),
     swiftOut: 'ios/Runner/Engine/MediaEngineApi.g.swift',
     swiftOptions: SwiftOptions(errorClassName: 'MediaEnginePigeonError'),
   ),

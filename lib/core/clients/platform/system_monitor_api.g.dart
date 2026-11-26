@@ -9,14 +9,22 @@ import 'dart:typed_data' show Float64List, Int32List, Int64List;
 import 'package:flutter/services.dart';
 import 'package:meta/meta.dart' show immutable, protected, visibleForTesting;
 
-Object? _extractReplyValueOrThrow(List<Object?>? replyList, String channelName, {required bool isNullValid}) {
+Object? _extractReplyValueOrThrow(
+    List<Object?>? replyList,
+    String channelName, {
+    required bool isNullValid,
+}) {
   if (replyList == null) {
     throw PlatformException(
       code: 'channel-error',
       message: 'Unable to establish connection on channel: "$channelName".',
     );
   } else if (replyList.length > 1) {
-    throw PlatformException(code: replyList[0]! as String, message: replyList[1] as String?, details: replyList[2]);
+    throw PlatformException(
+      code: replyList[0]! as String,
+      message: replyList[1] as String?,
+      details: replyList[2],
+    );
   } else if (!isNullValid && (replyList.isNotEmpty && replyList[0] == null)) {
     throw PlatformException(
       code: 'null-error',
@@ -37,7 +45,9 @@ bool _deepEquals(Object? a, Object? b) {
     return a == b;
   }
   if (a is List && b is List) {
-    return a.length == b.length && a.indexed.every(((int, dynamic) item) => _deepEquals(item.$2, b[item.$1]));
+    return a.length == b.length &&
+        a.indexed
+            .every(((int, dynamic) item) => _deepEquals(item.$2, b[item.$1]));
   }
   if (a is Map && b is Map) {
     if (a.length != b.length) {
@@ -86,9 +96,15 @@ int _deepHash(Object? value) {
   return value.hashCode;
 }
 
+
 /// Which metrics this device can report. Only these are shown.
 class SystemCapabilitiesMsg {
-  SystemCapabilitiesMsg({required this.memory, required this.cpu, required this.gpu, required this.network});
+  SystemCapabilitiesMsg({
+    required this.memory,
+    required this.cpu,
+    required this.gpu,
+    required this.network,
+  });
 
   bool memory;
 
@@ -102,12 +118,16 @@ class SystemCapabilitiesMsg {
   bool network;
 
   List<Object?> _toList() {
-    return <Object?>[memory, cpu, gpu, network];
+    return <Object?>[
+      memory,
+      cpu,
+      gpu,
+      network,
+    ];
   }
 
   Object encode() {
-    return _toList();
-  }
+    return _toList();  }
 
   static SystemCapabilitiesMsg decode(Object result) {
     result as List<Object?>;
@@ -128,10 +148,7 @@ class SystemCapabilitiesMsg {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(memory, other.memory) &&
-        _deepEquals(cpu, other.cpu) &&
-        _deepEquals(gpu, other.gpu) &&
-        _deepEquals(network, other.network);
+    return _deepEquals(memory, other.memory) && _deepEquals(cpu, other.cpu) && _deepEquals(gpu, other.gpu) && _deepEquals(network, other.network);
   }
 
   @override
@@ -192,8 +209,7 @@ class SystemSampleMsg {
   }
 
   Object encode() {
-    return _toList();
-  }
+    return _toList();  }
 
   static SystemSampleMsg decode(Object result) {
     result as List<Object?>;
@@ -218,14 +234,7 @@ class SystemSampleMsg {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(uptimeMillis, other.uptimeMillis) &&
-        _deepEquals(memoryUsedBytes, other.memoryUsedBytes) &&
-        _deepEquals(memoryTotalBytes, other.memoryTotalBytes) &&
-        _deepEquals(cpuBusyTicks, other.cpuBusyTicks) &&
-        _deepEquals(cpuTotalTicks, other.cpuTotalTicks) &&
-        _deepEquals(gpuPercent, other.gpuPercent) &&
-        _deepEquals(networkRxBytes, other.networkRxBytes) &&
-        _deepEquals(networkTxBytes, other.networkTxBytes);
+    return _deepEquals(uptimeMillis, other.uptimeMillis) && _deepEquals(memoryUsedBytes, other.memoryUsedBytes) && _deepEquals(memoryTotalBytes, other.memoryTotalBytes) && _deepEquals(cpuBusyTicks, other.cpuBusyTicks) && _deepEquals(cpuTotalTicks, other.cpuTotalTicks) && _deepEquals(gpuPercent, other.gpuPercent) && _deepEquals(networkRxBytes, other.networkRxBytes) && _deepEquals(networkTxBytes, other.networkTxBytes);
   }
 
   @override
@@ -238,6 +247,7 @@ class SystemSampleMsg {
   }
 }
 
+
 class _PigeonCodec extends StandardMessageCodec {
   const _PigeonCodec();
   @override
@@ -245,10 +255,10 @@ class _PigeonCodec extends StandardMessageCodec {
     if (value is int) {
       buffer.putUint8(4);
       buffer.putInt64(value);
-    } else if (value is SystemCapabilitiesMsg) {
+    }    else if (value is SystemCapabilitiesMsg) {
       buffer.putUint8(129);
       writeValue(buffer, value.encode());
-    } else if (value is SystemSampleMsg) {
+    }    else if (value is SystemSampleMsg) {
       buffer.putUint8(130);
       writeValue(buffer, value.encode());
     } else {
@@ -274,18 +284,21 @@ class SystemMonitorHostApi {
   /// Constructor for [SystemMonitorHostApi]. The [binaryMessenger] named argument is
   /// available for dependency injection. If it is left null, the default
   /// BinaryMessenger will be used which routes to the host platform.
-  SystemMonitorHostApi({BinaryMessenger? binaryMessenger, String messageChannelSuffix = ''})
-    : pigeonVar_binaryMessenger = binaryMessenger,
-      pigeonVar_messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
+  SystemMonitorHostApi({
+      BinaryMessenger? binaryMessenger, 
+      String messageChannelSuffix = '', 
+      })
+      : pigeonVar_binaryMessenger = binaryMessenger,
+        pigeonVar_messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
 
   final BinaryMessenger? pigeonVar_binaryMessenger;
   static const MessageCodec<Object?> pigeonChannelCodec = _PigeonCodec();
 
   final String pigeonVar_messageChannelSuffix;
 
+
   Future<SystemCapabilitiesMsg> capabilities() async {
-    final pigeonVar_channelName =
-        'dev.flutter.pigeon.media_downloader.SystemMonitorHostApi.capabilities$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.media_downloader.SystemMonitorHostApi.capabilities$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -294,16 +307,16 @@ class SystemMonitorHostApi {
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-      pigeonVar_replyList,
-      pigeonVar_channelName,
-      isNullValid: false,
-    );
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
     return pigeonVar_replyValue! as SystemCapabilitiesMsg;
   }
 
   Future<SystemSampleMsg> sample() async {
-    final pigeonVar_channelName =
-        'dev.flutter.pigeon.media_downloader.SystemMonitorHostApi.sample$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.media_downloader.SystemMonitorHostApi.sample$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -312,10 +325,11 @@ class SystemMonitorHostApi {
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-      pigeonVar_replyList,
-      pigeonVar_channelName,
-      isNullValid: false,
-    );
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
     return pigeonVar_replyValue! as SystemSampleMsg;
   }
 }

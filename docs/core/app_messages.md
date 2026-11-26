@@ -1,6 +1,6 @@
 # App Messages
 
-> Status: planned. File: `lib/core/messages/app_messages.dart`.
+> Status: built. File: `lib/core/messages/app_messages.dart`. Current `kMessagesVersion`: `7`.
 
 Every string the app writes itself (toasts, dialog text, empty and error states, button labels, semantic labels, validator errors) lives in one catalog. Never write a user-facing literal at the call site.
 
@@ -13,16 +13,30 @@ abstract final class DownloadMessages {
   /// LinkField: clipboard has no URL.
   static const clipboardEmpty = 'Copy a link first, then tap Paste.';
 
-  /// LinkField: URL isn't from a supported site.
+  /// Hint under LinkField: URL isn't from a supported site.
   static const unsupportedLink = "This link isn't from a supported site.";
-
-  /// JobCard: Remove confirm dialog.
-  static const removeTitle = 'Remove from app?';
-  static const removeBody = 'The file will be deleted from the app. Copies you saved to Photos or Files stay.';
 }
 ```
 
-Areas: `CommonMessages`, `DownloadMessages`, `LibraryMessages`, `ConvertMessages`, `SettingsMessages`, `EngineMessages` (the failure texts in [Error Handling](error_handling.md#engine-error-mapping)), `PermissionMessages`.
+Areas, in file order:
+
+| Class | Holds |
+| --- | --- |
+| `CommonMessages` | Generic error, storage errors, shared buttons (Retry, OK, Cancel, Close, Back, Share, Delete…) |
+| `JobStageMessages` | Stage labels on job cards (downloading, processing, saving…) |
+| `SavedPromptMessages` | The "remove from app?" prompt after a confirmed save |
+| `NavMessages` | Tab labels: Download, Library, Convert, System, Settings |
+| `StartupMessages` | Startup error screen and the one-time rights notice |
+| `DownloadMessages` | Download screen, preview sheet, job cards, photo posts |
+| `EngineMessages` | Engine failure texts (see [Error Handling](error_handling.md#engine-error-mapping)) |
+| `ExtractorMessages` | Photo extractor failures (see [Photo Extractors](../extractors/photo_extractors.md)) |
+| `LibraryMessages` | Library grid, filters, viewer, item actions |
+| `ConvertMessages` | Converter and compressor |
+| `SettingsMessages` | Settings screen |
+| `CookiesMessages` | Cookies screen |
+| `AboutMessages` | About screen |
+| `SystemMessages` | System tab (metric names, idle speed, unavailable state) |
+| `DesignGalleryMessages` | Debug-only design gallery, incl. the toast demo strings |
 
 ## Writing Style
 
@@ -32,8 +46,17 @@ Areas: `CommonMessages`, `DownloadMessages`, `LibraryMessages`, `ConvertMessages
 
 ## Versioning
 
-`kMessagesVersion` at the top of the file. When a message's wording changes or a message is removed, bump it and add one changelog line to its doc comment.
+`kMessagesVersion` sits at the top of the file, under a library doc comment that is the changelog. When a message's wording changes, or a message is added or removed, bump it and add one line there:
+
+| Version | Change |
+| --- | --- |
+| 2 | Removed `DownloadMessages.engineComing` (the engine exists). |
+| 3 | `EngineMessages.needsLogin` / `botCheck` point to cookies; Settings engine and cookies tiles reworded; `defaultQuality` → `defaultVideoQuality`. |
+| 4 | `EngineMessages.noVideo` no longer says photos are coming; added photo post strings (`DownloadMessages` photos…, `ExtractorMessages`). |
+| 5 | Removed `EngineMessages.notOnThisPlatform` (every platform has an engine), the duplicates `DownloadMessages.retry` (use `CommonMessages.retry`) and `ExtractorMessages.network` (use `EngineMessages.network`), and `CommonMessages.comingSoon` (every feature is built). |
+| 6 | Added `NavMessages.system` (System is a tab); removed `SystemMessages.openSystem`. |
+| 7 | Added `DesignGalleryMessages` toast demo strings, `ConvertMessages.savePhotosShort` / `saveFilesShort`, `LibraryMessages.loadFailed`, `SystemMessages.unavailableTitle` / `unavailableBody`. |
 
 ## Localisation
 
-English only in v1. The catalog keeps all text in one place so moving to `intl` / ARB files later is mechanical.
+English only. The catalog keeps all text in one place so moving to ARB files later is mechanical. (`intl` is used only for number and date formatting.)

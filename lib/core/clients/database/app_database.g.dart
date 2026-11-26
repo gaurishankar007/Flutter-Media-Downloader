@@ -3,7 +3,8 @@
 part of 'app_database.dart';
 
 // ignore_for_file: type=lint
-class $KeyValueLocalTable extends KeyValueLocal with TableInfo<$KeyValueLocalTable, KeyValueLocalData> {
+class $KeyValueLocalTable extends KeyValueLocal
+    with TableInfo<$KeyValueLocalTable, KeyValueLocalData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -34,16 +35,25 @@ class $KeyValueLocalTable extends KeyValueLocal with TableInfo<$KeyValueLocalTab
   String get actualTableName => $name;
   static const String $name = 'key_value';
   @override
-  VerificationContext validateIntegrity(Insertable<KeyValueLocalData> instance, {bool isInserting = false}) {
+  VerificationContext validateIntegrity(
+    Insertable<KeyValueLocalData> instance, {
+    bool isInserting = false,
+  }) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('key')) {
-      context.handle(_keyMeta, key.isAcceptableOrUnknown(data['key']!, _keyMeta));
+      context.handle(
+        _keyMeta,
+        key.isAcceptableOrUnknown(data['key']!, _keyMeta),
+      );
     } else if (isInserting) {
       context.missing(_keyMeta);
     }
     if (data.containsKey('value')) {
-      context.handle(_valueMeta, value.isAcceptableOrUnknown(data['value']!, _valueMeta));
+      context.handle(
+        _valueMeta,
+        value.isAcceptableOrUnknown(data['value']!, _valueMeta),
+      );
     } else if (isInserting) {
       context.missing(_valueMeta);
     }
@@ -56,8 +66,14 @@ class $KeyValueLocalTable extends KeyValueLocal with TableInfo<$KeyValueLocalTab
   KeyValueLocalData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return KeyValueLocalData(
-      key: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}key'])!,
-      value: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}value'])!,
+      key: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}key'],
+      )!,
+      value: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}value'],
+      )!,
     );
   }
 
@@ -67,7 +83,8 @@ class $KeyValueLocalTable extends KeyValueLocal with TableInfo<$KeyValueLocalTab
   }
 }
 
-class KeyValueLocalData extends DataClass implements Insertable<KeyValueLocalData> {
+class KeyValueLocalData extends DataClass
+    implements Insertable<KeyValueLocalData> {
   final String key;
   final String value;
   const KeyValueLocalData({required this.key, required this.value});
@@ -83,7 +100,10 @@ class KeyValueLocalData extends DataClass implements Insertable<KeyValueLocalDat
     return KeyValueLocalCompanion(key: Value(key), value: Value(value));
   }
 
-  factory KeyValueLocalData.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
+  factory KeyValueLocalData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return KeyValueLocalData(
       key: serializer.fromJson<String>(json['key']),
@@ -93,7 +113,10 @@ class KeyValueLocalData extends DataClass implements Insertable<KeyValueLocalDat
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{'key': serializer.toJson<String>(key), 'value': serializer.toJson<String>(value)};
+    return <String, dynamic>{
+      'key': serializer.toJson<String>(key),
+      'value': serializer.toJson<String>(value),
+    };
   }
 
   KeyValueLocalData copyWith({String? key, String? value}) =>
@@ -118,7 +141,10 @@ class KeyValueLocalData extends DataClass implements Insertable<KeyValueLocalDat
   int get hashCode => Object.hash(key, value);
   @override
   bool operator ==(Object other) =>
-      identical(this, other) || (other is KeyValueLocalData && other.key == this.key && other.value == this.value);
+      identical(this, other) ||
+      (other is KeyValueLocalData &&
+          other.key == this.key &&
+          other.value == this.value);
 }
 
 class KeyValueLocalCompanion extends UpdateCompanion<KeyValueLocalData> {
@@ -130,9 +156,12 @@ class KeyValueLocalCompanion extends UpdateCompanion<KeyValueLocalData> {
     this.value = const Value.absent(),
     this.rowid = const Value.absent(),
   });
-  KeyValueLocalCompanion.insert({required String key, required String value, this.rowid = const Value.absent()})
-    : key = Value(key),
-      value = Value(value);
+  KeyValueLocalCompanion.insert({
+    required String key,
+    required String value,
+    this.rowid = const Value.absent(),
+  }) : key = Value(key),
+       value = Value(value);
   static Insertable<KeyValueLocalData> custom({
     Expression<String>? key,
     Expression<String>? value,
@@ -145,8 +174,16 @@ class KeyValueLocalCompanion extends UpdateCompanion<KeyValueLocalData> {
     });
   }
 
-  KeyValueLocalCompanion copyWith({Value<String>? key, Value<String>? value, Value<int>? rowid}) {
-    return KeyValueLocalCompanion(key: key ?? this.key, value: value ?? this.value, rowid: rowid ?? this.rowid);
+  KeyValueLocalCompanion copyWith({
+    Value<String>? key,
+    Value<String>? value,
+    Value<int>? rowid,
+  }) {
+    return KeyValueLocalCompanion(
+      key: key ?? this.key,
+      value: value ?? this.value,
+      rowid: rowid ?? this.rowid,
+    );
   }
 
   @override
@@ -175,7 +212,8 @@ class KeyValueLocalCompanion extends UpdateCompanion<KeyValueLocalData> {
   }
 }
 
-class $ErrorLogLocalTable extends ErrorLogLocal with TableInfo<$ErrorLogLocalTable, ErrorLogLocalData> {
+class $ErrorLogLocalTable extends ErrorLogLocal
+    with TableInfo<$ErrorLogLocalTable, ErrorLogLocalData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -189,7 +227,9 @@ class $ErrorLogLocalTable extends ErrorLogLocal with TableInfo<$ErrorLogLocalTab
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _createdAtMeta = const VerificationMeta('createdAt');
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
   @override
   late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
     'created_at',
@@ -216,7 +256,9 @@ class $ErrorLogLocalTable extends ErrorLogLocal with TableInfo<$ErrorLogLocalTab
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _messageMeta = const VerificationMeta('message');
+  static const VerificationMeta _messageMeta = const VerificationMeta(
+    'message',
+  );
   @override
   late final GeneratedColumn<String> message = GeneratedColumn<String>(
     'message',
@@ -242,18 +284,31 @@ class $ErrorLogLocalTable extends ErrorLogLocal with TableInfo<$ErrorLogLocalTab
     false,
     type: DriftSqlType.bool,
     requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways('CHECK ("shown" IN (0, 1))'),
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("shown" IN (0, 1))',
+    ),
     defaultValue: const Constant(false),
   );
   @override
-  List<GeneratedColumn> get $columns => [id, createdAt, action, source, message, error, shown];
+  List<GeneratedColumn> get $columns => [
+    id,
+    createdAt,
+    action,
+    source,
+    message,
+    error,
+    shown,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
   static const String $name = 'error_log';
   @override
-  VerificationContext validateIntegrity(Insertable<ErrorLogLocalData> instance, {bool isInserting = false}) {
+  VerificationContext validateIntegrity(
+    Insertable<ErrorLogLocalData> instance, {
+    bool isInserting = false,
+  }) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
@@ -262,26 +317,44 @@ class $ErrorLogLocalTable extends ErrorLogLocal with TableInfo<$ErrorLogLocalTab
       context.missing(_idMeta);
     }
     if (data.containsKey('created_at')) {
-      context.handle(_createdAtMeta, createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
     } else if (isInserting) {
       context.missing(_createdAtMeta);
     }
     if (data.containsKey('action')) {
-      context.handle(_actionMeta, action.isAcceptableOrUnknown(data['action']!, _actionMeta));
+      context.handle(
+        _actionMeta,
+        action.isAcceptableOrUnknown(data['action']!, _actionMeta),
+      );
     }
     if (data.containsKey('source')) {
-      context.handle(_sourceMeta, source.isAcceptableOrUnknown(data['source']!, _sourceMeta));
+      context.handle(
+        _sourceMeta,
+        source.isAcceptableOrUnknown(data['source']!, _sourceMeta),
+      );
     }
     if (data.containsKey('message')) {
-      context.handle(_messageMeta, message.isAcceptableOrUnknown(data['message']!, _messageMeta));
+      context.handle(
+        _messageMeta,
+        message.isAcceptableOrUnknown(data['message']!, _messageMeta),
+      );
     } else if (isInserting) {
       context.missing(_messageMeta);
     }
     if (data.containsKey('error')) {
-      context.handle(_errorMeta, error.isAcceptableOrUnknown(data['error']!, _errorMeta));
+      context.handle(
+        _errorMeta,
+        error.isAcceptableOrUnknown(data['error']!, _errorMeta),
+      );
     }
     if (data.containsKey('shown')) {
-      context.handle(_shownMeta, shown.isAcceptableOrUnknown(data['shown']!, _shownMeta));
+      context.handle(
+        _shownMeta,
+        shown.isAcceptableOrUnknown(data['shown']!, _shownMeta),
+      );
     }
     return context;
   }
@@ -292,13 +365,34 @@ class $ErrorLogLocalTable extends ErrorLogLocal with TableInfo<$ErrorLogLocalTab
   ErrorLogLocalData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return ErrorLogLocalData(
-      id: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}id'])!,
-      createdAt: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
-      action: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}action']),
-      source: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}source']),
-      message: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}message'])!,
-      error: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}error']),
-      shown: attachedDatabase.typeMapping.read(DriftSqlType.bool, data['${effectivePrefix}shown'])!,
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      action: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}action'],
+      ),
+      source: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source'],
+      ),
+      message: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}message'],
+      )!,
+      error: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}error'],
+      ),
+      shown: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}shown'],
+      )!,
     );
   }
 
@@ -308,7 +402,8 @@ class $ErrorLogLocalTable extends ErrorLogLocal with TableInfo<$ErrorLogLocalTab
   }
 }
 
-class ErrorLogLocalData extends DataClass implements Insertable<ErrorLogLocalData> {
+class ErrorLogLocalData extends DataClass
+    implements Insertable<ErrorLogLocalData> {
   final String id;
   final DateTime createdAt;
 
@@ -352,15 +447,24 @@ class ErrorLogLocalData extends DataClass implements Insertable<ErrorLogLocalDat
     return ErrorLogLocalCompanion(
       id: Value(id),
       createdAt: Value(createdAt),
-      action: action == null && nullToAbsent ? const Value.absent() : Value(action),
-      source: source == null && nullToAbsent ? const Value.absent() : Value(source),
+      action: action == null && nullToAbsent
+          ? const Value.absent()
+          : Value(action),
+      source: source == null && nullToAbsent
+          ? const Value.absent()
+          : Value(source),
       message: Value(message),
-      error: error == null && nullToAbsent ? const Value.absent() : Value(error),
+      error: error == null && nullToAbsent
+          ? const Value.absent()
+          : Value(error),
       shown: Value(shown),
     );
   }
 
-  factory ErrorLogLocalData.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
+  factory ErrorLogLocalData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return ErrorLogLocalData(
       id: serializer.fromJson<String>(json['id']),
@@ -430,7 +534,8 @@ class ErrorLogLocalData extends DataClass implements Insertable<ErrorLogLocalDat
   }
 
   @override
-  int get hashCode => Object.hash(id, createdAt, action, source, message, error, shown);
+  int get hashCode =>
+      Object.hash(id, createdAt, action, source, message, error, shown);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -565,7 +670,8 @@ class ErrorLogLocalCompanion extends UpdateCompanion<ErrorLogLocalData> {
   }
 }
 
-class $LibraryItemLocalTable extends LibraryItemLocal with TableInfo<$LibraryItemLocalTable, LibraryItemLocalData> {
+class $LibraryItemLocalTable extends LibraryItemLocal
+    with TableInfo<$LibraryItemLocalTable, LibraryItemLocalData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -606,7 +712,9 @@ class $LibraryItemLocalTable extends LibraryItemLocal with TableInfo<$LibraryIte
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _uploaderMeta = const VerificationMeta('uploader');
+  static const VerificationMeta _uploaderMeta = const VerificationMeta(
+    'uploader',
+  );
   @override
   late final GeneratedColumn<String> uploader = GeneratedColumn<String>(
     'uploader',
@@ -615,7 +723,9 @@ class $LibraryItemLocalTable extends LibraryItemLocal with TableInfo<$LibraryIte
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _sourceUrlMeta = const VerificationMeta('sourceUrl');
+  static const VerificationMeta _sourceUrlMeta = const VerificationMeta(
+    'sourceUrl',
+  );
   @override
   late final GeneratedColumn<String> sourceUrl = GeneratedColumn<String>(
     'source_url',
@@ -624,7 +734,9 @@ class $LibraryItemLocalTable extends LibraryItemLocal with TableInfo<$LibraryIte
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _relativePathMeta = const VerificationMeta('relativePath');
+  static const VerificationMeta _relativePathMeta = const VerificationMeta(
+    'relativePath',
+  );
   @override
   late final GeneratedColumn<String> relativePath = GeneratedColumn<String>(
     'relative_path',
@@ -633,16 +745,20 @@ class $LibraryItemLocalTable extends LibraryItemLocal with TableInfo<$LibraryIte
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _thumbnailRelativePathMeta = const VerificationMeta('thumbnailRelativePath');
+  static const VerificationMeta _thumbnailRelativePathMeta =
+      const VerificationMeta('thumbnailRelativePath');
   @override
-  late final GeneratedColumn<String> thumbnailRelativePath = GeneratedColumn<String>(
-    'thumbnail_relative_path',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
+  late final GeneratedColumn<String> thumbnailRelativePath =
+      GeneratedColumn<String>(
+        'thumbnail_relative_path',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _sizeBytesMeta = const VerificationMeta(
+    'sizeBytes',
   );
-  static const VerificationMeta _sizeBytesMeta = const VerificationMeta('sizeBytes');
   @override
   late final GeneratedColumn<int> sizeBytes = GeneratedColumn<int>(
     'size_bytes',
@@ -651,7 +767,9 @@ class $LibraryItemLocalTable extends LibraryItemLocal with TableInfo<$LibraryIte
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _durationMsMeta = const VerificationMeta('durationMs');
+  static const VerificationMeta _durationMsMeta = const VerificationMeta(
+    'durationMs',
+  );
   @override
   late final GeneratedColumn<int> durationMs = GeneratedColumn<int>(
     'duration_ms',
@@ -679,7 +797,9 @@ class $LibraryItemLocalTable extends LibraryItemLocal with TableInfo<$LibraryIte
     requiredDuringInsert: false,
     defaultValue: const Constant('download'),
   );
-  static const VerificationMeta _groupIdMeta = const VerificationMeta('groupId');
+  static const VerificationMeta _groupIdMeta = const VerificationMeta(
+    'groupId',
+  );
   @override
   late final GeneratedColumn<String> groupId = GeneratedColumn<String>(
     'group_id',
@@ -688,7 +808,9 @@ class $LibraryItemLocalTable extends LibraryItemLocal with TableInfo<$LibraryIte
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _groupIndexMeta = const VerificationMeta('groupIndex');
+  static const VerificationMeta _groupIndexMeta = const VerificationMeta(
+    'groupIndex',
+  );
   @override
   late final GeneratedColumn<int> groupIndex = GeneratedColumn<int>(
     'group_index',
@@ -697,25 +819,33 @@ class $LibraryItemLocalTable extends LibraryItemLocal with TableInfo<$LibraryIte
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _savedToPhotosAtMeta = const VerificationMeta('savedToPhotosAt');
-  @override
-  late final GeneratedColumn<DateTime> savedToPhotosAt = GeneratedColumn<DateTime>(
-    'saved_to_photos_at',
-    aliasedName,
-    true,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
+  static const VerificationMeta _savedToPhotosAtMeta = const VerificationMeta(
+    'savedToPhotosAt',
   );
-  static const VerificationMeta _savedToFilesAtMeta = const VerificationMeta('savedToFilesAt');
   @override
-  late final GeneratedColumn<DateTime> savedToFilesAt = GeneratedColumn<DateTime>(
-    'saved_to_files_at',
-    aliasedName,
-    true,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
+  late final GeneratedColumn<DateTime> savedToPhotosAt =
+      GeneratedColumn<DateTime>(
+        'saved_to_photos_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _savedToFilesAtMeta = const VerificationMeta(
+    'savedToFilesAt',
   );
-  static const VerificationMeta _createdAtMeta = const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> savedToFilesAt =
+      GeneratedColumn<DateTime>(
+        'saved_to_files_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
   @override
   late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
     'created_at',
@@ -750,7 +880,10 @@ class $LibraryItemLocalTable extends LibraryItemLocal with TableInfo<$LibraryIte
   String get actualTableName => $name;
   static const String $name = 'library_item';
   @override
-  VerificationContext validateIntegrity(Insertable<LibraryItemLocalData> instance, {bool isInserting = false}) {
+  VerificationContext validateIntegrity(
+    Insertable<LibraryItemLocalData> instance, {
+    bool isInserting = false,
+  }) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
@@ -759,71 +892,122 @@ class $LibraryItemLocalTable extends LibraryItemLocal with TableInfo<$LibraryIte
       context.missing(_idMeta);
     }
     if (data.containsKey('kind')) {
-      context.handle(_kindMeta, kind.isAcceptableOrUnknown(data['kind']!, _kindMeta));
+      context.handle(
+        _kindMeta,
+        kind.isAcceptableOrUnknown(data['kind']!, _kindMeta),
+      );
     } else if (isInserting) {
       context.missing(_kindMeta);
     }
     if (data.containsKey('site')) {
-      context.handle(_siteMeta, site.isAcceptableOrUnknown(data['site']!, _siteMeta));
+      context.handle(
+        _siteMeta,
+        site.isAcceptableOrUnknown(data['site']!, _siteMeta),
+      );
     }
     if (data.containsKey('title')) {
-      context.handle(_titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
     } else if (isInserting) {
       context.missing(_titleMeta);
     }
     if (data.containsKey('uploader')) {
-      context.handle(_uploaderMeta, uploader.isAcceptableOrUnknown(data['uploader']!, _uploaderMeta));
+      context.handle(
+        _uploaderMeta,
+        uploader.isAcceptableOrUnknown(data['uploader']!, _uploaderMeta),
+      );
     }
     if (data.containsKey('source_url')) {
-      context.handle(_sourceUrlMeta, sourceUrl.isAcceptableOrUnknown(data['source_url']!, _sourceUrlMeta));
+      context.handle(
+        _sourceUrlMeta,
+        sourceUrl.isAcceptableOrUnknown(data['source_url']!, _sourceUrlMeta),
+      );
     }
     if (data.containsKey('relative_path')) {
-      context.handle(_relativePathMeta, relativePath.isAcceptableOrUnknown(data['relative_path']!, _relativePathMeta));
+      context.handle(
+        _relativePathMeta,
+        relativePath.isAcceptableOrUnknown(
+          data['relative_path']!,
+          _relativePathMeta,
+        ),
+      );
     } else if (isInserting) {
       context.missing(_relativePathMeta);
     }
     if (data.containsKey('thumbnail_relative_path')) {
       context.handle(
         _thumbnailRelativePathMeta,
-        thumbnailRelativePath.isAcceptableOrUnknown(data['thumbnail_relative_path']!, _thumbnailRelativePathMeta),
+        thumbnailRelativePath.isAcceptableOrUnknown(
+          data['thumbnail_relative_path']!,
+          _thumbnailRelativePathMeta,
+        ),
       );
     }
     if (data.containsKey('size_bytes')) {
-      context.handle(_sizeBytesMeta, sizeBytes.isAcceptableOrUnknown(data['size_bytes']!, _sizeBytesMeta));
+      context.handle(
+        _sizeBytesMeta,
+        sizeBytes.isAcceptableOrUnknown(data['size_bytes']!, _sizeBytesMeta),
+      );
     } else if (isInserting) {
       context.missing(_sizeBytesMeta);
     }
     if (data.containsKey('duration_ms')) {
-      context.handle(_durationMsMeta, durationMs.isAcceptableOrUnknown(data['duration_ms']!, _durationMsMeta));
+      context.handle(
+        _durationMsMeta,
+        durationMs.isAcceptableOrUnknown(data['duration_ms']!, _durationMsMeta),
+      );
     }
     if (data.containsKey('format')) {
-      context.handle(_formatMeta, format.isAcceptableOrUnknown(data['format']!, _formatMeta));
+      context.handle(
+        _formatMeta,
+        format.isAcceptableOrUnknown(data['format']!, _formatMeta),
+      );
     } else if (isInserting) {
       context.missing(_formatMeta);
     }
     if (data.containsKey('origin')) {
-      context.handle(_originMeta, origin.isAcceptableOrUnknown(data['origin']!, _originMeta));
+      context.handle(
+        _originMeta,
+        origin.isAcceptableOrUnknown(data['origin']!, _originMeta),
+      );
     }
     if (data.containsKey('group_id')) {
-      context.handle(_groupIdMeta, groupId.isAcceptableOrUnknown(data['group_id']!, _groupIdMeta));
+      context.handle(
+        _groupIdMeta,
+        groupId.isAcceptableOrUnknown(data['group_id']!, _groupIdMeta),
+      );
     }
     if (data.containsKey('group_index')) {
-      context.handle(_groupIndexMeta, groupIndex.isAcceptableOrUnknown(data['group_index']!, _groupIndexMeta));
+      context.handle(
+        _groupIndexMeta,
+        groupIndex.isAcceptableOrUnknown(data['group_index']!, _groupIndexMeta),
+      );
     }
     if (data.containsKey('saved_to_photos_at')) {
       context.handle(
         _savedToPhotosAtMeta,
-        savedToPhotosAt.isAcceptableOrUnknown(data['saved_to_photos_at']!, _savedToPhotosAtMeta),
+        savedToPhotosAt.isAcceptableOrUnknown(
+          data['saved_to_photos_at']!,
+          _savedToPhotosAtMeta,
+        ),
       );
     }
     if (data.containsKey('saved_to_files_at')) {
       context.handle(
         _savedToFilesAtMeta,
-        savedToFilesAt.isAcceptableOrUnknown(data['saved_to_files_at']!, _savedToFilesAtMeta),
+        savedToFilesAt.isAcceptableOrUnknown(
+          data['saved_to_files_at']!,
+          _savedToFilesAtMeta,
+        ),
       );
     }
     if (data.containsKey('created_at')) {
-      context.handle(_createdAtMeta, createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
     } else if (isInserting) {
       context.missing(_createdAtMeta);
     }
@@ -836,23 +1020,62 @@ class $LibraryItemLocalTable extends LibraryItemLocal with TableInfo<$LibraryIte
   LibraryItemLocalData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return LibraryItemLocalData(
-      id: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}id'])!,
-      kind: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}kind'])!,
-      site: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}site']),
-      title: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}title'])!,
-      uploader: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}uploader']),
-      sourceUrl: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}source_url']),
-      relativePath: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}relative_path'])!,
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      kind: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}kind'],
+      )!,
+      site: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}site'],
+      ),
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      uploader: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}uploader'],
+      ),
+      sourceUrl: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source_url'],
+      ),
+      relativePath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}relative_path'],
+      )!,
       thumbnailRelativePath: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}thumbnail_relative_path'],
       ),
-      sizeBytes: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}size_bytes'])!,
-      durationMs: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}duration_ms']),
-      format: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}format'])!,
-      origin: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}origin'])!,
-      groupId: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}group_id']),
-      groupIndex: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}group_index']),
+      sizeBytes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}size_bytes'],
+      )!,
+      durationMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}duration_ms'],
+      ),
+      format: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}format'],
+      )!,
+      origin: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}origin'],
+      )!,
+      groupId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}group_id'],
+      ),
+      groupIndex: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}group_index'],
+      ),
       savedToPhotosAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}saved_to_photos_at'],
@@ -861,7 +1084,10 @@ class $LibraryItemLocalTable extends LibraryItemLocal with TableInfo<$LibraryIte
         DriftSqlType.dateTime,
         data['${effectivePrefix}saved_to_files_at'],
       ),
-      createdAt: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
     );
   }
 
@@ -871,7 +1097,8 @@ class $LibraryItemLocalTable extends LibraryItemLocal with TableInfo<$LibraryIte
   }
 }
 
-class LibraryItemLocalData extends DataClass implements Insertable<LibraryItemLocalData> {
+class LibraryItemLocalData extends DataClass
+    implements Insertable<LibraryItemLocalData> {
   final String id;
 
   /// MediaKind name: video / audio / photo.
@@ -967,25 +1194,42 @@ class LibraryItemLocalData extends DataClass implements Insertable<LibraryItemLo
       kind: Value(kind),
       site: site == null && nullToAbsent ? const Value.absent() : Value(site),
       title: Value(title),
-      uploader: uploader == null && nullToAbsent ? const Value.absent() : Value(uploader),
-      sourceUrl: sourceUrl == null && nullToAbsent ? const Value.absent() : Value(sourceUrl),
+      uploader: uploader == null && nullToAbsent
+          ? const Value.absent()
+          : Value(uploader),
+      sourceUrl: sourceUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sourceUrl),
       relativePath: Value(relativePath),
       thumbnailRelativePath: thumbnailRelativePath == null && nullToAbsent
           ? const Value.absent()
           : Value(thumbnailRelativePath),
       sizeBytes: Value(sizeBytes),
-      durationMs: durationMs == null && nullToAbsent ? const Value.absent() : Value(durationMs),
+      durationMs: durationMs == null && nullToAbsent
+          ? const Value.absent()
+          : Value(durationMs),
       format: Value(format),
       origin: Value(origin),
-      groupId: groupId == null && nullToAbsent ? const Value.absent() : Value(groupId),
-      groupIndex: groupIndex == null && nullToAbsent ? const Value.absent() : Value(groupIndex),
-      savedToPhotosAt: savedToPhotosAt == null && nullToAbsent ? const Value.absent() : Value(savedToPhotosAt),
-      savedToFilesAt: savedToFilesAt == null && nullToAbsent ? const Value.absent() : Value(savedToFilesAt),
+      groupId: groupId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(groupId),
+      groupIndex: groupIndex == null && nullToAbsent
+          ? const Value.absent()
+          : Value(groupIndex),
+      savedToPhotosAt: savedToPhotosAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(savedToPhotosAt),
+      savedToFilesAt: savedToFilesAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(savedToFilesAt),
       createdAt: Value(createdAt),
     );
   }
 
-  factory LibraryItemLocalData.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
+  factory LibraryItemLocalData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return LibraryItemLocalData(
       id: serializer.fromJson<String>(json['id']),
@@ -995,7 +1239,9 @@ class LibraryItemLocalData extends DataClass implements Insertable<LibraryItemLo
       uploader: serializer.fromJson<String?>(json['uploader']),
       sourceUrl: serializer.fromJson<String?>(json['sourceUrl']),
       relativePath: serializer.fromJson<String>(json['relativePath']),
-      thumbnailRelativePath: serializer.fromJson<String?>(json['thumbnailRelativePath']),
+      thumbnailRelativePath: serializer.fromJson<String?>(
+        json['thumbnailRelativePath'],
+      ),
       sizeBytes: serializer.fromJson<int>(json['sizeBytes']),
       durationMs: serializer.fromJson<int?>(json['durationMs']),
       format: serializer.fromJson<String>(json['format']),
@@ -1018,7 +1264,9 @@ class LibraryItemLocalData extends DataClass implements Insertable<LibraryItemLo
       'uploader': serializer.toJson<String?>(uploader),
       'sourceUrl': serializer.toJson<String?>(sourceUrl),
       'relativePath': serializer.toJson<String>(relativePath),
-      'thumbnailRelativePath': serializer.toJson<String?>(thumbnailRelativePath),
+      'thumbnailRelativePath': serializer.toJson<String?>(
+        thumbnailRelativePath,
+      ),
       'sizeBytes': serializer.toJson<int>(sizeBytes),
       'durationMs': serializer.toJson<int?>(durationMs),
       'format': serializer.toJson<String>(format),
@@ -1057,15 +1305,21 @@ class LibraryItemLocalData extends DataClass implements Insertable<LibraryItemLo
     uploader: uploader.present ? uploader.value : this.uploader,
     sourceUrl: sourceUrl.present ? sourceUrl.value : this.sourceUrl,
     relativePath: relativePath ?? this.relativePath,
-    thumbnailRelativePath: thumbnailRelativePath.present ? thumbnailRelativePath.value : this.thumbnailRelativePath,
+    thumbnailRelativePath: thumbnailRelativePath.present
+        ? thumbnailRelativePath.value
+        : this.thumbnailRelativePath,
     sizeBytes: sizeBytes ?? this.sizeBytes,
     durationMs: durationMs.present ? durationMs.value : this.durationMs,
     format: format ?? this.format,
     origin: origin ?? this.origin,
     groupId: groupId.present ? groupId.value : this.groupId,
     groupIndex: groupIndex.present ? groupIndex.value : this.groupIndex,
-    savedToPhotosAt: savedToPhotosAt.present ? savedToPhotosAt.value : this.savedToPhotosAt,
-    savedToFilesAt: savedToFilesAt.present ? savedToFilesAt.value : this.savedToFilesAt,
+    savedToPhotosAt: savedToPhotosAt.present
+        ? savedToPhotosAt.value
+        : this.savedToPhotosAt,
+    savedToFilesAt: savedToFilesAt.present
+        ? savedToFilesAt.value
+        : this.savedToFilesAt,
     createdAt: createdAt ?? this.createdAt,
   );
   LibraryItemLocalData copyWithCompanion(LibraryItemLocalCompanion data) {
@@ -1076,18 +1330,28 @@ class LibraryItemLocalData extends DataClass implements Insertable<LibraryItemLo
       title: data.title.present ? data.title.value : this.title,
       uploader: data.uploader.present ? data.uploader.value : this.uploader,
       sourceUrl: data.sourceUrl.present ? data.sourceUrl.value : this.sourceUrl,
-      relativePath: data.relativePath.present ? data.relativePath.value : this.relativePath,
+      relativePath: data.relativePath.present
+          ? data.relativePath.value
+          : this.relativePath,
       thumbnailRelativePath: data.thumbnailRelativePath.present
           ? data.thumbnailRelativePath.value
           : this.thumbnailRelativePath,
       sizeBytes: data.sizeBytes.present ? data.sizeBytes.value : this.sizeBytes,
-      durationMs: data.durationMs.present ? data.durationMs.value : this.durationMs,
+      durationMs: data.durationMs.present
+          ? data.durationMs.value
+          : this.durationMs,
       format: data.format.present ? data.format.value : this.format,
       origin: data.origin.present ? data.origin.value : this.origin,
       groupId: data.groupId.present ? data.groupId.value : this.groupId,
-      groupIndex: data.groupIndex.present ? data.groupIndex.value : this.groupIndex,
-      savedToPhotosAt: data.savedToPhotosAt.present ? data.savedToPhotosAt.value : this.savedToPhotosAt,
-      savedToFilesAt: data.savedToFilesAt.present ? data.savedToFilesAt.value : this.savedToFilesAt,
+      groupIndex: data.groupIndex.present
+          ? data.groupIndex.value
+          : this.groupIndex,
+      savedToPhotosAt: data.savedToPhotosAt.present
+          ? data.savedToPhotosAt.value
+          : this.savedToPhotosAt,
+      savedToFilesAt: data.savedToFilesAt.present
+          ? data.savedToFilesAt.value
+          : this.savedToFilesAt,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
   }
@@ -1252,7 +1516,8 @@ class LibraryItemLocalCompanion extends UpdateCompanion<LibraryItemLocalData> {
       if (uploader != null) 'uploader': uploader,
       if (sourceUrl != null) 'source_url': sourceUrl,
       if (relativePath != null) 'relative_path': relativePath,
-      if (thumbnailRelativePath != null) 'thumbnail_relative_path': thumbnailRelativePath,
+      if (thumbnailRelativePath != null)
+        'thumbnail_relative_path': thumbnailRelativePath,
       if (sizeBytes != null) 'size_bytes': sizeBytes,
       if (durationMs != null) 'duration_ms': durationMs,
       if (format != null) 'format': format,
@@ -1294,7 +1559,8 @@ class LibraryItemLocalCompanion extends UpdateCompanion<LibraryItemLocalData> {
       uploader: uploader ?? this.uploader,
       sourceUrl: sourceUrl ?? this.sourceUrl,
       relativePath: relativePath ?? this.relativePath,
-      thumbnailRelativePath: thumbnailRelativePath ?? this.thumbnailRelativePath,
+      thumbnailRelativePath:
+          thumbnailRelativePath ?? this.thumbnailRelativePath,
       sizeBytes: sizeBytes ?? this.sizeBytes,
       durationMs: durationMs ?? this.durationMs,
       format: format ?? this.format,
@@ -1333,7 +1599,9 @@ class LibraryItemLocalCompanion extends UpdateCompanion<LibraryItemLocalData> {
       map['relative_path'] = Variable<String>(relativePath.value);
     }
     if (thumbnailRelativePath.present) {
-      map['thumbnail_relative_path'] = Variable<String>(thumbnailRelativePath.value);
+      map['thumbnail_relative_path'] = Variable<String>(
+        thumbnailRelativePath.value,
+      );
     }
     if (sizeBytes.present) {
       map['size_bytes'] = Variable<int>(sizeBytes.value);
@@ -1394,7 +1662,8 @@ class LibraryItemLocalCompanion extends UpdateCompanion<LibraryItemLocalData> {
   }
 }
 
-class $DownloadJobLocalTable extends DownloadJobLocal with TableInfo<$DownloadJobLocalTable, DownloadJobLocalData> {
+class $DownloadJobLocalTable extends DownloadJobLocal
+    with TableInfo<$DownloadJobLocalTable, DownloadJobLocalData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -1408,7 +1677,9 @@ class $DownloadJobLocalTable extends DownloadJobLocal with TableInfo<$DownloadJo
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _requestMeta = const VerificationMeta('request');
+  static const VerificationMeta _requestMeta = const VerificationMeta(
+    'request',
+  );
   @override
   late final GeneratedColumn<String> request = GeneratedColumn<String>(
     'request',
@@ -1426,7 +1697,9 @@ class $DownloadJobLocalTable extends DownloadJobLocal with TableInfo<$DownloadJo
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _errorMessageMeta = const VerificationMeta('errorMessage');
+  static const VerificationMeta _errorMessageMeta = const VerificationMeta(
+    'errorMessage',
+  );
   @override
   late final GeneratedColumn<String> errorMessage = GeneratedColumn<String>(
     'error_message',
@@ -1435,7 +1708,9 @@ class $DownloadJobLocalTable extends DownloadJobLocal with TableInfo<$DownloadJo
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _libraryItemIdsMeta = const VerificationMeta('libraryItemIds');
+  static const VerificationMeta _libraryItemIdsMeta = const VerificationMeta(
+    'libraryItemIds',
+  );
   @override
   late final GeneratedColumn<String> libraryItemIds = GeneratedColumn<String>(
     'library_item_ids',
@@ -1445,7 +1720,9 @@ class $DownloadJobLocalTable extends DownloadJobLocal with TableInfo<$DownloadJo
     requiredDuringInsert: false,
     defaultValue: const Constant('[]'),
   );
-  static const VerificationMeta _sizeBytesMeta = const VerificationMeta('sizeBytes');
+  static const VerificationMeta _sizeBytesMeta = const VerificationMeta(
+    'sizeBytes',
+  );
   @override
   late final GeneratedColumn<int> sizeBytes = GeneratedColumn<int>(
     'size_bytes',
@@ -1454,7 +1731,9 @@ class $DownloadJobLocalTable extends DownloadJobLocal with TableInfo<$DownloadJo
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _createdAtMeta = const VerificationMeta('createdAt');
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
   @override
   late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
     'created_at',
@@ -1463,7 +1742,9 @@ class $DownloadJobLocalTable extends DownloadJobLocal with TableInfo<$DownloadJo
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _finishedAtMeta = const VerificationMeta('finishedAt');
+  static const VerificationMeta _finishedAtMeta = const VerificationMeta(
+    'finishedAt',
+  );
   @override
   late final GeneratedColumn<DateTime> finishedAt = GeneratedColumn<DateTime>(
     'finished_at',
@@ -1489,7 +1770,10 @@ class $DownloadJobLocalTable extends DownloadJobLocal with TableInfo<$DownloadJo
   String get actualTableName => $name;
   static const String $name = 'download_job';
   @override
-  VerificationContext validateIntegrity(Insertable<DownloadJobLocalData> instance, {bool isInserting = false}) {
+  VerificationContext validateIntegrity(
+    Insertable<DownloadJobLocalData> instance, {
+    bool isInserting = false,
+  }) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
@@ -1498,34 +1782,58 @@ class $DownloadJobLocalTable extends DownloadJobLocal with TableInfo<$DownloadJo
       context.missing(_idMeta);
     }
     if (data.containsKey('request')) {
-      context.handle(_requestMeta, request.isAcceptableOrUnknown(data['request']!, _requestMeta));
+      context.handle(
+        _requestMeta,
+        request.isAcceptableOrUnknown(data['request']!, _requestMeta),
+      );
     } else if (isInserting) {
       context.missing(_requestMeta);
     }
     if (data.containsKey('stage')) {
-      context.handle(_stageMeta, stage.isAcceptableOrUnknown(data['stage']!, _stageMeta));
+      context.handle(
+        _stageMeta,
+        stage.isAcceptableOrUnknown(data['stage']!, _stageMeta),
+      );
     } else if (isInserting) {
       context.missing(_stageMeta);
     }
     if (data.containsKey('error_message')) {
-      context.handle(_errorMessageMeta, errorMessage.isAcceptableOrUnknown(data['error_message']!, _errorMessageMeta));
+      context.handle(
+        _errorMessageMeta,
+        errorMessage.isAcceptableOrUnknown(
+          data['error_message']!,
+          _errorMessageMeta,
+        ),
+      );
     }
     if (data.containsKey('library_item_ids')) {
       context.handle(
         _libraryItemIdsMeta,
-        libraryItemIds.isAcceptableOrUnknown(data['library_item_ids']!, _libraryItemIdsMeta),
+        libraryItemIds.isAcceptableOrUnknown(
+          data['library_item_ids']!,
+          _libraryItemIdsMeta,
+        ),
       );
     }
     if (data.containsKey('size_bytes')) {
-      context.handle(_sizeBytesMeta, sizeBytes.isAcceptableOrUnknown(data['size_bytes']!, _sizeBytesMeta));
+      context.handle(
+        _sizeBytesMeta,
+        sizeBytes.isAcceptableOrUnknown(data['size_bytes']!, _sizeBytesMeta),
+      );
     }
     if (data.containsKey('created_at')) {
-      context.handle(_createdAtMeta, createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
     } else if (isInserting) {
       context.missing(_createdAtMeta);
     }
     if (data.containsKey('finished_at')) {
-      context.handle(_finishedAtMeta, finishedAt.isAcceptableOrUnknown(data['finished_at']!, _finishedAtMeta));
+      context.handle(
+        _finishedAtMeta,
+        finishedAt.isAcceptableOrUnknown(data['finished_at']!, _finishedAtMeta),
+      );
     }
     return context;
   }
@@ -1536,17 +1844,38 @@ class $DownloadJobLocalTable extends DownloadJobLocal with TableInfo<$DownloadJo
   DownloadJobLocalData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return DownloadJobLocalData(
-      id: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}id'])!,
-      request: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}request'])!,
-      stage: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}stage'])!,
-      errorMessage: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}error_message']),
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      request: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}request'],
+      )!,
+      stage: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}stage'],
+      )!,
+      errorMessage: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}error_message'],
+      ),
       libraryItemIds: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}library_item_ids'],
       )!,
-      sizeBytes: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}size_bytes']),
-      createdAt: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
-      finishedAt: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}finished_at']),
+      sizeBytes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}size_bytes'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      finishedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}finished_at'],
+      ),
     );
   }
 
@@ -1556,7 +1885,8 @@ class $DownloadJobLocalTable extends DownloadJobLocal with TableInfo<$DownloadJo
   }
 }
 
-class DownloadJobLocalData extends DataClass implements Insertable<DownloadJobLocalData> {
+class DownloadJobLocalData extends DataClass
+    implements Insertable<DownloadJobLocalData> {
   final String id;
 
   /// DownloadRequest as JSON (url, site, title, kind, quality…).
@@ -1606,15 +1936,24 @@ class DownloadJobLocalData extends DataClass implements Insertable<DownloadJobLo
       id: Value(id),
       request: Value(request),
       stage: Value(stage),
-      errorMessage: errorMessage == null && nullToAbsent ? const Value.absent() : Value(errorMessage),
+      errorMessage: errorMessage == null && nullToAbsent
+          ? const Value.absent()
+          : Value(errorMessage),
       libraryItemIds: Value(libraryItemIds),
-      sizeBytes: sizeBytes == null && nullToAbsent ? const Value.absent() : Value(sizeBytes),
+      sizeBytes: sizeBytes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sizeBytes),
       createdAt: Value(createdAt),
-      finishedAt: finishedAt == null && nullToAbsent ? const Value.absent() : Value(finishedAt),
+      finishedAt: finishedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(finishedAt),
     );
   }
 
-  factory DownloadJobLocalData.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
+  factory DownloadJobLocalData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return DownloadJobLocalData(
       id: serializer.fromJson<String>(json['id']),
@@ -1666,11 +2005,17 @@ class DownloadJobLocalData extends DataClass implements Insertable<DownloadJobLo
       id: data.id.present ? data.id.value : this.id,
       request: data.request.present ? data.request.value : this.request,
       stage: data.stage.present ? data.stage.value : this.stage,
-      errorMessage: data.errorMessage.present ? data.errorMessage.value : this.errorMessage,
-      libraryItemIds: data.libraryItemIds.present ? data.libraryItemIds.value : this.libraryItemIds,
+      errorMessage: data.errorMessage.present
+          ? data.errorMessage.value
+          : this.errorMessage,
+      libraryItemIds: data.libraryItemIds.present
+          ? data.libraryItemIds.value
+          : this.libraryItemIds,
       sizeBytes: data.sizeBytes.present ? data.sizeBytes.value : this.sizeBytes,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
-      finishedAt: data.finishedAt.present ? data.finishedAt.value : this.finishedAt,
+      finishedAt: data.finishedAt.present
+          ? data.finishedAt.value
+          : this.finishedAt,
     );
   }
 
@@ -1690,7 +2035,16 @@ class DownloadJobLocalData extends DataClass implements Insertable<DownloadJobLo
   }
 
   @override
-  int get hashCode => Object.hash(id, request, stage, errorMessage, libraryItemIds, sizeBytes, createdAt, finishedAt);
+  int get hashCode => Object.hash(
+    id,
+    request,
+    stage,
+    errorMessage,
+    libraryItemIds,
+    sizeBytes,
+    createdAt,
+    finishedAt,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1843,10 +2197,15 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $KeyValueLocalTable keyValueLocal = $KeyValueLocalTable(this);
   late final $ErrorLogLocalTable errorLogLocal = $ErrorLogLocalTable(this);
-  late final $LibraryItemLocalTable libraryItemLocal = $LibraryItemLocalTable(this);
-  late final $DownloadJobLocalTable downloadJobLocal = $DownloadJobLocalTable(this);
+  late final $LibraryItemLocalTable libraryItemLocal = $LibraryItemLocalTable(
+    this,
+  );
+  late final $DownloadJobLocalTable downloadJobLocal = $DownloadJobLocalTable(
+    this,
+  );
   @override
-  Iterable<TableInfo<Table, Object?>> get allTables => allSchemaEntities.whereType<TableInfo<Table, Object?>>();
+  Iterable<TableInfo<Table, Object?>> get allTables =>
+      allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     keyValueLocal,
@@ -1856,18 +2215,21 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   ];
 }
 
-typedef $$KeyValueLocalTableCreateCompanionBuilder = KeyValueLocalCompanion Function({
-  required String key,
-  required String value,
-  Value<int> rowid,
-});
-typedef $$KeyValueLocalTableUpdateCompanionBuilder = KeyValueLocalCompanion Function({
-  Value<String> key,
-  Value<String> value,
-  Value<int> rowid,
-});
+typedef $$KeyValueLocalTableCreateCompanionBuilder =
+    KeyValueLocalCompanion Function({
+      required String key,
+      required String value,
+      Value<int> rowid,
+    });
+typedef $$KeyValueLocalTableUpdateCompanionBuilder =
+    KeyValueLocalCompanion Function({
+      Value<String> key,
+      Value<String> value,
+      Value<int> rowid,
+    });
 
-class $$KeyValueLocalTableFilterComposer extends Composer<_$AppDatabase, $KeyValueLocalTable> {
+class $$KeyValueLocalTableFilterComposer
+    extends Composer<_$AppDatabase, $KeyValueLocalTable> {
   $$KeyValueLocalTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -1875,13 +2237,19 @@ class $$KeyValueLocalTableFilterComposer extends Composer<_$AppDatabase, $KeyVal
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<String> get key => $composableBuilder(column: $table.key, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get key => $composableBuilder(
+    column: $table.key,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<String> get value =>
-      $composableBuilder(column: $table.value, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get value => $composableBuilder(
+    column: $table.value,
+    builder: (column) => ColumnFilters(column),
+  );
 }
 
-class $$KeyValueLocalTableOrderingComposer extends Composer<_$AppDatabase, $KeyValueLocalTable> {
+class $$KeyValueLocalTableOrderingComposer
+    extends Composer<_$AppDatabase, $KeyValueLocalTable> {
   $$KeyValueLocalTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -1889,14 +2257,19 @@ class $$KeyValueLocalTableOrderingComposer extends Composer<_$AppDatabase, $KeyV
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<String> get key =>
-      $composableBuilder(column: $table.key, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get key => $composableBuilder(
+    column: $table.key,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<String> get value =>
-      $composableBuilder(column: $table.value, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get value => $composableBuilder(
+    column: $table.value,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
-class $$KeyValueLocalTableAnnotationComposer extends Composer<_$AppDatabase, $KeyValueLocalTable> {
+class $$KeyValueLocalTableAnnotationComposer
+    extends Composer<_$AppDatabase, $KeyValueLocalTable> {
   $$KeyValueLocalTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -1904,9 +2277,11 @@ class $$KeyValueLocalTableAnnotationComposer extends Composer<_$AppDatabase, $Ke
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<String> get key => $composableBuilder(column: $table.key, builder: (column) => column);
+  GeneratedColumn<String> get key =>
+      $composableBuilder(column: $table.key, builder: (column) => column);
 
-  GeneratedColumn<String> get value => $composableBuilder(column: $table.value, builder: (column) => column);
+  GeneratedColumn<String> get value =>
+      $composableBuilder(column: $table.value, builder: (column) => column);
 }
 
 class $$KeyValueLocalTableTableManager
@@ -1920,7 +2295,14 @@ class $$KeyValueLocalTableTableManager
           $$KeyValueLocalTableAnnotationComposer,
           $$KeyValueLocalTableCreateCompanionBuilder,
           $$KeyValueLocalTableUpdateCompanionBuilder,
-          (KeyValueLocalData, BaseReferences<_$AppDatabase, $KeyValueLocalTable, KeyValueLocalData>),
+          (
+            KeyValueLocalData,
+            BaseReferences<
+              _$AppDatabase,
+              $KeyValueLocalTable,
+              KeyValueLocalData
+            >,
+          ),
           KeyValueLocalData,
           PrefetchHooks Function()
         > {
@@ -1929,24 +2311,36 @@ class $$KeyValueLocalTableTableManager
         TableManagerState(
           db: db,
           table: table,
-          createFilteringComposer: () => $$KeyValueLocalTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () => $$KeyValueLocalTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () => $$KeyValueLocalTableAnnotationComposer($db: db, $table: table),
+          createFilteringComposer: () =>
+              $$KeyValueLocalTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$KeyValueLocalTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$KeyValueLocalTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> key = const Value.absent(),
             Value<String> value = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) => KeyValueLocalCompanion(key: key, value: value, rowid: rowid),
-          createCompanionCallback: ({
-            required String key,
-            required String value,
-            Value<int> rowid = const Value.absent(),
-          }) => KeyValueLocalCompanion.insert(key: key, value: value, rowid: rowid),
+          createCompanionCallback:
+              ({
+                required String key,
+                required String value,
+                Value<int> rowid = const Value.absent(),
+              }) => KeyValueLocalCompanion.insert(
+                key: key,
+                value: value,
+                rowid: rowid,
+              ),
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
                   e.readTable<$KeyValueLocalTable, KeyValueLocalData>(table),
-                  BaseReferences<_$AppDatabase, $KeyValueLocalTable, KeyValueLocalData>(db, table, e),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $KeyValueLocalTable,
+                    KeyValueLocalData
+                  >(db, table, e),
                 ),
               )
               .toList(),
@@ -1965,32 +2359,38 @@ typedef $$KeyValueLocalTableProcessedTableManager =
       $$KeyValueLocalTableAnnotationComposer,
       $$KeyValueLocalTableCreateCompanionBuilder,
       $$KeyValueLocalTableUpdateCompanionBuilder,
-      (KeyValueLocalData, BaseReferences<_$AppDatabase, $KeyValueLocalTable, KeyValueLocalData>),
+      (
+        KeyValueLocalData,
+        BaseReferences<_$AppDatabase, $KeyValueLocalTable, KeyValueLocalData>,
+      ),
       KeyValueLocalData,
       PrefetchHooks Function()
     >;
-typedef $$ErrorLogLocalTableCreateCompanionBuilder = ErrorLogLocalCompanion Function({
-  required String id,
-  required DateTime createdAt,
-  Value<String?> action,
-  Value<String?> source,
-  required String message,
-  Value<String?> error,
-  Value<bool> shown,
-  Value<int> rowid,
-});
-typedef $$ErrorLogLocalTableUpdateCompanionBuilder = ErrorLogLocalCompanion Function({
-  Value<String> id,
-  Value<DateTime> createdAt,
-  Value<String?> action,
-  Value<String?> source,
-  Value<String> message,
-  Value<String?> error,
-  Value<bool> shown,
-  Value<int> rowid,
-});
+typedef $$ErrorLogLocalTableCreateCompanionBuilder =
+    ErrorLogLocalCompanion Function({
+      required String id,
+      required DateTime createdAt,
+      Value<String?> action,
+      Value<String?> source,
+      required String message,
+      Value<String?> error,
+      Value<bool> shown,
+      Value<int> rowid,
+    });
+typedef $$ErrorLogLocalTableUpdateCompanionBuilder =
+    ErrorLogLocalCompanion Function({
+      Value<String> id,
+      Value<DateTime> createdAt,
+      Value<String?> action,
+      Value<String?> source,
+      Value<String> message,
+      Value<String?> error,
+      Value<bool> shown,
+      Value<int> rowid,
+    });
 
-class $$ErrorLogLocalTableFilterComposer extends Composer<_$AppDatabase, $ErrorLogLocalTable> {
+class $$ErrorLogLocalTableFilterComposer
+    extends Composer<_$AppDatabase, $ErrorLogLocalTable> {
   $$ErrorLogLocalTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -1998,27 +2398,44 @@ class $$ErrorLogLocalTableFilterComposer extends Composer<_$AppDatabase, $ErrorL
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<String> get id => $composableBuilder(column: $table.id, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<DateTime> get createdAt =>
-      $composableBuilder(column: $table.createdAt, builder: (column) => ColumnFilters(column));
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<String> get action =>
-      $composableBuilder(column: $table.action, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get action => $composableBuilder(
+    column: $table.action,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<String> get source =>
-      $composableBuilder(column: $table.source, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<String> get message =>
-      $composableBuilder(column: $table.message, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get message => $composableBuilder(
+    column: $table.message,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<String> get error =>
-      $composableBuilder(column: $table.error, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get error => $composableBuilder(
+    column: $table.error,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<bool> get shown => $composableBuilder(column: $table.shown, builder: (column) => ColumnFilters(column));
+  ColumnFilters<bool> get shown => $composableBuilder(
+    column: $table.shown,
+    builder: (column) => ColumnFilters(column),
+  );
 }
 
-class $$ErrorLogLocalTableOrderingComposer extends Composer<_$AppDatabase, $ErrorLogLocalTable> {
+class $$ErrorLogLocalTableOrderingComposer
+    extends Composer<_$AppDatabase, $ErrorLogLocalTable> {
   $$ErrorLogLocalTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -2026,28 +2443,44 @@ class $$ErrorLogLocalTableOrderingComposer extends Composer<_$AppDatabase, $Erro
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<String> get id => $composableBuilder(column: $table.id, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<DateTime> get createdAt =>
-      $composableBuilder(column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<String> get action =>
-      $composableBuilder(column: $table.action, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get action => $composableBuilder(
+    column: $table.action,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<String> get source =>
-      $composableBuilder(column: $table.source, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<String> get message =>
-      $composableBuilder(column: $table.message, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get message => $composableBuilder(
+    column: $table.message,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<String> get error =>
-      $composableBuilder(column: $table.error, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get error => $composableBuilder(
+    column: $table.error,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<bool> get shown =>
-      $composableBuilder(column: $table.shown, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<bool> get shown => $composableBuilder(
+    column: $table.shown,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
-class $$ErrorLogLocalTableAnnotationComposer extends Composer<_$AppDatabase, $ErrorLogLocalTable> {
+class $$ErrorLogLocalTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ErrorLogLocalTable> {
   $$ErrorLogLocalTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -2055,19 +2488,26 @@ class $$ErrorLogLocalTableAnnotationComposer extends Composer<_$AppDatabase, $Er
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<String> get id => $composableBuilder(column: $table.id, builder: (column) => column);
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get createdAt => $composableBuilder(column: $table.createdAt, builder: (column) => column);
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
-  GeneratedColumn<String> get action => $composableBuilder(column: $table.action, builder: (column) => column);
+  GeneratedColumn<String> get action =>
+      $composableBuilder(column: $table.action, builder: (column) => column);
 
-  GeneratedColumn<String> get source => $composableBuilder(column: $table.source, builder: (column) => column);
+  GeneratedColumn<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => column);
 
-  GeneratedColumn<String> get message => $composableBuilder(column: $table.message, builder: (column) => column);
+  GeneratedColumn<String> get message =>
+      $composableBuilder(column: $table.message, builder: (column) => column);
 
-  GeneratedColumn<String> get error => $composableBuilder(column: $table.error, builder: (column) => column);
+  GeneratedColumn<String> get error =>
+      $composableBuilder(column: $table.error, builder: (column) => column);
 
-  GeneratedColumn<bool> get shown => $composableBuilder(column: $table.shown, builder: (column) => column);
+  GeneratedColumn<bool> get shown =>
+      $composableBuilder(column: $table.shown, builder: (column) => column);
 }
 
 class $$ErrorLogLocalTableTableManager
@@ -2081,7 +2521,14 @@ class $$ErrorLogLocalTableTableManager
           $$ErrorLogLocalTableAnnotationComposer,
           $$ErrorLogLocalTableCreateCompanionBuilder,
           $$ErrorLogLocalTableUpdateCompanionBuilder,
-          (ErrorLogLocalData, BaseReferences<_$AppDatabase, $ErrorLogLocalTable, ErrorLogLocalData>),
+          (
+            ErrorLogLocalData,
+            BaseReferences<
+              _$AppDatabase,
+              $ErrorLogLocalTable,
+              ErrorLogLocalData
+            >,
+          ),
           ErrorLogLocalData,
           PrefetchHooks Function()
         > {
@@ -2090,9 +2537,12 @@ class $$ErrorLogLocalTableTableManager
         TableManagerState(
           db: db,
           table: table,
-          createFilteringComposer: () => $$ErrorLogLocalTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () => $$ErrorLogLocalTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () => $$ErrorLogLocalTableAnnotationComposer($db: db, $table: table),
+          createFilteringComposer: () =>
+              $$ErrorLogLocalTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ErrorLogLocalTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ErrorLogLocalTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
                 Value<String> id = const Value.absent(),
@@ -2137,7 +2587,11 @@ class $$ErrorLogLocalTableTableManager
               .map(
                 (e) => (
                   e.readTable<$ErrorLogLocalTable, ErrorLogLocalData>(table),
-                  BaseReferences<_$AppDatabase, $ErrorLogLocalTable, ErrorLogLocalData>(db, table, e),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $ErrorLogLocalTable,
+                    ErrorLogLocalData
+                  >(db, table, e),
                 ),
               )
               .toList(),
@@ -2156,52 +2610,58 @@ typedef $$ErrorLogLocalTableProcessedTableManager =
       $$ErrorLogLocalTableAnnotationComposer,
       $$ErrorLogLocalTableCreateCompanionBuilder,
       $$ErrorLogLocalTableUpdateCompanionBuilder,
-      (ErrorLogLocalData, BaseReferences<_$AppDatabase, $ErrorLogLocalTable, ErrorLogLocalData>),
+      (
+        ErrorLogLocalData,
+        BaseReferences<_$AppDatabase, $ErrorLogLocalTable, ErrorLogLocalData>,
+      ),
       ErrorLogLocalData,
       PrefetchHooks Function()
     >;
-typedef $$LibraryItemLocalTableCreateCompanionBuilder = LibraryItemLocalCompanion Function({
-  required String id,
-  required String kind,
-  Value<String?> site,
-  required String title,
-  Value<String?> uploader,
-  Value<String?> sourceUrl,
-  required String relativePath,
-  Value<String?> thumbnailRelativePath,
-  required int sizeBytes,
-  Value<int?> durationMs,
-  required String format,
-  Value<String> origin,
-  Value<String?> groupId,
-  Value<int?> groupIndex,
-  Value<DateTime?> savedToPhotosAt,
-  Value<DateTime?> savedToFilesAt,
-  required DateTime createdAt,
-  Value<int> rowid,
-});
-typedef $$LibraryItemLocalTableUpdateCompanionBuilder = LibraryItemLocalCompanion Function({
-  Value<String> id,
-  Value<String> kind,
-  Value<String?> site,
-  Value<String> title,
-  Value<String?> uploader,
-  Value<String?> sourceUrl,
-  Value<String> relativePath,
-  Value<String?> thumbnailRelativePath,
-  Value<int> sizeBytes,
-  Value<int?> durationMs,
-  Value<String> format,
-  Value<String> origin,
-  Value<String?> groupId,
-  Value<int?> groupIndex,
-  Value<DateTime?> savedToPhotosAt,
-  Value<DateTime?> savedToFilesAt,
-  Value<DateTime> createdAt,
-  Value<int> rowid,
-});
+typedef $$LibraryItemLocalTableCreateCompanionBuilder =
+    LibraryItemLocalCompanion Function({
+      required String id,
+      required String kind,
+      Value<String?> site,
+      required String title,
+      Value<String?> uploader,
+      Value<String?> sourceUrl,
+      required String relativePath,
+      Value<String?> thumbnailRelativePath,
+      required int sizeBytes,
+      Value<int?> durationMs,
+      required String format,
+      Value<String> origin,
+      Value<String?> groupId,
+      Value<int?> groupIndex,
+      Value<DateTime?> savedToPhotosAt,
+      Value<DateTime?> savedToFilesAt,
+      required DateTime createdAt,
+      Value<int> rowid,
+    });
+typedef $$LibraryItemLocalTableUpdateCompanionBuilder =
+    LibraryItemLocalCompanion Function({
+      Value<String> id,
+      Value<String> kind,
+      Value<String?> site,
+      Value<String> title,
+      Value<String?> uploader,
+      Value<String?> sourceUrl,
+      Value<String> relativePath,
+      Value<String?> thumbnailRelativePath,
+      Value<int> sizeBytes,
+      Value<int?> durationMs,
+      Value<String> format,
+      Value<String> origin,
+      Value<String?> groupId,
+      Value<int?> groupIndex,
+      Value<DateTime?> savedToPhotosAt,
+      Value<DateTime?> savedToFilesAt,
+      Value<DateTime> createdAt,
+      Value<int> rowid,
+    });
 
-class $$LibraryItemLocalTableFilterComposer extends Composer<_$AppDatabase, $LibraryItemLocalTable> {
+class $$LibraryItemLocalTableFilterComposer
+    extends Composer<_$AppDatabase, $LibraryItemLocalTable> {
   $$LibraryItemLocalTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -2209,56 +2669,94 @@ class $$LibraryItemLocalTableFilterComposer extends Composer<_$AppDatabase, $Lib
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<String> get id => $composableBuilder(column: $table.id, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<String> get kind => $composableBuilder(column: $table.kind, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<String> get site => $composableBuilder(column: $table.site, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get site => $composableBuilder(
+    column: $table.site,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<String> get title =>
-      $composableBuilder(column: $table.title, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<String> get uploader =>
-      $composableBuilder(column: $table.uploader, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get uploader => $composableBuilder(
+    column: $table.uploader,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<String> get sourceUrl =>
-      $composableBuilder(column: $table.sourceUrl, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get sourceUrl => $composableBuilder(
+    column: $table.sourceUrl,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<String> get relativePath =>
-      $composableBuilder(column: $table.relativePath, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get relativePath => $composableBuilder(
+    column: $table.relativePath,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<String> get thumbnailRelativePath =>
-      $composableBuilder(column: $table.thumbnailRelativePath, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get thumbnailRelativePath => $composableBuilder(
+    column: $table.thumbnailRelativePath,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<int> get sizeBytes =>
-      $composableBuilder(column: $table.sizeBytes, builder: (column) => ColumnFilters(column));
+  ColumnFilters<int> get sizeBytes => $composableBuilder(
+    column: $table.sizeBytes,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<int> get durationMs =>
-      $composableBuilder(column: $table.durationMs, builder: (column) => ColumnFilters(column));
+  ColumnFilters<int> get durationMs => $composableBuilder(
+    column: $table.durationMs,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<String> get format =>
-      $composableBuilder(column: $table.format, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get format => $composableBuilder(
+    column: $table.format,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<String> get origin =>
-      $composableBuilder(column: $table.origin, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get origin => $composableBuilder(
+    column: $table.origin,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<String> get groupId =>
-      $composableBuilder(column: $table.groupId, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get groupId => $composableBuilder(
+    column: $table.groupId,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<int> get groupIndex =>
-      $composableBuilder(column: $table.groupIndex, builder: (column) => ColumnFilters(column));
+  ColumnFilters<int> get groupIndex => $composableBuilder(
+    column: $table.groupIndex,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<DateTime> get savedToPhotosAt =>
-      $composableBuilder(column: $table.savedToPhotosAt, builder: (column) => ColumnFilters(column));
+  ColumnFilters<DateTime> get savedToPhotosAt => $composableBuilder(
+    column: $table.savedToPhotosAt,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<DateTime> get savedToFilesAt =>
-      $composableBuilder(column: $table.savedToFilesAt, builder: (column) => ColumnFilters(column));
+  ColumnFilters<DateTime> get savedToFilesAt => $composableBuilder(
+    column: $table.savedToFilesAt,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<DateTime> get createdAt =>
-      $composableBuilder(column: $table.createdAt, builder: (column) => ColumnFilters(column));
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
 }
 
-class $$LibraryItemLocalTableOrderingComposer extends Composer<_$AppDatabase, $LibraryItemLocalTable> {
+class $$LibraryItemLocalTableOrderingComposer
+    extends Composer<_$AppDatabase, $LibraryItemLocalTable> {
   $$LibraryItemLocalTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -2266,58 +2764,94 @@ class $$LibraryItemLocalTableOrderingComposer extends Composer<_$AppDatabase, $L
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<String> get id => $composableBuilder(column: $table.id, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<String> get kind =>
-      $composableBuilder(column: $table.kind, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<String> get site =>
-      $composableBuilder(column: $table.site, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get site => $composableBuilder(
+    column: $table.site,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<String> get title =>
-      $composableBuilder(column: $table.title, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<String> get uploader =>
-      $composableBuilder(column: $table.uploader, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get uploader => $composableBuilder(
+    column: $table.uploader,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<String> get sourceUrl =>
-      $composableBuilder(column: $table.sourceUrl, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get sourceUrl => $composableBuilder(
+    column: $table.sourceUrl,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<String> get relativePath =>
-      $composableBuilder(column: $table.relativePath, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get relativePath => $composableBuilder(
+    column: $table.relativePath,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<String> get thumbnailRelativePath =>
-      $composableBuilder(column: $table.thumbnailRelativePath, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get thumbnailRelativePath => $composableBuilder(
+    column: $table.thumbnailRelativePath,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<int> get sizeBytes =>
-      $composableBuilder(column: $table.sizeBytes, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<int> get sizeBytes => $composableBuilder(
+    column: $table.sizeBytes,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<int> get durationMs =>
-      $composableBuilder(column: $table.durationMs, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<int> get durationMs => $composableBuilder(
+    column: $table.durationMs,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<String> get format =>
-      $composableBuilder(column: $table.format, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get format => $composableBuilder(
+    column: $table.format,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<String> get origin =>
-      $composableBuilder(column: $table.origin, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get origin => $composableBuilder(
+    column: $table.origin,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<String> get groupId =>
-      $composableBuilder(column: $table.groupId, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get groupId => $composableBuilder(
+    column: $table.groupId,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<int> get groupIndex =>
-      $composableBuilder(column: $table.groupIndex, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<int> get groupIndex => $composableBuilder(
+    column: $table.groupIndex,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<DateTime> get savedToPhotosAt =>
-      $composableBuilder(column: $table.savedToPhotosAt, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<DateTime> get savedToPhotosAt => $composableBuilder(
+    column: $table.savedToPhotosAt,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<DateTime> get savedToFilesAt =>
-      $composableBuilder(column: $table.savedToFilesAt, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<DateTime> get savedToFilesAt => $composableBuilder(
+    column: $table.savedToFilesAt,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<DateTime> get createdAt =>
-      $composableBuilder(column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
-class $$LibraryItemLocalTableAnnotationComposer extends Composer<_$AppDatabase, $LibraryItemLocalTable> {
+class $$LibraryItemLocalTableAnnotationComposer
+    extends Composer<_$AppDatabase, $LibraryItemLocalTable> {
   $$LibraryItemLocalTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -2325,43 +2859,68 @@ class $$LibraryItemLocalTableAnnotationComposer extends Composer<_$AppDatabase, 
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<String> get id => $composableBuilder(column: $table.id, builder: (column) => column);
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get kind => $composableBuilder(column: $table.kind, builder: (column) => column);
+  GeneratedColumn<String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => column);
 
-  GeneratedColumn<String> get site => $composableBuilder(column: $table.site, builder: (column) => column);
+  GeneratedColumn<String> get site =>
+      $composableBuilder(column: $table.site, builder: (column) => column);
 
-  GeneratedColumn<String> get title => $composableBuilder(column: $table.title, builder: (column) => column);
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
 
-  GeneratedColumn<String> get uploader => $composableBuilder(column: $table.uploader, builder: (column) => column);
+  GeneratedColumn<String> get uploader =>
+      $composableBuilder(column: $table.uploader, builder: (column) => column);
 
-  GeneratedColumn<String> get sourceUrl => $composableBuilder(column: $table.sourceUrl, builder: (column) => column);
+  GeneratedColumn<String> get sourceUrl =>
+      $composableBuilder(column: $table.sourceUrl, builder: (column) => column);
 
-  GeneratedColumn<String> get relativePath =>
-      $composableBuilder(column: $table.relativePath, builder: (column) => column);
+  GeneratedColumn<String> get relativePath => $composableBuilder(
+    column: $table.relativePath,
+    builder: (column) => column,
+  );
 
-  GeneratedColumn<String> get thumbnailRelativePath =>
-      $composableBuilder(column: $table.thumbnailRelativePath, builder: (column) => column);
+  GeneratedColumn<String> get thumbnailRelativePath => $composableBuilder(
+    column: $table.thumbnailRelativePath,
+    builder: (column) => column,
+  );
 
-  GeneratedColumn<int> get sizeBytes => $composableBuilder(column: $table.sizeBytes, builder: (column) => column);
+  GeneratedColumn<int> get sizeBytes =>
+      $composableBuilder(column: $table.sizeBytes, builder: (column) => column);
 
-  GeneratedColumn<int> get durationMs => $composableBuilder(column: $table.durationMs, builder: (column) => column);
+  GeneratedColumn<int> get durationMs => $composableBuilder(
+    column: $table.durationMs,
+    builder: (column) => column,
+  );
 
-  GeneratedColumn<String> get format => $composableBuilder(column: $table.format, builder: (column) => column);
+  GeneratedColumn<String> get format =>
+      $composableBuilder(column: $table.format, builder: (column) => column);
 
-  GeneratedColumn<String> get origin => $composableBuilder(column: $table.origin, builder: (column) => column);
+  GeneratedColumn<String> get origin =>
+      $composableBuilder(column: $table.origin, builder: (column) => column);
 
-  GeneratedColumn<String> get groupId => $composableBuilder(column: $table.groupId, builder: (column) => column);
+  GeneratedColumn<String> get groupId =>
+      $composableBuilder(column: $table.groupId, builder: (column) => column);
 
-  GeneratedColumn<int> get groupIndex => $composableBuilder(column: $table.groupIndex, builder: (column) => column);
+  GeneratedColumn<int> get groupIndex => $composableBuilder(
+    column: $table.groupIndex,
+    builder: (column) => column,
+  );
 
-  GeneratedColumn<DateTime> get savedToPhotosAt =>
-      $composableBuilder(column: $table.savedToPhotosAt, builder: (column) => column);
+  GeneratedColumn<DateTime> get savedToPhotosAt => $composableBuilder(
+    column: $table.savedToPhotosAt,
+    builder: (column) => column,
+  );
 
-  GeneratedColumn<DateTime> get savedToFilesAt =>
-      $composableBuilder(column: $table.savedToFilesAt, builder: (column) => column);
+  GeneratedColumn<DateTime> get savedToFilesAt => $composableBuilder(
+    column: $table.savedToFilesAt,
+    builder: (column) => column,
+  );
 
-  GeneratedColumn<DateTime> get createdAt => $composableBuilder(column: $table.createdAt, builder: (column) => column);
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
 }
 
 class $$LibraryItemLocalTableTableManager
@@ -2375,18 +2934,30 @@ class $$LibraryItemLocalTableTableManager
           $$LibraryItemLocalTableAnnotationComposer,
           $$LibraryItemLocalTableCreateCompanionBuilder,
           $$LibraryItemLocalTableUpdateCompanionBuilder,
-          (LibraryItemLocalData, BaseReferences<_$AppDatabase, $LibraryItemLocalTable, LibraryItemLocalData>),
+          (
+            LibraryItemLocalData,
+            BaseReferences<
+              _$AppDatabase,
+              $LibraryItemLocalTable,
+              LibraryItemLocalData
+            >,
+          ),
           LibraryItemLocalData,
           PrefetchHooks Function()
         > {
-  $$LibraryItemLocalTableTableManager(_$AppDatabase db, $LibraryItemLocalTable table)
-    : super(
+  $$LibraryItemLocalTableTableManager(
+    _$AppDatabase db,
+    $LibraryItemLocalTable table,
+  ) : super(
         TableManagerState(
           db: db,
           table: table,
-          createFilteringComposer: () => $$LibraryItemLocalTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () => $$LibraryItemLocalTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () => $$LibraryItemLocalTableAnnotationComposer($db: db, $table: table),
+          createFilteringComposer: () =>
+              $$LibraryItemLocalTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LibraryItemLocalTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LibraryItemLocalTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
                 Value<String> id = const Value.absent(),
@@ -2470,8 +3041,14 @@ class $$LibraryItemLocalTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable<$LibraryItemLocalTable, LibraryItemLocalData>(table),
-                  BaseReferences<_$AppDatabase, $LibraryItemLocalTable, LibraryItemLocalData>(db, table, e),
+                  e.readTable<$LibraryItemLocalTable, LibraryItemLocalData>(
+                    table,
+                  ),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $LibraryItemLocalTable,
+                    LibraryItemLocalData
+                  >(db, table, e),
                 ),
               )
               .toList(),
@@ -2490,34 +3067,44 @@ typedef $$LibraryItemLocalTableProcessedTableManager =
       $$LibraryItemLocalTableAnnotationComposer,
       $$LibraryItemLocalTableCreateCompanionBuilder,
       $$LibraryItemLocalTableUpdateCompanionBuilder,
-      (LibraryItemLocalData, BaseReferences<_$AppDatabase, $LibraryItemLocalTable, LibraryItemLocalData>),
+      (
+        LibraryItemLocalData,
+        BaseReferences<
+          _$AppDatabase,
+          $LibraryItemLocalTable,
+          LibraryItemLocalData
+        >,
+      ),
       LibraryItemLocalData,
       PrefetchHooks Function()
     >;
-typedef $$DownloadJobLocalTableCreateCompanionBuilder = DownloadJobLocalCompanion Function({
-  required String id,
-  required String request,
-  required String stage,
-  Value<String?> errorMessage,
-  Value<String> libraryItemIds,
-  Value<int?> sizeBytes,
-  required DateTime createdAt,
-  Value<DateTime?> finishedAt,
-  Value<int> rowid,
-});
-typedef $$DownloadJobLocalTableUpdateCompanionBuilder = DownloadJobLocalCompanion Function({
-  Value<String> id,
-  Value<String> request,
-  Value<String> stage,
-  Value<String?> errorMessage,
-  Value<String> libraryItemIds,
-  Value<int?> sizeBytes,
-  Value<DateTime> createdAt,
-  Value<DateTime?> finishedAt,
-  Value<int> rowid,
-});
+typedef $$DownloadJobLocalTableCreateCompanionBuilder =
+    DownloadJobLocalCompanion Function({
+      required String id,
+      required String request,
+      required String stage,
+      Value<String?> errorMessage,
+      Value<String> libraryItemIds,
+      Value<int?> sizeBytes,
+      required DateTime createdAt,
+      Value<DateTime?> finishedAt,
+      Value<int> rowid,
+    });
+typedef $$DownloadJobLocalTableUpdateCompanionBuilder =
+    DownloadJobLocalCompanion Function({
+      Value<String> id,
+      Value<String> request,
+      Value<String> stage,
+      Value<String?> errorMessage,
+      Value<String> libraryItemIds,
+      Value<int?> sizeBytes,
+      Value<DateTime> createdAt,
+      Value<DateTime?> finishedAt,
+      Value<int> rowid,
+    });
 
-class $$DownloadJobLocalTableFilterComposer extends Composer<_$AppDatabase, $DownloadJobLocalTable> {
+class $$DownloadJobLocalTableFilterComposer
+    extends Composer<_$AppDatabase, $DownloadJobLocalTable> {
   $$DownloadJobLocalTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -2525,31 +3112,49 @@ class $$DownloadJobLocalTableFilterComposer extends Composer<_$AppDatabase, $Dow
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<String> get id => $composableBuilder(column: $table.id, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<String> get request =>
-      $composableBuilder(column: $table.request, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get request => $composableBuilder(
+    column: $table.request,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<String> get stage =>
-      $composableBuilder(column: $table.stage, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get stage => $composableBuilder(
+    column: $table.stage,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<String> get errorMessage =>
-      $composableBuilder(column: $table.errorMessage, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get errorMessage => $composableBuilder(
+    column: $table.errorMessage,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<String> get libraryItemIds =>
-      $composableBuilder(column: $table.libraryItemIds, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get libraryItemIds => $composableBuilder(
+    column: $table.libraryItemIds,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<int> get sizeBytes =>
-      $composableBuilder(column: $table.sizeBytes, builder: (column) => ColumnFilters(column));
+  ColumnFilters<int> get sizeBytes => $composableBuilder(
+    column: $table.sizeBytes,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<DateTime> get createdAt =>
-      $composableBuilder(column: $table.createdAt, builder: (column) => ColumnFilters(column));
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
 
-  ColumnFilters<DateTime> get finishedAt =>
-      $composableBuilder(column: $table.finishedAt, builder: (column) => ColumnFilters(column));
+  ColumnFilters<DateTime> get finishedAt => $composableBuilder(
+    column: $table.finishedAt,
+    builder: (column) => ColumnFilters(column),
+  );
 }
 
-class $$DownloadJobLocalTableOrderingComposer extends Composer<_$AppDatabase, $DownloadJobLocalTable> {
+class $$DownloadJobLocalTableOrderingComposer
+    extends Composer<_$AppDatabase, $DownloadJobLocalTable> {
   $$DownloadJobLocalTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -2557,31 +3162,49 @@ class $$DownloadJobLocalTableOrderingComposer extends Composer<_$AppDatabase, $D
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<String> get id => $composableBuilder(column: $table.id, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<String> get request =>
-      $composableBuilder(column: $table.request, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get request => $composableBuilder(
+    column: $table.request,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<String> get stage =>
-      $composableBuilder(column: $table.stage, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get stage => $composableBuilder(
+    column: $table.stage,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<String> get errorMessage =>
-      $composableBuilder(column: $table.errorMessage, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get errorMessage => $composableBuilder(
+    column: $table.errorMessage,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<String> get libraryItemIds =>
-      $composableBuilder(column: $table.libraryItemIds, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get libraryItemIds => $composableBuilder(
+    column: $table.libraryItemIds,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<int> get sizeBytes =>
-      $composableBuilder(column: $table.sizeBytes, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<int> get sizeBytes => $composableBuilder(
+    column: $table.sizeBytes,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<DateTime> get createdAt =>
-      $composableBuilder(column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
 
-  ColumnOrderings<DateTime> get finishedAt =>
-      $composableBuilder(column: $table.finishedAt, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<DateTime> get finishedAt => $composableBuilder(
+    column: $table.finishedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
-class $$DownloadJobLocalTableAnnotationComposer extends Composer<_$AppDatabase, $DownloadJobLocalTable> {
+class $$DownloadJobLocalTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DownloadJobLocalTable> {
   $$DownloadJobLocalTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -2589,24 +3212,35 @@ class $$DownloadJobLocalTableAnnotationComposer extends Composer<_$AppDatabase, 
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<String> get id => $composableBuilder(column: $table.id, builder: (column) => column);
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get request => $composableBuilder(column: $table.request, builder: (column) => column);
+  GeneratedColumn<String> get request =>
+      $composableBuilder(column: $table.request, builder: (column) => column);
 
-  GeneratedColumn<String> get stage => $composableBuilder(column: $table.stage, builder: (column) => column);
+  GeneratedColumn<String> get stage =>
+      $composableBuilder(column: $table.stage, builder: (column) => column);
 
-  GeneratedColumn<String> get errorMessage =>
-      $composableBuilder(column: $table.errorMessage, builder: (column) => column);
+  GeneratedColumn<String> get errorMessage => $composableBuilder(
+    column: $table.errorMessage,
+    builder: (column) => column,
+  );
 
-  GeneratedColumn<String> get libraryItemIds =>
-      $composableBuilder(column: $table.libraryItemIds, builder: (column) => column);
+  GeneratedColumn<String> get libraryItemIds => $composableBuilder(
+    column: $table.libraryItemIds,
+    builder: (column) => column,
+  );
 
-  GeneratedColumn<int> get sizeBytes => $composableBuilder(column: $table.sizeBytes, builder: (column) => column);
+  GeneratedColumn<int> get sizeBytes =>
+      $composableBuilder(column: $table.sizeBytes, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get createdAt => $composableBuilder(column: $table.createdAt, builder: (column) => column);
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get finishedAt =>
-      $composableBuilder(column: $table.finishedAt, builder: (column) => column);
+  GeneratedColumn<DateTime> get finishedAt => $composableBuilder(
+    column: $table.finishedAt,
+    builder: (column) => column,
+  );
 }
 
 class $$DownloadJobLocalTableTableManager
@@ -2620,18 +3254,30 @@ class $$DownloadJobLocalTableTableManager
           $$DownloadJobLocalTableAnnotationComposer,
           $$DownloadJobLocalTableCreateCompanionBuilder,
           $$DownloadJobLocalTableUpdateCompanionBuilder,
-          (DownloadJobLocalData, BaseReferences<_$AppDatabase, $DownloadJobLocalTable, DownloadJobLocalData>),
+          (
+            DownloadJobLocalData,
+            BaseReferences<
+              _$AppDatabase,
+              $DownloadJobLocalTable,
+              DownloadJobLocalData
+            >,
+          ),
           DownloadJobLocalData,
           PrefetchHooks Function()
         > {
-  $$DownloadJobLocalTableTableManager(_$AppDatabase db, $DownloadJobLocalTable table)
-    : super(
+  $$DownloadJobLocalTableTableManager(
+    _$AppDatabase db,
+    $DownloadJobLocalTable table,
+  ) : super(
         TableManagerState(
           db: db,
           table: table,
-          createFilteringComposer: () => $$DownloadJobLocalTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () => $$DownloadJobLocalTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () => $$DownloadJobLocalTableAnnotationComposer($db: db, $table: table),
+          createFilteringComposer: () =>
+              $$DownloadJobLocalTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DownloadJobLocalTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DownloadJobLocalTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
                 Value<String> id = const Value.absent(),
@@ -2679,8 +3325,14 @@ class $$DownloadJobLocalTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable<$DownloadJobLocalTable, DownloadJobLocalData>(table),
-                  BaseReferences<_$AppDatabase, $DownloadJobLocalTable, DownloadJobLocalData>(db, table, e),
+                  e.readTable<$DownloadJobLocalTable, DownloadJobLocalData>(
+                    table,
+                  ),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $DownloadJobLocalTable,
+                    DownloadJobLocalData
+                  >(db, table, e),
                 ),
               )
               .toList(),
@@ -2699,7 +3351,14 @@ typedef $$DownloadJobLocalTableProcessedTableManager =
       $$DownloadJobLocalTableAnnotationComposer,
       $$DownloadJobLocalTableCreateCompanionBuilder,
       $$DownloadJobLocalTableUpdateCompanionBuilder,
-      (DownloadJobLocalData, BaseReferences<_$AppDatabase, $DownloadJobLocalTable, DownloadJobLocalData>),
+      (
+        DownloadJobLocalData,
+        BaseReferences<
+          _$AppDatabase,
+          $DownloadJobLocalTable,
+          DownloadJobLocalData
+        >,
+      ),
       DownloadJobLocalData,
       PrefetchHooks Function()
     >;
@@ -2707,8 +3366,10 @@ typedef $$DownloadJobLocalTableProcessedTableManager =
 class $AppDatabaseManager {
   final _$AppDatabase _db;
   $AppDatabaseManager(this._db);
-  $$KeyValueLocalTableTableManager get keyValueLocal => $$KeyValueLocalTableTableManager(_db, _db.keyValueLocal);
-  $$ErrorLogLocalTableTableManager get errorLogLocal => $$ErrorLogLocalTableTableManager(_db, _db.errorLogLocal);
+  $$KeyValueLocalTableTableManager get keyValueLocal =>
+      $$KeyValueLocalTableTableManager(_db, _db.keyValueLocal);
+  $$ErrorLogLocalTableTableManager get errorLogLocal =>
+      $$ErrorLogLocalTableTableManager(_db, _db.errorLogLocal);
   $$LibraryItemLocalTableTableManager get libraryItemLocal =>
       $$LibraryItemLocalTableTableManager(_db, _db.libraryItemLocal);
   $$DownloadJobLocalTableTableManager get downloadJobLocal =>
