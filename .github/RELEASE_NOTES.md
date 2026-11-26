@@ -1,8 +1,8 @@
-- Download videos (MP4, up to 4K) and audio (MP3) from YouTube, Facebook, Instagram, Threads, X and TikTok, with a preview and quality choice before downloading.
-- Save photos from Instagram carousels, TikTok slideshows, Facebook, Threads and X posts, picking which ones to keep.
-- iPhone-compatible video by default, so files play in the Photos app.
-- Downloads keep running in the background on Android, with a progress notification.
-- Library: search, filter and sort everything you download, and view, play, Save to Photos/Files, share or delete it.
-- Convert videos and images between formats, extract MP3/M4A audio, and compress videos and images.
-- System tab with live RAM, CPU, GPU and network speed (whatever your device supports).
-- Settings: default qualities, per-site cookies for private posts, and one-tap engine updates when a site changes.
+- New app icon, and a launch screen with the icon in light and dark mode.
+- System tab: new Storage card (used, free and total space, plus how much Media Tool's files take) and Battery card (level and charging state; health and charge cycles on macOS, temperature, health and cycles on Android). Cards are now ordered Network, Battery, RAM, CPU, GPU, Storage.
+- Deleting a file in the Library now also removes it from the Download page and from Convert.
+- Download time left is now accurate for the whole download, including the audio part.
+- Changing iPhone-compatible in Settings now also applies to a file already picked in Convert.
+- Fixed icons sitting too high in the Convert / Compress, Video / Audio / Photos and theme pickers, and a few other alignment issues.
+- Round icon buttons are easier to tap.
+- Missing photos in the viewer show a placeholder instead of a broken image.
