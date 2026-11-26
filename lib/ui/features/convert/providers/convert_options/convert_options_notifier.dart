@@ -9,6 +9,7 @@ import 'package:media_tool/domain/repositories/settings_repository.dart';
 import 'package:media_tool/ui/core/providers/base/base_notifier.dart';
 import 'package:media_tool/ui/features/convert/models/convert_options.dart';
 import 'package:media_tool/ui/features/convert/providers/convert_source/convert_source_notifier.dart';
+import 'package:media_tool/ui/features/settings/providers/settings/settings_notifier.dart';
 
 part 'convert_options_state.dart';
 
@@ -22,6 +23,11 @@ class ConvertOptionsNotifier extends BaseNotifier<ConvertOptionsState> {
       convertSourceProvider.select((state) => (state.source, state.targets, state.compressFormat)),
     );
     final settings = GetIt.I<SettingsRepository>().current;
+    // Changing the setting also updates the file already picked.
+    ref.listen(
+      settingsProvider.select((state) => state.settings.iphoneCompatible),
+      (_, on) => setIphoneCompatible(on: on),
+    );
     return ConvertOptionsState(
       source: source,
       targets: targets,

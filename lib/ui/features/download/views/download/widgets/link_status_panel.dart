@@ -37,7 +37,9 @@ class const LinkStatusPanel({
                 crossAxisAlignment: .stretch,
                 spacing: AppSpacing.md,
                 children: [
+                  // The icon stays on the first line when the text wraps (large text sizes).
                   Row(
+                    crossAxisAlignment: .start,
                     spacing: AppSpacing.sm,
                     children: [
                       Icon(icon, size: 18, color: color, fill: 1),

@@ -25,19 +25,24 @@ class const AppIconButton({
         button: true,
         label: label,
         excludeSemantics: true,
-        // Keeps a 48px touch target around the 40px circle.
-        child: SizedBox.square(
-          dimension: size < 48 ? 48 : size,
-          child: Center(
-            child: Material(
-              color: destructive ? colors.error.withValues(alpha: 0.12) : colors.surfaceRaised,
-              shape: const CircleBorder(),
-              clipBehavior: .antiAlias,
-              child: InkWell(
-                onTap: onPressed,
-                child: SizedBox.square(
-                  dimension: size,
-                  child: Icon(icon, size: size * 0.5, color: foreground),
+        // A 48px touch target around the 40px circle: taps on the ring around
+        // it count too (the circle's InkWell wins inside it, with its ripple).
+        child: GestureDetector(
+          behavior: .opaque,
+          onTap: onPressed,
+          child: SizedBox.square(
+            dimension: size < 48 ? 48 : size,
+            child: Center(
+              child: Material(
+                color: destructive ? colors.error.withValues(alpha: 0.12) : colors.surfaceRaised,
+                shape: const CircleBorder(),
+                clipBehavior: .antiAlias,
+                child: InkWell(
+                  onTap: onPressed,
+                  child: SizedBox.square(
+                    dimension: size,
+                    child: Icon(icon, size: size * 0.5, color: foreground),
+                  ),
                 ),
               ),
             ),

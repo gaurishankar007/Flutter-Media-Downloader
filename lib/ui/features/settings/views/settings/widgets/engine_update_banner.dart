@@ -12,7 +12,9 @@ class const EngineUpdateBanner({super.key, required final String version}) exten
     return Container(
       padding: const .all(AppSpacing.md),
       decoration: BoxDecoration(color: colors.warning.withValues(alpha: 0.14), borderRadius: AppRadius.mdAll),
+      // The text wraps on phones: the icon stays on its first line.
       child: Row(
+        crossAxisAlignment: .start,
         spacing: AppSpacing.sm,
         children: [
           Icon(Symbols.new_releases_rounded, color: colors.warning, size: 20),

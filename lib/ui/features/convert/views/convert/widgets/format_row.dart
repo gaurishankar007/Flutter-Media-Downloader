@@ -12,7 +12,9 @@ class const FormatRow({
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    // The pills wrap on narrow phones: icon and name stay on the first line.
     return Row(
+      crossAxisAlignment: .start,
       spacing: AppSpacing.md,
       children: [
         Icon(icon, color: colors.primaryText),

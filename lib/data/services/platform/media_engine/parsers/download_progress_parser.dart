@@ -8,6 +8,10 @@ final class DownloadProgressParser({final int? expectedBytes, final int? duratio
   int _currentTotal = 0;
   int _currentDownloaded = 0;
   double _lastFraction = 0;
+  double? _smoothedSpeed;
+
+  /// Weight of the newest speed reading; lower = steadier remaining time.
+  static const _speedSmoothing = 0.2;
 
   static const _steps = {
     '[Merger]': ProcessingStep.merging,
@@ -57,7 +61,7 @@ final class DownloadProgressParser({final int? expectedBytes, final int? duratio
     final downloaded = asInt(0) ?? 0;
     final total = asInt(1) ?? asInt(2) ?? 0;
     final speed = fields.length > 3 ? double.tryParse(fields[3]) : null;
-    final eta = asInt(4);
+    final streamEta = asInt(4);
     _currentDownloaded = downloaded;
     _currentTotal = total;
 
@@ -66,11 +70,28 @@ final class DownloadProgressParser({final int? expectedBytes, final int? duratio
     if (whole > 0) {
       _lastFraction = [_lastFraction, (done / whole).clamp(0.0, 1.0)].reduce((a, b) => a > b ? a : b);
     }
+    if (speed != null && speed > 0) {
+      _smoothedSpeed = switch (_smoothedSpeed) {
+        final previous? => previous + (speed - previous) * _speedSmoothing,
+        null => speed,
+      };
+    }
     return JobProgress(
       stage: .downloading,
       fraction: whole > 0 ? _lastFraction : null,
       speedBytesPerSecond: speed,
-      etaSeconds: eta,
+      etaSeconds: _eta(whole: whole, done: done) ?? streamEta,
     );
+  }
+
+  /// Time left for the whole job (every stream, like the bar), not yt-dlp's
+  /// ETA for the current stream only, which ignores the audio still to come.
+  int? _eta({required int whole, required int done}) {
+    final speed = _smoothedSpeed;
+    if (whole <= 0 || speed == null || speed <= 0) {
+      return null;
+    }
+    final left = whole - done;
+    return left <= 0 ? 0 : (left / speed).ceil();
   }
 }

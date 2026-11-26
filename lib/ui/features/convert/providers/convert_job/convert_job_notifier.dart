@@ -23,11 +23,18 @@ class ConvertJobNotifier extends BaseNotifier<ConvertJobState> {
   late final LibraryRepository _library;
   StreamSubscription<JobProgress>? _subscription;
 
+  /// Ids in the Library's latest emission; `null` until the first one.
+  Set<String>? _libraryIds;
+
   @override
   ConvertJobState build() {
     _convert = GetIt.I<ConvertMediaUseCase>();
     _library = GetIt.I<LibraryRepository>();
-    ref.onDispose(() => _subscription?.cancel());
+    final libraryItems = _library.watchItems().listen(_onLibraryItems);
+    ref.onDispose(() {
+      _subscription?.cancel();
+      libraryItems.cancel();
+    });
     return const ConvertJobState();
   }
 
@@ -131,6 +138,21 @@ class ConvertJobNotifier extends BaseNotifier<ConvertJobState> {
         null => null,
       },
     );
+  });
+
+  /// Deleting the result in the Library forgets the finished job, so its
+  /// Save / Share never point at a missing file.
+  void _onLibraryItems(DataState<List<LibraryItem>> result) => runFlow('convert.syncLibrary', () {
+    if (result case SuccessState(:final data?)) {
+      final previous = _libraryIds;
+      final current = {for (final item in data) item.id};
+      _libraryIds = current;
+      final id = state.result?.id;
+      // Only real removals, so a stale emission can't drop a fresh result.
+      if (ref.mounted && id != null && (previous?.contains(id) ?? false) && !current.contains(id)) {
+        reset();
+      }
+    }
   });
 
   Future<LibraryItem?> _findItem(String? id) async {

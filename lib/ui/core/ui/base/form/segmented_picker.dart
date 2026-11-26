@@ -29,7 +29,9 @@ class const SegmentedPicker<T>({
         borderRadius: AppRadius.mdAll,
         border: .all(color: colors.outline),
       ),
+      // `expand` so the labels fill the track height and centre against the pill.
       child: Stack(
+        fit: .expand,
         children: [
           if (index >= 0)
             AnimatedAlign(
@@ -49,6 +51,7 @@ class const SegmentedPicker<T>({
               ),
             ),
           Row(
+            crossAxisAlignment: .stretch,
             children: [
               for (final segment in segments)
                 Expanded(

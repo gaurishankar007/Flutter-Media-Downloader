@@ -8,6 +8,7 @@ import 'package:media_tool/domain/models/background_activity.dart';
 import 'package:media_tool/domain/models/download_job.dart';
 import 'package:media_tool/domain/models/download_request.dart';
 import 'package:media_tool/domain/models/job_progress.dart';
+import 'package:media_tool/domain/models/library_item.dart';
 import 'package:media_tool/domain/repositories/background_work_repository.dart';
 import 'package:media_tool/domain/repositories/job_repository.dart';
 import 'package:media_tool/domain/repositories/library_repository.dart';
@@ -29,6 +30,9 @@ class DownloadQueueNotifier extends BaseNotifier<DownloadQueueState> {
   late final BackgroundWorkRepository _background;
   final _running = <String, StreamSubscription<JobProgress>>{};
 
+  /// Ids in the Library's latest emission; `null` until the first one.
+  Set<String>? _libraryIds;
+
   @override
   DownloadQueueState build() {
     _jobs = GetIt.I<JobRepository>();
@@ -36,10 +40,12 @@ class DownloadQueueNotifier extends BaseNotifier<DownloadQueueState> {
     _download = GetIt.I<DownloadMediaUseCase>();
     _background = GetIt.I<BackgroundWorkRepository>();
     final cancelRequests = _background.cancelRequests.listen(cancel);
+    final libraryItems = _library.watchItems().listen(_onLibraryItems);
     // Keeps the background service and its notification in step with the queue.
     listenSelf((_, next) => _background.update(_activityOf(next)));
     ref.onDispose(() {
       cancelRequests.cancel();
+      libraryItems.cancel();
       _background.update(null);
       for (final subscription in _running.values) {
         subscription.cancel();
@@ -120,10 +126,58 @@ class DownloadQueueNotifier extends BaseNotifier<DownloadQueueState> {
         // Jobs added while loading stay on top.
         state = state.copyWith(jobs: [...state.jobs, ...data], status: .loaded);
         data.where((job) => job.stage == .failed).forEach(_persist);
+        // Files deleted from the Library while the app was closed.
+        if (_libraryIds case final ids?) {
+          await _dropDeleted((id) => !ids.contains(id));
+        }
       default:
         state = state.copyWith(status: .error, message: trackFailure(result));
     }
   });
+
+  /// Keeps finished cards in step with the Library: deleting a download's
+  /// files there removes its card here (or trims a photo post's card).
+  void _onLibraryItems(DataState<List<LibraryItem>> result) => runFlow('download.syncLibrary', () async {
+    if (result case SuccessState(:final data?)) {
+      final previous = _libraryIds;
+      final current = {for (final item in data) item.id};
+      _libraryIds = current;
+      if (!ref.mounted || state.status != .loaded) {
+        return;
+      }
+      // After the first emission only react to real removals, so a stale
+      // emission can't drop a job that has just finished saving.
+      await _dropDeleted(
+        previous == null ? (id) => !current.contains(id) : (id) => previous.contains(id) && !current.contains(id),
+      );
+    }
+  });
+
+  Future<void> _dropDeleted(bool Function(String id) isDeleted) async {
+    final gone = <String>[];
+    for (final job in state.jobs) {
+      final ids = job.progress.libraryItemIds;
+      if (job.stage != .done || !ids.any(isDeleted)) {
+        continue;
+      }
+      final remaining = [
+        for (final id in ids)
+          if (!isDeleted(id)) id,
+      ];
+      if (remaining.isEmpty) {
+        gone.add(job.id);
+      } else {
+        _update(
+          job.copyWith(
+            progress: JobProgress(stage: .done, libraryItemIds: remaining, sizeBytes: job.progress.sizeBytes),
+          ),
+        );
+      }
+    }
+    if (gone.isNotEmpty) {
+      await _forget(gone);
+    }
+  }
 
   void _schedule() {
     final queued = state.jobs.reversed.where((job) => job.stage == .queued && !_running.containsKey(job.id));
