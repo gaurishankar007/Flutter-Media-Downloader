@@ -17,7 +17,9 @@ library;
 /// 6: added NavMessages.system (System is a tab now); removed SystemMessages.openSystem.
 /// 7: added DesignGalleryMessages toast demo strings, ConvertMessages.savePhotosShort /
 ///    saveFilesShort, LibraryMessages.loadFailed, SystemMessages.unavailableTitle / Body.
-const kMessagesVersion = 7;
+/// 8: added SystemMessages storage and battery strings.
+/// 9: added SystemMessages.batteryCycles and batteryHealthWithPercent.
+const kMessagesVersion = 9;
 
 abstract final class CommonMessages {
   /// Fallback for any failure without a clearer message.
@@ -556,12 +558,56 @@ abstract final class SystemMessages {
   static const cpu = 'CPU';
   static const gpu = 'GPU';
   static const network = 'Network';
+  static const storage = 'Storage';
+  static const battery = 'Battery';
 
   /// What each metric covers (System page cards).
   static const memoryBody = 'Memory in use by all apps and the system';
   static const cpuBody = 'Load across all cores';
   static const gpuBody = 'Load of the busiest graphics chip';
   static const networkBody = 'All traffic on this device, every app';
+  static const storageBody = 'Space on the drive that holds the app';
+  static const batteryBody = 'Charge level and power';
+
+  /// Storage card rows.
+  static const storageUsed = 'Used';
+  static const storageFree = 'Free';
+  static const storageTotal = 'Total';
+  static const appFiles = 'Media Tool files';
+
+  /// The app's files: size and share of the drive, e.g. "1.2 GB · 0.5%".
+  static String appShare(String size, String percent) => '$size · $percent';
+
+  /// A share too small to round to 1%.
+  static const underOnePercent = '<1%';
+
+  /// Battery card rows.
+  static const batteryStatus = 'Status';
+  static const batteryCharging = 'Charging';
+  static const batteryFull = 'Fully charged';
+  static const batteryDischarging = 'On battery';
+  static const batteryNotCharging = 'Plugged in, not charging';
+  static const batteryTemperature = 'Temperature';
+  static const batteryHealth = 'Health';
+  static const batteryTimeLeft = 'Time left';
+  static const batteryTimeToFull = 'Until full';
+  static const batteryCycles = 'Cycles';
+
+  /// Health condition with capacity left, e.g. "Good · 92%".
+  static String batteryHealthWithPercent(String condition, String percent) => '$condition · $percent';
+
+  /// Battery health (Android).
+  static const healthGood = 'Good';
+  static const healthOverheat = 'Overheating';
+  static const healthDead = 'Dead';
+  static const healthOverVoltage = 'Over voltage';
+  static const healthFailure = 'Failing';
+  static const healthCold = 'Too cold';
+
+  static String celsius(double value) => '${value.toStringAsFixed(1)} °C';
+
+  /// Battery time remaining: "45 min", "2 h 5 min".
+  static String hoursMinutes(int minutes) => minutes < 60 ? '$minutes min' : '${minutes ~/ 60} h ${minutes % 60} min';
 
   /// Network directions.
   static const download = 'Download';

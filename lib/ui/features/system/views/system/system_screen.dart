@@ -52,7 +52,13 @@ class const SystemScreen({super.key}) extends HookConsumerWidget {
           MetricCardsGrid(
             children: [
               for (final metric in state.metrics)
-                SystemMetricCard(metric: metric, latest: state.latest, history: state.history),
+                SystemMetricCard(
+                  metric: metric,
+                  latest: state.latest,
+                  history: state.history,
+                  storage: state.storage,
+                  battery: state.battery,
+                ),
             ],
           ),
       ],

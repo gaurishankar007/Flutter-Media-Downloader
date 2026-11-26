@@ -2,21 +2,22 @@ import 'package:material_ui/material_ui.dart';
 import 'package:media_tool/ui/core/themes/app_spacing.dart';
 import 'package:media_tool/ui/core/themes/theme.dart';
 
-/// "↓ Download        3.2 MB/s" on the System page's network card. [color]
-/// matches the series' line in the sparkline.
-class const NetworkSpeedRow({
+/// "↓ Download        3.2 MB/s": a label and its value on a System page
+/// card. [icon] takes [color] (on the network card, the series' line colour
+/// in the sparkline).
+class const MetricValueRow({
   super.key,
-  required final IconData icon,
-  required final Color color,
   required final String label,
   required final String value,
+  final IconData? icon,
+  final Color? color,
 }) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
       spacing: AppSpacing.sm,
       children: [
-        Icon(icon, size: 18, color: color),
+        if (icon case final icon?) Icon(icon, size: 18, color: color),
         Expanded(
           child: Text(label, style: context.text.label.copyWith(color: context.colors.textSecondary)),
         ),

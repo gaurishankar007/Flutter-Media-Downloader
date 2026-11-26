@@ -6,11 +6,15 @@ abstract final class FormatUtils {
   static final _oneDecimal = NumberFormat('0.0');
   static final _noDecimal = NumberFormat('0');
 
-  /// `840 KB`, `3.2 MB`, `1.2 GB`.
+  /// `840 KB`, `3.2 MB`, `1.2 GB`, `1.8 TB`.
   static String bytes(int bytes) {
     const kb = 1024;
     const mb = kb * 1024;
     const gb = mb * 1024;
+    const tb = gb * 1024;
+    if (bytes >= tb) {
+      return '${_oneDecimal.format(bytes / tb)} TB';
+    }
     if (bytes >= gb) {
       return '${_oneDecimal.format(bytes / gb)} GB';
     }

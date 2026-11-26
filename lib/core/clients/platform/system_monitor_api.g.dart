@@ -97,6 +97,24 @@ int _deepHash(Object? value) {
 }
 
 
+enum BatteryStateMsg {
+  charging,
+  full,
+  discharging,
+  notCharging,
+  unknown;
+}
+
+enum BatteryHealthMsg {
+  good,
+  overheat,
+  dead,
+  overVoltage,
+  failure,
+  cold,
+  unknown;
+}
+
 /// Which metrics this device can report. Only these are shown.
 class SystemCapabilitiesMsg {
   SystemCapabilitiesMsg({
@@ -104,6 +122,8 @@ class SystemCapabilitiesMsg {
     required this.cpu,
     required this.gpu,
     required this.network,
+    required this.storage,
+    required this.battery,
   });
 
   bool memory;
@@ -117,12 +137,20 @@ class SystemCapabilitiesMsg {
   /// Whole-device network traffic.
   bool network;
 
+  /// Total and free space of the volume holding the app's files.
+  bool storage;
+
+  /// A battery is present and reports its level (false on desktop Macs and simulators).
+  bool battery;
+
   List<Object?> _toList() {
     return <Object?>[
       memory,
       cpu,
       gpu,
       network,
+      storage,
+      battery,
     ];
   }
 
@@ -136,6 +164,8 @@ class SystemCapabilitiesMsg {
       cpu: result[1]! as bool,
       gpu: result[2]! as bool,
       network: result[3]! as bool,
+      storage: result[4]! as bool,
+      battery: result[5]! as bool,
     );
   }
 
@@ -148,7 +178,7 @@ class SystemCapabilitiesMsg {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(memory, other.memory) && _deepEquals(cpu, other.cpu) && _deepEquals(gpu, other.gpu) && _deepEquals(network, other.network);
+    return _deepEquals(memory, other.memory) && _deepEquals(cpu, other.cpu) && _deepEquals(gpu, other.gpu) && _deepEquals(network, other.network) && _deepEquals(storage, other.storage) && _deepEquals(battery, other.battery);
   }
 
   @override
@@ -157,7 +187,7 @@ class SystemCapabilitiesMsg {
 
   @override
   String toString() {
-    return 'SystemCapabilitiesMsg(memory: $memory, cpu: $cpu, gpu: $gpu, network: $network)';
+    return 'SystemCapabilitiesMsg(memory: $memory, cpu: $cpu, gpu: $gpu, network: $network, storage: $storage, battery: $battery)';
   }
 }
 
@@ -247,6 +277,140 @@ class SystemSampleMsg {
   }
 }
 
+/// Space on the volume holding the app's files. Null when it can't be read.
+class SystemStorageMsg {
+  SystemStorageMsg({
+    this.totalBytes,
+    this.freeBytes,
+  });
+
+  int? totalBytes;
+
+  /// Space apps can still use (iOS/macOS: "available for important usage").
+  int? freeBytes;
+
+  List<Object?> _toList() {
+    return <Object?>[
+      totalBytes,
+      freeBytes,
+    ];
+  }
+
+  Object encode() {
+    return _toList();  }
+
+  static SystemStorageMsg decode(Object result) {
+    result as List<Object?>;
+    return SystemStorageMsg(
+      totalBytes: result[0] as int?,
+      freeBytes: result[1] as int?,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! SystemStorageMsg || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(totalBytes, other.totalBytes) && _deepEquals(freeBytes, other.freeBytes);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => _deepHash(<Object?>[runtimeType, ..._toList()]);
+
+  @override
+  String toString() {
+    return 'SystemStorageMsg(totalBytes: $totalBytes, freeBytes: $freeBytes)';
+  }
+}
+
+/// The battery right now. [levelPercent] null means there's no battery data.
+class SystemBatteryMsg {
+  SystemBatteryMsg({
+    this.levelPercent,
+    required this.state,
+    this.temperatureCelsius,
+    this.health,
+    this.minutesRemaining,
+    this.healthPercent,
+    this.cycleCount,
+  });
+
+  /// Charge, 0–100.
+  double? levelPercent;
+
+  BatteryStateMsg state;
+
+  /// Android only.
+  double? temperatureCelsius;
+
+  /// Android only.
+  BatteryHealthMsg? health;
+
+  /// macOS only: minutes until empty (discharging) or full (charging).
+  int? minutesRemaining;
+
+  /// macOS only: full-charge capacity as a share of design capacity, 0–100.
+  double? healthPercent;
+
+  /// Charge cycles so far (macOS; Android 14+ where the device reports it).
+  int? cycleCount;
+
+  List<Object?> _toList() {
+    return <Object?>[
+      levelPercent,
+      state,
+      temperatureCelsius,
+      health,
+      minutesRemaining,
+      healthPercent,
+      cycleCount,
+    ];
+  }
+
+  Object encode() {
+    return _toList();  }
+
+  static SystemBatteryMsg decode(Object result) {
+    result as List<Object?>;
+    return SystemBatteryMsg(
+      levelPercent: result[0] as double?,
+      state: result[1]! as BatteryStateMsg,
+      temperatureCelsius: result[2] as double?,
+      health: result[3] as BatteryHealthMsg?,
+      minutesRemaining: result[4] as int?,
+      healthPercent: result[5] as double?,
+      cycleCount: result[6] as int?,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! SystemBatteryMsg || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(levelPercent, other.levelPercent) && _deepEquals(state, other.state) && _deepEquals(temperatureCelsius, other.temperatureCelsius) && _deepEquals(health, other.health) && _deepEquals(minutesRemaining, other.minutesRemaining) && _deepEquals(healthPercent, other.healthPercent) && _deepEquals(cycleCount, other.cycleCount);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => _deepHash(<Object?>[runtimeType, ..._toList()]);
+
+  @override
+  String toString() {
+    return 'SystemBatteryMsg(levelPercent: $levelPercent, state: $state, temperatureCelsius: $temperatureCelsius, health: $health, minutesRemaining: $minutesRemaining, healthPercent: $healthPercent, cycleCount: $cycleCount)';
+  }
+}
+
 
 class _PigeonCodec extends StandardMessageCodec {
   const _PigeonCodec();
@@ -255,11 +419,23 @@ class _PigeonCodec extends StandardMessageCodec {
     if (value is int) {
       buffer.putUint8(4);
       buffer.putInt64(value);
-    }    else if (value is SystemCapabilitiesMsg) {
+    }    else if (value is BatteryStateMsg) {
       buffer.putUint8(129);
+      writeValue(buffer, value.index);
+    }    else if (value is BatteryHealthMsg) {
+      buffer.putUint8(130);
+      writeValue(buffer, value.index);
+    }    else if (value is SystemCapabilitiesMsg) {
+      buffer.putUint8(131);
       writeValue(buffer, value.encode());
     }    else if (value is SystemSampleMsg) {
-      buffer.putUint8(130);
+      buffer.putUint8(132);
+      writeValue(buffer, value.encode());
+    }    else if (value is SystemStorageMsg) {
+      buffer.putUint8(133);
+      writeValue(buffer, value.encode());
+    }    else if (value is SystemBatteryMsg) {
+      buffer.putUint8(134);
       writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
@@ -270,9 +446,19 @@ class _PigeonCodec extends StandardMessageCodec {
   Object? readValueOfType(int type, ReadBuffer buffer) {
     switch (type) {
       case 129:
-        return SystemCapabilitiesMsg.decode(readValue(buffer)!);
+        final value = readValue(buffer) as int?;
+        return value == null ? null : BatteryStateMsg.values[value];
       case 130:
+        final value = readValue(buffer) as int?;
+        return value == null ? null : BatteryHealthMsg.values[value];
+      case 131:
+        return SystemCapabilitiesMsg.decode(readValue(buffer)!);
+      case 132:
         return SystemSampleMsg.decode(readValue(buffer)!);
+      case 133:
+        return SystemStorageMsg.decode(readValue(buffer)!);
+      case 134:
+        return SystemBatteryMsg.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
     }
@@ -331,5 +517,41 @@ class SystemMonitorHostApi {
     )
     ;
     return pigeonVar_replyValue! as SystemSampleMsg;
+  }
+
+  Future<SystemStorageMsg> storage() async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.media_tool.SystemMonitorHostApi.storage$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as SystemStorageMsg;
+  }
+
+  Future<SystemBatteryMsg> battery() async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.media_tool.SystemMonitorHostApi.battery$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as SystemBatteryMsg;
   }
 }

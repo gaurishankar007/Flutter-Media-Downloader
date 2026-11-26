@@ -192,6 +192,40 @@ class FlutterError (
   val details: Any? = null
 ) : RuntimeException()
 
+enum class BatteryStateMsg(val raw: Int) {
+  CHARGING(0),
+  FULL(1),
+  DISCHARGING(2),
+  NOT_CHARGING(3),
+  UNKNOWN(4);
+
+  companion object {
+    private val pigeonValues = values()
+
+    fun ofRaw(raw: Int): BatteryStateMsg? {
+      return pigeonValues.getOrNull(raw)
+    }
+  }
+}
+
+enum class BatteryHealthMsg(val raw: Int) {
+  GOOD(0),
+  OVERHEAT(1),
+  DEAD(2),
+  OVER_VOLTAGE(3),
+  FAILURE(4),
+  COLD(5),
+  UNKNOWN(6);
+
+  companion object {
+    private val pigeonValues = values()
+
+    fun ofRaw(raw: Int): BatteryHealthMsg? {
+      return pigeonValues.getOrNull(raw)
+    }
+  }
+}
+
 /**
  * Which metrics this device can report. Only these are shown.
  *
@@ -204,7 +238,11 @@ data class SystemCapabilitiesMsg (
   /** GPU utilization (macOS). */
   val gpu: Boolean,
   /** Whole-device network traffic. */
-  val network: Boolean
+  val network: Boolean,
+  /** Total and free space of the volume holding the app's files. */
+  val storage: Boolean,
+  /** A battery is present and reports its level (false on desktop Macs and simulators). */
+  val battery: Boolean
 )
  {
   companion object {
@@ -213,7 +251,9 @@ data class SystemCapabilitiesMsg (
       val cpu = pigeonVar_list[1] as Boolean
       val gpu = pigeonVar_list[2] as Boolean
       val network = pigeonVar_list[3] as Boolean
-      return SystemCapabilitiesMsg(memory, cpu, gpu, network)
+      val storage = pigeonVar_list[4] as Boolean
+      val battery = pigeonVar_list[5] as Boolean
+      return SystemCapabilitiesMsg(memory, cpu, gpu, network, storage, battery)
     }
   }
   fun toList(): List<Any?> {
@@ -222,6 +262,8 @@ data class SystemCapabilitiesMsg (
       cpu,
       gpu,
       network,
+      storage,
+      battery,
     )
   }
   override fun equals(other: Any?): Boolean {
@@ -232,7 +274,7 @@ data class SystemCapabilitiesMsg (
       return true
     }
     val other = other as SystemCapabilitiesMsg
-    return SystemMonitorApiPigeonUtils.deepEquals(this.memory, other.memory) && SystemMonitorApiPigeonUtils.deepEquals(this.cpu, other.cpu) && SystemMonitorApiPigeonUtils.deepEquals(this.gpu, other.gpu) && SystemMonitorApiPigeonUtils.deepEquals(this.network, other.network)
+    return SystemMonitorApiPigeonUtils.deepEquals(this.memory, other.memory) && SystemMonitorApiPigeonUtils.deepEquals(this.cpu, other.cpu) && SystemMonitorApiPigeonUtils.deepEquals(this.gpu, other.gpu) && SystemMonitorApiPigeonUtils.deepEquals(this.network, other.network) && SystemMonitorApiPigeonUtils.deepEquals(this.storage, other.storage) && SystemMonitorApiPigeonUtils.deepEquals(this.battery, other.battery)
   }
 
   override fun hashCode(): Int {
@@ -241,10 +283,12 @@ data class SystemCapabilitiesMsg (
     result = 31 * result + SystemMonitorApiPigeonUtils.deepHash(this.cpu)
     result = 31 * result + SystemMonitorApiPigeonUtils.deepHash(this.gpu)
     result = 31 * result + SystemMonitorApiPigeonUtils.deepHash(this.network)
+    result = 31 * result + SystemMonitorApiPigeonUtils.deepHash(this.storage)
+    result = 31 * result + SystemMonitorApiPigeonUtils.deepHash(this.battery)
     return result
   }
   override fun toString(): String {
-    return "SystemCapabilitiesMsg(memory=$memory, cpu=$cpu, gpu=$gpu, network=$network)"
+    return "SystemCapabilitiesMsg(memory=$memory, cpu=$cpu, gpu=$gpu, network=$network, storage=$storage, battery=$battery)"
   }
 }
 
@@ -321,17 +365,154 @@ data class SystemSampleMsg (
     return "SystemSampleMsg(uptimeMillis=$uptimeMillis, memoryUsedBytes=$memoryUsedBytes, memoryTotalBytes=$memoryTotalBytes, cpuBusyTicks=$cpuBusyTicks, cpuTotalTicks=$cpuTotalTicks, gpuPercent=$gpuPercent, networkRxBytes=$networkRxBytes, networkTxBytes=$networkTxBytes)"
   }
 }
+
+/**
+ * Space on the volume holding the app's files. Null when it can't be read.
+ *
+ * Generated class from Pigeon that represents data sent in messages.
+ */
+data class SystemStorageMsg (
+  val totalBytes: Long? = null,
+  /** Space apps can still use (iOS/macOS: "available for important usage"). */
+  val freeBytes: Long? = null
+)
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): SystemStorageMsg {
+      val totalBytes = pigeonVar_list[0] as Long?
+      val freeBytes = pigeonVar_list[1] as Long?
+      return SystemStorageMsg(totalBytes, freeBytes)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      totalBytes,
+      freeBytes,
+    )
+  }
+  override fun equals(other: Any?): Boolean {
+    if (other == null || other.javaClass != javaClass) {
+      return false
+    }
+    if (this === other) {
+      return true
+    }
+    val other = other as SystemStorageMsg
+    return SystemMonitorApiPigeonUtils.deepEquals(this.totalBytes, other.totalBytes) && SystemMonitorApiPigeonUtils.deepEquals(this.freeBytes, other.freeBytes)
+  }
+
+  override fun hashCode(): Int {
+    var result = javaClass.hashCode()
+    result = 31 * result + SystemMonitorApiPigeonUtils.deepHash(this.totalBytes)
+    result = 31 * result + SystemMonitorApiPigeonUtils.deepHash(this.freeBytes)
+    return result
+  }
+  override fun toString(): String {
+    return "SystemStorageMsg(totalBytes=$totalBytes, freeBytes=$freeBytes)"
+  }
+}
+
+/**
+ * The battery right now. [levelPercent] null means there's no battery data.
+ *
+ * Generated class from Pigeon that represents data sent in messages.
+ */
+data class SystemBatteryMsg (
+  /** Charge, 0–100. */
+  val levelPercent: Double? = null,
+  val state: BatteryStateMsg,
+  /** Android only. */
+  val temperatureCelsius: Double? = null,
+  /** Android only. */
+  val health: BatteryHealthMsg? = null,
+  /** macOS only: minutes until empty (discharging) or full (charging). */
+  val minutesRemaining: Long? = null,
+  /** macOS only: full-charge capacity as a share of design capacity, 0–100. */
+  val healthPercent: Double? = null,
+  /** Charge cycles so far (macOS; Android 14+ where the device reports it). */
+  val cycleCount: Long? = null
+)
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): SystemBatteryMsg {
+      val levelPercent = pigeonVar_list[0] as Double?
+      val state = pigeonVar_list[1] as BatteryStateMsg
+      val temperatureCelsius = pigeonVar_list[2] as Double?
+      val health = pigeonVar_list[3] as BatteryHealthMsg?
+      val minutesRemaining = pigeonVar_list[4] as Long?
+      val healthPercent = pigeonVar_list[5] as Double?
+      val cycleCount = pigeonVar_list[6] as Long?
+      return SystemBatteryMsg(levelPercent, state, temperatureCelsius, health, minutesRemaining, healthPercent, cycleCount)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      levelPercent,
+      state,
+      temperatureCelsius,
+      health,
+      minutesRemaining,
+      healthPercent,
+      cycleCount,
+    )
+  }
+  override fun equals(other: Any?): Boolean {
+    if (other == null || other.javaClass != javaClass) {
+      return false
+    }
+    if (this === other) {
+      return true
+    }
+    val other = other as SystemBatteryMsg
+    return SystemMonitorApiPigeonUtils.deepEquals(this.levelPercent, other.levelPercent) && SystemMonitorApiPigeonUtils.deepEquals(this.state, other.state) && SystemMonitorApiPigeonUtils.deepEquals(this.temperatureCelsius, other.temperatureCelsius) && SystemMonitorApiPigeonUtils.deepEquals(this.health, other.health) && SystemMonitorApiPigeonUtils.deepEquals(this.minutesRemaining, other.minutesRemaining) && SystemMonitorApiPigeonUtils.deepEquals(this.healthPercent, other.healthPercent) && SystemMonitorApiPigeonUtils.deepEquals(this.cycleCount, other.cycleCount)
+  }
+
+  override fun hashCode(): Int {
+    var result = javaClass.hashCode()
+    result = 31 * result + SystemMonitorApiPigeonUtils.deepHash(this.levelPercent)
+    result = 31 * result + SystemMonitorApiPigeonUtils.deepHash(this.state)
+    result = 31 * result + SystemMonitorApiPigeonUtils.deepHash(this.temperatureCelsius)
+    result = 31 * result + SystemMonitorApiPigeonUtils.deepHash(this.health)
+    result = 31 * result + SystemMonitorApiPigeonUtils.deepHash(this.minutesRemaining)
+    result = 31 * result + SystemMonitorApiPigeonUtils.deepHash(this.healthPercent)
+    result = 31 * result + SystemMonitorApiPigeonUtils.deepHash(this.cycleCount)
+    return result
+  }
+  override fun toString(): String {
+    return "SystemBatteryMsg(levelPercent=$levelPercent, state=$state, temperatureCelsius=$temperatureCelsius, health=$health, minutesRemaining=$minutesRemaining, healthPercent=$healthPercent, cycleCount=$cycleCount)"
+  }
+}
 private open class SystemMonitorApiPigeonCodec : StandardMessageCodec() {
   override fun readValueOfType(type: Byte, buffer: ByteBuffer): Any? {
     return when (type) {
       129.toByte() -> {
+        (readValue(buffer) as Long?)?.let {
+          BatteryStateMsg.ofRaw(it.toInt())
+        }
+      }
+      130.toByte() -> {
+        (readValue(buffer) as Long?)?.let {
+          BatteryHealthMsg.ofRaw(it.toInt())
+        }
+      }
+      131.toByte() -> {
         (readValue(buffer) as? List<Any?>)?.let {
           SystemCapabilitiesMsg.fromList(it)
         }
       }
-      130.toByte() -> {
+      132.toByte() -> {
         (readValue(buffer) as? List<Any?>)?.let {
           SystemSampleMsg.fromList(it)
+        }
+      }
+      133.toByte() -> {
+        (readValue(buffer) as? List<Any?>)?.let {
+          SystemStorageMsg.fromList(it)
+        }
+      }
+      134.toByte() -> {
+        (readValue(buffer) as? List<Any?>)?.let {
+          SystemBatteryMsg.fromList(it)
         }
       }
       else -> super.readValueOfType(type, buffer)
@@ -339,12 +520,28 @@ private open class SystemMonitorApiPigeonCodec : StandardMessageCodec() {
   }
   override fun writeValue(stream: ByteArrayOutputStream, value: Any?)   {
     when (value) {
-      is SystemCapabilitiesMsg -> {
+      is BatteryStateMsg -> {
         stream.write(129)
+        writeValue(stream, value.raw.toLong())
+      }
+      is BatteryHealthMsg -> {
+        stream.write(130)
+        writeValue(stream, value.raw.toLong())
+      }
+      is SystemCapabilitiesMsg -> {
+        stream.write(131)
         writeValue(stream, value.toList())
       }
       is SystemSampleMsg -> {
-        stream.write(130)
+        stream.write(132)
+        writeValue(stream, value.toList())
+      }
+      is SystemStorageMsg -> {
+        stream.write(133)
+        writeValue(stream, value.toList())
+      }
+      is SystemBatteryMsg -> {
+        stream.write(134)
         writeValue(stream, value.toList())
       }
       else -> super.writeValue(stream, value)
@@ -360,6 +557,8 @@ private open class SystemMonitorApiPigeonCodec : StandardMessageCodec() {
 interface SystemMonitorHostApi {
   fun capabilities(): SystemCapabilitiesMsg
   fun sample(): SystemSampleMsg
+  fun storage(): SystemStorageMsg
+  fun battery(): SystemBatteryMsg
 
   companion object {
     /** The codec used by SystemMonitorHostApi. */
@@ -391,6 +590,36 @@ interface SystemMonitorHostApi {
           channel.setMessageHandler { _, reply ->
             val wrapped: List<Any?> = try {
               listOf(api.sample())
+            } catch (exception: Throwable) {
+              SystemMonitorApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.media_tool.SystemMonitorHostApi.storage$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              listOf(api.storage())
+            } catch (exception: Throwable) {
+              SystemMonitorApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.media_tool.SystemMonitorHostApi.battery$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              listOf(api.battery())
             } catch (exception: Throwable) {
               SystemMonitorApiPigeonUtils.wrapError(exception)
             }

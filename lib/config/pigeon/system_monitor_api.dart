@@ -18,7 +18,14 @@ import 'package:pigeon/pigeon.dart';
 )
 /// Which metrics this device can report. Only these are shown.
 class SystemCapabilitiesMsg {
-  SystemCapabilitiesMsg({required this.memory, required this.cpu, required this.gpu, required this.network});
+  SystemCapabilitiesMsg({
+    required this.memory,
+    required this.cpu,
+    required this.gpu,
+    required this.network,
+    required this.storage,
+    required this.battery,
+  });
 
   bool memory;
 
@@ -30,6 +37,12 @@ class SystemCapabilitiesMsg {
 
   /// Whole-device network traffic.
   bool network;
+
+  /// Total and free space of the volume holding the app's files.
+  bool storage;
+
+  /// A battery is present and reports its level (false on desktop Macs and simulators).
+  bool battery;
 }
 
 /// Raw counters at one moment. Dart turns two samples into rates; native
@@ -64,10 +77,61 @@ class SystemSampleMsg {
   int? networkTxBytes;
 }
 
+/// Space on the volume holding the app's files. Null when it can't be read.
+class SystemStorageMsg {
+  SystemStorageMsg({this.totalBytes, this.freeBytes});
+
+  int? totalBytes;
+
+  /// Space apps can still use (iOS/macOS: "available for important usage").
+  int? freeBytes;
+}
+
+enum BatteryStateMsg { charging, full, discharging, notCharging, unknown }
+
+enum BatteryHealthMsg { good, overheat, dead, overVoltage, failure, cold, unknown }
+
+/// The battery right now. [levelPercent] null means there's no battery data.
+class SystemBatteryMsg {
+  SystemBatteryMsg({
+    this.levelPercent,
+    required this.state,
+    this.temperatureCelsius,
+    this.health,
+    this.minutesRemaining,
+    this.healthPercent,
+    this.cycleCount,
+  });
+
+  /// Charge, 0–100.
+  double? levelPercent;
+
+  BatteryStateMsg state;
+
+  /// Android only.
+  double? temperatureCelsius;
+
+  /// Android only.
+  BatteryHealthMsg? health;
+
+  /// macOS only: minutes until empty (discharging) or full (charging).
+  int? minutesRemaining;
+
+  /// macOS only: full-charge capacity as a share of design capacity, 0–100.
+  double? healthPercent;
+
+  /// Charge cycles so far (macOS; Android 14+ where the device reports it).
+  int? cycleCount;
+}
+
 /// Device stats for the System monitor. Nothing leaves the device.
 @HostApi()
 abstract class SystemMonitorHostApi {
   SystemCapabilitiesMsg capabilities();
 
   SystemSampleMsg sample();
+
+  SystemStorageMsg storage();
+
+  SystemBatteryMsg battery();
 }

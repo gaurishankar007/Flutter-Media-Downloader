@@ -8,6 +8,10 @@ abstract interface class SystemMonitorService {
   Future<SystemCapabilitiesMsg> capabilities();
 
   Future<SystemSampleMsg> sample();
+
+  Future<SystemStorageMsg> storage();
+
+  Future<SystemBatteryMsg> battery();
 }
 
 @LazySingleton(as: SystemMonitorService)
@@ -19,4 +23,10 @@ final class SystemMonitorServiceImpl implements SystemMonitorService {
 
   @override
   Future<SystemSampleMsg> sample() => _api.sample();
+
+  @override
+  Future<SystemStorageMsg> storage() => _api.storage();
+
+  @override
+  Future<SystemBatteryMsg> battery() => _api.battery();
 }

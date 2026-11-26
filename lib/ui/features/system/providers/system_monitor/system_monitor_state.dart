@@ -10,6 +10,10 @@ final class const SystemMonitorState({
 
   /// Oldest first, at most [SystemMonitorNotifier.historyLength].
   final List<SystemSample> history = const [],
+
+  /// Read every few seconds; null until the first reading.
+  final DeviceStorage? storage,
+  final BatteryStatus? battery,
   super.status,
   super.message,
 }) extends BaseState {
@@ -18,6 +22,8 @@ final class const SystemMonitorState({
     bool? metricsKnown,
     SystemSample? latest,
     List<SystemSample>? history,
+    DeviceStorage? storage,
+    BatteryStatus? battery,
     StateStatus? status,
     StateMessage? message,
   }) => SystemMonitorState(
@@ -25,10 +31,12 @@ final class const SystemMonitorState({
     metricsKnown: metricsKnown ?? this.metricsKnown,
     latest: latest ?? this.latest,
     history: history ?? this.history,
+    storage: storage ?? this.storage,
+    battery: battery ?? this.battery,
     status: status ?? this.status,
     message: message,
   );
 
   @override
-  List<Object?> get props => [metrics, metricsKnown, latest, history, ...super.props];
+  List<Object?> get props => [metrics, metricsKnown, latest, history, storage, battery, ...super.props];
 }

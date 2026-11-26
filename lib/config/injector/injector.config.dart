@@ -36,6 +36,8 @@ import 'package:media_tool/data/repositories/settings_repository_impl.dart'
     as _i236;
 import 'package:media_tool/data/repositories/system_monitor_repository_impl.dart'
     as _i815;
+import 'package:media_tool/data/services/local/app_files_local_service.dart'
+    as _i662;
 import 'package:media_tool/data/services/local/cookies_local_service.dart'
     as _i149;
 import 'package:media_tool/data/services/local/error_log_local_service.dart'
@@ -160,6 +162,11 @@ extension GetItInjectableX on _i174.GetIt {
         errorHandler: gh<_i166.ErrorHandler>(),
       ),
     );
+    gh.lazySingleton<_i662.AppFilesLocalService>(
+      () => _i662.AppFilesLocalServiceImpl(
+        directories: gh<_i1027.AppDirectories>(),
+      ),
+    );
     gh.lazySingleton<_i10.ClipboardService>(() => _i10.ClipboardServiceImpl());
     gh.lazySingleton<_i919.GalleryService>(() => _i919.GalleryServiceImpl());
     gh.lazySingleton<_i11.MediaEngine>(
@@ -244,6 +251,13 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i376.AndroidBackgroundWorkService(),
       registerFor: {_android},
     );
+    gh.lazySingleton<_i521.SystemMonitorRepository>(
+      () => _i815.SystemMonitorRepositoryImpl(
+        service: gh<_i338.SystemMonitorService>(),
+        appFiles: gh<_i662.AppFilesLocalService>(),
+        errorHandler: gh<_i166.ErrorHandler>(),
+      ),
+    );
     gh.lazySingleton<_i191.SiteHttpClient>(
       () => _i191.SiteHttpClient(cookies: gh<_i149.CookiesLocalService>()),
     );
@@ -257,12 +271,6 @@ extension GetItInjectableX on _i174.GetIt {
         library: gh<_i202.LibraryLocalService>(),
         directories: gh<_i1027.AppDirectories>(),
         files: gh<_i600.FileService>(),
-        errorHandler: gh<_i166.ErrorHandler>(),
-      ),
-    );
-    gh.lazySingleton<_i521.SystemMonitorRepository>(
-      () => _i815.SystemMonitorRepositoryImpl(
-        service: gh<_i338.SystemMonitorService>(),
         errorHandler: gh<_i166.ErrorHandler>(),
       ),
     );

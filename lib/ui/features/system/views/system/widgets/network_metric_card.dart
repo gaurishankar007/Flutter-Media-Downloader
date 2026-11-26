@@ -5,7 +5,7 @@ import 'package:media_tool/ui/core/themes/app_spacing.dart';
 import 'package:media_tool/ui/core/themes/theme.dart';
 import 'package:media_tool/ui/core/ui/base/cards/app_card.dart';
 import 'package:media_tool/ui/features/system/views/system/widgets/metric_card_header.dart';
-import 'package:media_tool/ui/features/system/views/system/widgets/network_speed_row.dart';
+import 'package:media_tool/ui/features/system/views/system/widgets/metric_value_row.dart';
 import 'package:media_tool/ui/features/system/views/system/widgets/sparkline.dart';
 
 /// Whole-device download and upload speed with both as sparklines
@@ -29,13 +29,13 @@ class const NetworkMetricCard({
         spacing: AppSpacing.md,
         children: [
           MetricCardHeader(icon: icon, title: title, body: body),
-          NetworkSpeedRow(
+          MetricValueRow(
             icon: Symbols.arrow_downward_rounded,
             color: colors.primaryText,
             label: SystemMessages.download,
             value: download,
           ),
-          NetworkSpeedRow(
+          MetricValueRow(
             icon: Symbols.arrow_upward_rounded,
             color: colors.secondary,
             label: SystemMessages.upload,

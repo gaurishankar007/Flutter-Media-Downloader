@@ -184,6 +184,24 @@ private func nilOrValue<T>(_ value: Any?) -> T? {
 }
 
 
+enum BatteryStateMsg: Int, CaseIterable {
+  case charging = 0
+  case full = 1
+  case discharging = 2
+  case notCharging = 3
+  case unknown = 4
+}
+
+enum BatteryHealthMsg: Int, CaseIterable {
+  case good = 0
+  case overheat = 1
+  case dead = 2
+  case overVoltage = 3
+  case failure = 4
+  case cold = 5
+  case unknown = 6
+}
+
 /// Which metrics this device can report. Only these are shown.
 ///
 /// Generated class from Pigeon that represents data sent in messages.
@@ -195,6 +213,10 @@ struct SystemCapabilitiesMsg: Hashable, CustomStringConvertible {
   var gpu: Bool
   /// Whole-device network traffic.
   var network: Bool
+  /// Total and free space of the volume holding the app's files.
+  var storage: Bool
+  /// A battery is present and reports its level (false on desktop Macs and simulators).
+  var battery: Bool
 
 
   // swift-format-ignore: AlwaysUseLowerCamelCase
@@ -203,12 +225,16 @@ struct SystemCapabilitiesMsg: Hashable, CustomStringConvertible {
     let cpu = pigeonVar_list[1] as! Bool
     let gpu = pigeonVar_list[2] as! Bool
     let network = pigeonVar_list[3] as! Bool
+    let storage = pigeonVar_list[4] as! Bool
+    let battery = pigeonVar_list[5] as! Bool
 
     return SystemCapabilitiesMsg(
       memory: memory,
       cpu: cpu,
       gpu: gpu,
-      network: network
+      network: network,
+      storage: storage,
+      battery: battery
     )
   }
   func toList() -> [Any?] {
@@ -217,13 +243,15 @@ struct SystemCapabilitiesMsg: Hashable, CustomStringConvertible {
       cpu,
       gpu,
       network,
+      storage,
+      battery,
     ]
   }
   static func == (lhs: SystemCapabilitiesMsg, rhs: SystemCapabilitiesMsg) -> Bool {
     if Swift.type(of: lhs) != Swift.type(of: rhs) {
       return false
     }
-    return SystemMonitorApiPigeonInternal.deepEquals(lhs.memory, rhs.memory) && SystemMonitorApiPigeonInternal.deepEquals(lhs.cpu, rhs.cpu) && SystemMonitorApiPigeonInternal.deepEquals(lhs.gpu, rhs.gpu) && SystemMonitorApiPigeonInternal.deepEquals(lhs.network, rhs.network)
+    return SystemMonitorApiPigeonInternal.deepEquals(lhs.memory, rhs.memory) && SystemMonitorApiPigeonInternal.deepEquals(lhs.cpu, rhs.cpu) && SystemMonitorApiPigeonInternal.deepEquals(lhs.gpu, rhs.gpu) && SystemMonitorApiPigeonInternal.deepEquals(lhs.network, rhs.network) && SystemMonitorApiPigeonInternal.deepEquals(lhs.storage, rhs.storage) && SystemMonitorApiPigeonInternal.deepEquals(lhs.battery, rhs.battery)
   }
 
   func hash(into hasher: inout Hasher) {
@@ -232,10 +260,12 @@ struct SystemCapabilitiesMsg: Hashable, CustomStringConvertible {
     SystemMonitorApiPigeonInternal.deepHash(value: cpu, hasher: &hasher)
     SystemMonitorApiPigeonInternal.deepHash(value: gpu, hasher: &hasher)
     SystemMonitorApiPigeonInternal.deepHash(value: network, hasher: &hasher)
+    SystemMonitorApiPigeonInternal.deepHash(value: storage, hasher: &hasher)
+    SystemMonitorApiPigeonInternal.deepHash(value: battery, hasher: &hasher)
   }
 
   public var description: String {
-    return "SystemCapabilitiesMsg(memory: \(String(describing: memory)), cpu: \(String(describing: cpu)), gpu: \(String(describing: gpu)), network: \(String(describing: network)))"
+    return "SystemCapabilitiesMsg(memory: \(String(describing: memory)), cpu: \(String(describing: cpu)), gpu: \(String(describing: gpu)), network: \(String(describing: network)), storage: \(String(describing: storage)), battery: \(String(describing: battery)))"
   }
 }
 
@@ -316,13 +346,145 @@ struct SystemSampleMsg: Hashable, CustomStringConvertible {
   }
 }
 
+/// Space on the volume holding the app's files. Null when it can't be read.
+///
+/// Generated class from Pigeon that represents data sent in messages.
+struct SystemStorageMsg: Hashable, CustomStringConvertible {
+  var totalBytes: Int64? = nil
+  /// Space apps can still use (iOS/macOS: "available for important usage").
+  var freeBytes: Int64? = nil
+
+
+  // swift-format-ignore: AlwaysUseLowerCamelCase
+  static func fromList(_ pigeonVar_list: [Any?]) -> SystemStorageMsg? {
+    let totalBytes: Int64? = nilOrValue(pigeonVar_list[0])
+    let freeBytes: Int64? = nilOrValue(pigeonVar_list[1])
+
+    return SystemStorageMsg(
+      totalBytes: totalBytes,
+      freeBytes: freeBytes
+    )
+  }
+  func toList() -> [Any?] {
+    return [
+      totalBytes,
+      freeBytes,
+    ]
+  }
+  static func == (lhs: SystemStorageMsg, rhs: SystemStorageMsg) -> Bool {
+    if Swift.type(of: lhs) != Swift.type(of: rhs) {
+      return false
+    }
+    return SystemMonitorApiPigeonInternal.deepEquals(lhs.totalBytes, rhs.totalBytes) && SystemMonitorApiPigeonInternal.deepEquals(lhs.freeBytes, rhs.freeBytes)
+  }
+
+  func hash(into hasher: inout Hasher) {
+    hasher.combine("SystemStorageMsg")
+    SystemMonitorApiPigeonInternal.deepHash(value: totalBytes, hasher: &hasher)
+    SystemMonitorApiPigeonInternal.deepHash(value: freeBytes, hasher: &hasher)
+  }
+
+  public var description: String {
+    return "SystemStorageMsg(totalBytes: \(String(describing: totalBytes)), freeBytes: \(String(describing: freeBytes)))"
+  }
+}
+
+/// The battery right now. [levelPercent] null means there's no battery data.
+///
+/// Generated class from Pigeon that represents data sent in messages.
+struct SystemBatteryMsg: Hashable, CustomStringConvertible {
+  /// Charge, 0–100.
+  var levelPercent: Double? = nil
+  var state: BatteryStateMsg
+  /// Android only.
+  var temperatureCelsius: Double? = nil
+  /// Android only.
+  var health: BatteryHealthMsg? = nil
+  /// macOS only: minutes until empty (discharging) or full (charging).
+  var minutesRemaining: Int64? = nil
+  /// macOS only: full-charge capacity as a share of design capacity, 0–100.
+  var healthPercent: Double? = nil
+  /// Charge cycles so far (macOS; Android 14+ where the device reports it).
+  var cycleCount: Int64? = nil
+
+
+  // swift-format-ignore: AlwaysUseLowerCamelCase
+  static func fromList(_ pigeonVar_list: [Any?]) -> SystemBatteryMsg? {
+    let levelPercent: Double? = nilOrValue(pigeonVar_list[0])
+    let state = pigeonVar_list[1] as! BatteryStateMsg
+    let temperatureCelsius: Double? = nilOrValue(pigeonVar_list[2])
+    let health: BatteryHealthMsg? = nilOrValue(pigeonVar_list[3])
+    let minutesRemaining: Int64? = nilOrValue(pigeonVar_list[4])
+    let healthPercent: Double? = nilOrValue(pigeonVar_list[5])
+    let cycleCount: Int64? = nilOrValue(pigeonVar_list[6])
+
+    return SystemBatteryMsg(
+      levelPercent: levelPercent,
+      state: state,
+      temperatureCelsius: temperatureCelsius,
+      health: health,
+      minutesRemaining: minutesRemaining,
+      healthPercent: healthPercent,
+      cycleCount: cycleCount
+    )
+  }
+  func toList() -> [Any?] {
+    return [
+      levelPercent,
+      state,
+      temperatureCelsius,
+      health,
+      minutesRemaining,
+      healthPercent,
+      cycleCount,
+    ]
+  }
+  static func == (lhs: SystemBatteryMsg, rhs: SystemBatteryMsg) -> Bool {
+    if Swift.type(of: lhs) != Swift.type(of: rhs) {
+      return false
+    }
+    return SystemMonitorApiPigeonInternal.deepEquals(lhs.levelPercent, rhs.levelPercent) && SystemMonitorApiPigeonInternal.deepEquals(lhs.state, rhs.state) && SystemMonitorApiPigeonInternal.deepEquals(lhs.temperatureCelsius, rhs.temperatureCelsius) && SystemMonitorApiPigeonInternal.deepEquals(lhs.health, rhs.health) && SystemMonitorApiPigeonInternal.deepEquals(lhs.minutesRemaining, rhs.minutesRemaining) && SystemMonitorApiPigeonInternal.deepEquals(lhs.healthPercent, rhs.healthPercent) && SystemMonitorApiPigeonInternal.deepEquals(lhs.cycleCount, rhs.cycleCount)
+  }
+
+  func hash(into hasher: inout Hasher) {
+    hasher.combine("SystemBatteryMsg")
+    SystemMonitorApiPigeonInternal.deepHash(value: levelPercent, hasher: &hasher)
+    SystemMonitorApiPigeonInternal.deepHash(value: state, hasher: &hasher)
+    SystemMonitorApiPigeonInternal.deepHash(value: temperatureCelsius, hasher: &hasher)
+    SystemMonitorApiPigeonInternal.deepHash(value: health, hasher: &hasher)
+    SystemMonitorApiPigeonInternal.deepHash(value: minutesRemaining, hasher: &hasher)
+    SystemMonitorApiPigeonInternal.deepHash(value: healthPercent, hasher: &hasher)
+    SystemMonitorApiPigeonInternal.deepHash(value: cycleCount, hasher: &hasher)
+  }
+
+  public var description: String {
+    return "SystemBatteryMsg(levelPercent: \(String(describing: levelPercent)), state: \(String(describing: state)), temperatureCelsius: \(String(describing: temperatureCelsius)), health: \(String(describing: health)), minutesRemaining: \(String(describing: minutesRemaining)), healthPercent: \(String(describing: healthPercent)), cycleCount: \(String(describing: cycleCount)))"
+  }
+}
+
 private class SystemMonitorApiPigeonCodecReader: FlutterStandardReader {
   override func readValue(ofType type: UInt8) -> Any? {
     switch type {
     case 129:
-      return SystemCapabilitiesMsg.fromList(self.readValue() as! [Any?])
+      let enumResultAsInt: Int? = nilOrValue(self.readValue() as! Int?)
+      if let enumResultAsInt = enumResultAsInt {
+        return BatteryStateMsg(rawValue: enumResultAsInt)
+      }
+      return nil
     case 130:
+      let enumResultAsInt: Int? = nilOrValue(self.readValue() as! Int?)
+      if let enumResultAsInt = enumResultAsInt {
+        return BatteryHealthMsg(rawValue: enumResultAsInt)
+      }
+      return nil
+    case 131:
+      return SystemCapabilitiesMsg.fromList(self.readValue() as! [Any?])
+    case 132:
       return SystemSampleMsg.fromList(self.readValue() as! [Any?])
+    case 133:
+      return SystemStorageMsg.fromList(self.readValue() as! [Any?])
+    case 134:
+      return SystemBatteryMsg.fromList(self.readValue() as! [Any?])
     default:
       return super.readValue(ofType: type)
     }
@@ -331,11 +493,23 @@ private class SystemMonitorApiPigeonCodecReader: FlutterStandardReader {
 
 private class SystemMonitorApiPigeonCodecWriter: FlutterStandardWriter {
   override func writeValue(_ value: Any) {
-    if let value = value as? SystemCapabilitiesMsg {
+    if let value = value as? BatteryStateMsg {
       super.writeByte(129)
+      super.writeValue(value.rawValue)
+    } else if let value = value as? BatteryHealthMsg {
+      super.writeByte(130)
+      super.writeValue(value.rawValue)
+    } else if let value = value as? SystemCapabilitiesMsg {
+      super.writeByte(131)
       super.writeValue(value.toList())
     } else if let value = value as? SystemSampleMsg {
-      super.writeByte(130)
+      super.writeByte(132)
+      super.writeValue(value.toList())
+    } else if let value = value as? SystemStorageMsg {
+      super.writeByte(133)
+      super.writeValue(value.toList())
+    } else if let value = value as? SystemBatteryMsg {
+      super.writeByte(134)
       super.writeValue(value.toList())
     } else {
       super.writeValue(value)
@@ -363,6 +537,8 @@ class SystemMonitorApiPigeonCodec: FlutterStandardMessageCodec, @unchecked Senda
 protocol SystemMonitorHostApi {
   func capabilities() throws -> SystemCapabilitiesMsg
   func sample() throws -> SystemSampleMsg
+  func storage() throws -> SystemStorageMsg
+  func battery() throws -> SystemBatteryMsg
 }
 
 /// Generated setup class from Pigeon to handle messages through the `binaryMessenger`.
@@ -396,6 +572,32 @@ class SystemMonitorHostApiSetup {
       }
     } else {
       sampleChannel.setMessageHandler(nil)
+    }
+    let storageChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.media_tool.SystemMonitorHostApi.storage\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      storageChannel.setMessageHandler { _, reply in
+        do {
+          let result = try api.storage()
+          reply(wrapResult(result))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      storageChannel.setMessageHandler(nil)
+    }
+    let batteryChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.media_tool.SystemMonitorHostApi.battery\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      batteryChannel.setMessageHandler { _, reply in
+        do {
+          let result = try api.battery()
+          reply(wrapResult(result))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      batteryChannel.setMessageHandler(nil)
     }
   }
 }

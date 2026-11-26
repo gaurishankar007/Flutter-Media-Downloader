@@ -1,16 +1,30 @@
 // The same file lives in ios/Runner/SystemMonitor and macos/Runner/SystemMonitor;
-// keep both copies identical (GPU is macOS-only behind #if os(macOS)).
+// keep both copies identical (GPU and power sources are macOS-only behind
+// #if os(macOS), UIDevice battery is iOS-only behind #if os(iOS)).
 import Foundation
 
 #if os(macOS)
   import IOKit
+  import IOKit.ps
+#endif
+#if os(iOS)
+  import UIKit
 #endif
 
 /// RAM and whole-device CPU (Mach host statistics), network (getifaddrs,
-/// loopback excluded) and, on macOS, GPU utilization (IOAccelerator).
-/// Raw counters only; Dart computes rates. Nothing leaves the device.
+/// loopback excluded), storage (volume resource values), battery (UIDevice on
+/// iOS, IOKit power sources plus AppleSmartBattery health and cycles on macOS)
+/// and, on macOS, GPU utilization
+/// (IOAccelerator). Raw counters only; Dart computes rates. Nothing leaves the device.
 final class SystemMonitor: SystemMonitorHostApi {
   private let host = mach_host_self()
+
+  #if os(macOS)
+    /// Health and cycles change over weeks; read the IORegistry once a minute at most.
+    private var wear: (healthPercent: Double?, cycleCount: Int64?)?
+    private var wearReadAt: TimeInterval = 0
+    private static let wearMaxAge: TimeInterval = 60
+  #endif
 
   func capabilities() throws -> SystemCapabilitiesMsg {
     var gpu = false
@@ -21,7 +35,9 @@ final class SystemMonitor: SystemMonitorHostApi {
       memory: memory() != nil,
       cpu: cpuTicks() != nil,
       gpu: gpu,
-      network: networkBytes() != nil
+      network: networkBytes() != nil,
+      storage: try storage().totalBytes != nil,
+      battery: try battery().levelPercent != nil
     )
   }
 
@@ -43,6 +59,51 @@ final class SystemMonitor: SystemMonitorHostApi {
       networkRxBytes: network.map { Int64(clamping: $0.rx) },
       networkTxBytes: network.map { Int64(clamping: $0.tx) }
     )
+  }
+
+  /// The volume holding the app's files (the app container on iOS, the home
+  /// folder on macOS). Free space is what apps can still use for important data.
+  func storage() throws -> SystemStorageMsg {
+    let path = NSHomeDirectory()
+    let values = try? URL(fileURLWithPath: path).resourceValues(forKeys: [
+      .volumeTotalCapacityKey, .volumeAvailableCapacityForImportantUsageKey, .volumeAvailableCapacityKey,
+    ])
+    var total = values?.volumeTotalCapacity.map { Int64($0) }
+    var free = values?.volumeAvailableCapacityForImportantUsage.flatMap { $0 > 0 ? $0 : nil }
+      ?? values?.volumeAvailableCapacity.map { Int64($0) }
+    if total == nil || free == nil, let attributes = try? FileManager.default.attributesOfFileSystem(forPath: path) {
+      total = total ?? (attributes[.systemSize] as? NSNumber)?.int64Value
+      free = free ?? (attributes[.systemFreeSize] as? NSNumber)?.int64Value
+    }
+    guard let total, total > 0, let free else {
+      return SystemStorageMsg()
+    }
+    return SystemStorageMsg(totalBytes: total, freeBytes: min(max(free, 0), total))
+  }
+
+  /// No level (desktop Mac, simulator) means no battery data; Dart hides the card.
+  func battery() throws -> SystemBatteryMsg {
+    #if os(iOS)
+      // Pigeon calls host methods on the main thread.
+      return MainActor.assumeIsolated {
+        let device = UIDevice.current
+        device.isBatteryMonitoringEnabled = true
+        let level = device.batteryLevel
+        let state: BatteryStateMsg =
+          switch device.batteryState {
+          case .charging: .charging
+          case .full: .full
+          case .unplugged: .discharging
+          default: .unknown
+          }
+        guard level >= 0, state != .unknown else {
+          return SystemBatteryMsg(state: .unknown)
+        }
+        return SystemBatteryMsg(levelPercent: Double(level) * 100, state: state)
+      }
+    #else
+      return macBattery()
+    #endif
   }
 
   /// "Memory Used" as Activity Monitor counts it: app memory + wired + compressed.
@@ -114,6 +175,96 @@ final class SystemMonitor: SystemMonitorHostApi {
   }
 
   #if os(macOS)
+    /// The internal battery from IOKit power sources. Time remaining is only
+    /// set once macOS has estimated it (it reports -1 while calculating).
+    private func macBattery() -> SystemBatteryMsg {
+      let none = SystemBatteryMsg(state: .unknown)
+      guard let info = IOPSCopyPowerSourcesInfo()?.takeRetainedValue(),
+        let sources = IOPSCopyPowerSourcesList(info)?.takeRetainedValue() as? [CFTypeRef]
+      else {
+        return none
+      }
+      for source in sources {
+        guard
+          let description = IOPSGetPowerSourceDescription(info, source)?.takeUnretainedValue()
+            as? [String: Any],
+          description[kIOPSTypeKey] as? String == kIOPSInternalBatteryType,
+          description[kIOPSIsPresentKey] as? Bool ?? true,
+          let current = (description[kIOPSCurrentCapacityKey] as? NSNumber)?.doubleValue,
+          let maximum = (description[kIOPSMaxCapacityKey] as? NSNumber)?.doubleValue, maximum > 0
+        else {
+          continue
+        }
+        let charging = description[kIOPSIsChargingKey] as? Bool ?? false
+        let charged = description[kIOPSIsChargedKey] as? Bool ?? false
+        let onPower = description[kIOPSPowerSourceStateKey] as? String == kIOPSACPowerValue
+        let state: BatteryStateMsg =
+          charged ? .full : charging ? .charging : onPower ? .notCharging : .discharging
+        var minutes: Int64?
+        if state == .charging || state == .discharging,
+          let value = (description[charging ? kIOPSTimeToFullChargeKey : kIOPSTimeToEmptyKey] as? NSNumber)?
+            .int64Value, value > 0
+        {
+          minutes = value
+        }
+        let wear = batteryWear()
+        return SystemBatteryMsg(
+          levelPercent: min(max(current * 100 / maximum, 0), 100),
+          state: state,
+          minutesRemaining: minutes,
+          healthPercent: wear.healthPercent,
+          cycleCount: wear.cycleCount
+        )
+      }
+      return none
+    }
+
+    /// Health (full-charge capacity ÷ design capacity) and cycle count from the
+    /// AppleSmartBattery IORegistry entry, cached for `wearMaxAge`.
+    private func batteryWear() -> (healthPercent: Double?, cycleCount: Int64?) {
+      let now = ProcessInfo.processInfo.systemUptime
+      if let wear, now - wearReadAt < Self.wearMaxAge {
+        return wear
+      }
+      let fresh = readBatteryWear()
+      wear = fresh
+      wearReadAt = now
+      return fresh
+    }
+
+    private func readBatteryWear() -> (healthPercent: Double?, cycleCount: Int64?) {
+      let service = IOServiceGetMatchingService(kIOMainPortDefault, IOServiceMatching("AppleSmartBattery"))
+      guard service != 0 else {
+        return (nil, nil)
+      }
+      defer { IOObjectRelease(service) }
+      func number(_ key: String, in entry: io_registry_entry_t) -> NSNumber? {
+        IORegistryEntryCreateCFProperty(entry, key as CFString, kCFAllocatorDefault, 0)?
+          .takeRetainedValue() as? NSNumber
+      }
+      // Newer macOS keeps the raw mAh values only inside "BatteryData".
+      let data =
+        IORegistryEntryCreateCFProperty(service, "BatteryData" as CFString, kCFAllocatorDefault, 0)?
+        .takeRetainedValue() as? [String: Any]
+      func capacity(_ key: String) -> Double? {
+        let value = number(key, in: service)?.doubleValue ?? (data?[key] as? NSNumber)?.doubleValue
+        return value.flatMap { $0 > 0 ? $0 : nil }
+      }
+      // On Apple silicon "MaxCapacity" is a percentage, so use the raw mAh values.
+      var health: Double?
+      if let design = capacity("DesignCapacity"),
+        let full = capacity("AppleRawMaxCapacity") ?? capacity("NominalChargeCapacity")
+      {
+        let ratio = full / design * 100
+        // Far outside 0–150% means the keys don't hold what we expect.
+        if ratio.isFinite, ratio > 0, ratio <= 150 {
+          health = min(ratio, 100)
+        }
+      }
+      let cycles = number("CycleCount", in: service)?.int64Value ?? (data?["CycleCount"] as? NSNumber)?.int64Value
+      return (health, cycles.flatMap { $0 >= 0 && $0 < 100_000 ? $0 : nil })
+    }
+
     /// Highest "Device Utilization %" across GPUs, or nil when no GPU driver reports it.
     private func gpuPercent() -> Double? {
       var iterator: io_iterator_t = 0
