@@ -14,8 +14,10 @@ on:
 permissions:
   contents: write
 
+# Kept in sync with the local toolchain by the `release` Claude skill (.claude/skills/release).
 env:
   FLUTTER_VERSION: '3.50.1'
+  JAVA_VERSION: '25'
   VERSION: ${{ inputs.version || github.ref_name }}
 
 jobs:
@@ -27,7 +29,7 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: ${{ env.JAVA_VERSION }}
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
@@ -97,6 +99,7 @@ jobs:
     needs: [android, macos]
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
           path: dist
@@ -105,25 +108,19 @@ jobs:
         run: |
           V="${VERSION#v}"
           echo "TAG=v$V" >> "$GITHUB_ENV"
+      - name: Release notes
+        run: |
+          {
+            echo "## What's new"
+            echo
+            cat .github/RELEASE_NOTES.md
+            echo
+            cat .github/RELEASE_INSTALL.md
+          } > "$RUNNER_TEMP/body.md"
       - uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.TAG }}
           name: Media Downloader ${{ env.TAG }}
           generate_release_notes: true
           files: dist/*
-          body: |
-            ## Download
-
-            **Android:** download `MediaDownloader-…-android-arm64-v8a.apk` (almost every phone from the last 8 years).
-            Use `armeabi-v7a` for very old phones and `x86_64` for emulators or Chromebooks.
-            Open the file on your phone and allow "Install unknown apps" for your browser or Files app when asked.
-
-            **macOS:** download `MediaDownloader-…-macos.dmg`, open it and drag **Media Downloader** into **Applications**.
-            The app isn't notarized by Apple, so the first launch is blocked. To open it:
-            1. Open the app once, and click **Done** when macOS warns you.
-            2. Go to **System Settings → Privacy & Security**, scroll down and click **Open Anyway** next to Media Downloader.
-            (Or in Terminal: `xattr -dr com.apple.quarantine "/Applications/Media Downloader.app"`.)
-
-            iPhone isn't available as a download (Apple only allows installs from the App Store or a developer's Mac).
-
-            You're responsible for having the rights to anything you download.
+          body_path: ${{ runner.temp }}/body.md

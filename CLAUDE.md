@@ -10,7 +10,7 @@
 - **Architecture:** Feature-first MVVM with Riverpod, get_it/injectable, auto_route and drift. See `docs/architecture/architecture.md`.
 - **Platforms:** Android, iOS, macOS. No web, no flavors.
 - **Entry point:** `lib/main.dart`. Package name: `media_downloader`.
-- **Personal-use tool, released on GitHub.** No app stores. Tagged versions publish signed Android APKs and an unsigned macOS DMG to GitHub Releases (`.github/workflows/release.yml`; see `docs/architecture/development.md#releases`). iOS is run from source only.
+- **Personal-use tool, released on GitHub.** No app stores. Tagged versions publish signed Android APKs and an unsigned macOS DMG to GitHub Releases (`.github/workflows/release.yml`; see `docs/architecture/development.md#releases`). iOS is run from source only. **To release, ALWAYS follow the `release` skill** (`.claude/skills/release/SKILL.md`): toolchain parity check → validate → version → approved notes → tag → watch CI.
 
 ---
 

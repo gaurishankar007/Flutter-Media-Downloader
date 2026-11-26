@@ -1,0 +1,4 @@
+- First release: download videos, audio and photos from YouTube, Facebook, Instagram, Threads, X and TikTok.
+- Library with Save to Photos / Files, Share and Delete.
+- Convert and compress videos and images.
+- System tab with live RAM, CPU, GPU and network stats (whatever your device supports).
