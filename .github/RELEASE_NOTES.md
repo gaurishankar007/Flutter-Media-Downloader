@@ -6,3 +6,4 @@
 - Fixed icons sitting too high in the Convert / Compress, Video / Audio / Photos and theme pickers, and a few other alignment issues.
 - Round icon buttons are easier to tap.
 - Missing photos in the viewer show a placeholder instead of a broken image.
+- macOS: the window now has a minimum size of 600 × 600 points, so the layout stays usable when resized.
