@@ -18,10 +18,33 @@ Get the latest version from the **[Releases page](https://github.com/gaurishanka
 
 > **Status:** all v1 features are implemented and compile on all three platforms. On-device testing is in progress, so expect rough edges, especially with site extractors, which break whenever a site changes its pages.
 
+## Screenshots
+
+<table>
+  <tr>
+    <td align="center"><img src="docs/screenshots/download.png" alt="Download tab with a pasted YouTube link" width="260"><br><sub><b>Paste a link</b></sub></td>
+    <td align="center"><img src="docs/screenshots/preview.png" alt="Preview sheet with quality choices" width="260"><br><sub><b>Preview and pick a quality</b></sub></td>
+    <td align="center"><img src="docs/screenshots/downloading.png" alt="Download in progress with speed and ETA" width="260"><br><sub><b>Download progress</b></sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/screenshots/library.png" alt="Library grid with filters" width="260"><br><sub><b>Library</b></sub></td>
+    <td align="center"><img src="docs/screenshots/convert.png" alt="Convert tab with file sources and formats" width="260"><br><sub><b>Convert and compress</b></sub></td>
+    <td align="center"><img src="docs/screenshots/system.png" alt="System tab with RAM, CPU, GPU and network stats" width="260"><br><sub><b>System stats</b></sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/screenshots/settings.png" alt="Settings with default qualities and toggles" width="260"><br><sub><b>Settings</b></sub></td>
+    <td></td>
+    <td></td>
+  </tr>
+</table>
+
+<sub>Screenshots from the macOS app. Android and iOS use the same design with a bottom bar.</sub>
+
 ---
 
 ## Contents
 
+- [Screenshots](#screenshots)
 - [What you can do](#what-you-can-do)
 - [Supported sites](#supported-sites)
 - [The five tabs](#the-five-tabs)
