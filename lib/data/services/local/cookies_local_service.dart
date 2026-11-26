@@ -1,13 +1,13 @@
 import 'dart:io';
 
 import 'package:injectable/injectable.dart';
-import 'package:media_downloader/core/data/states/data_state.dart';
-import 'package:media_downloader/core/errors/error_handler.dart';
-import 'package:media_downloader/core/messages/app_messages.dart';
-import 'package:media_downloader/core/services/app_directories.dart';
-import 'package:media_downloader/core/types/types.dart';
-import 'package:media_downloader/domain/models/site.dart';
-import 'package:media_downloader/domain/models/site_cookies.dart';
+import 'package:media_tool/core/data/states/data_state.dart';
+import 'package:media_tool/core/errors/error_handler.dart';
+import 'package:media_tool/core/messages/app_messages.dart';
+import 'package:media_tool/core/services/app_directories.dart';
+import 'package:media_tool/core/types/types.dart';
+import 'package:media_tool/domain/models/site.dart';
+import 'package:media_tool/domain/models/site_cookies.dart';
 import 'package:path/path.dart' as p;
 
 /// Imported Netscape cookies.txt files, one per site, in `cookies/`. Their

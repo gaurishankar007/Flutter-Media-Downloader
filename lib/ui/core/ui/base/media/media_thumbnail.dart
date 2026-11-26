@@ -1,9 +1,9 @@
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/domain/models/media_kind.dart';
-import 'package:media_downloader/ui/core/themes/app_colors.dart';
-import 'package:media_downloader/ui/core/themes/app_spacing.dart';
-import 'package:media_downloader/ui/core/themes/theme.dart';
+import 'package:media_tool/domain/models/media_kind.dart';
+import 'package:media_tool/ui/core/themes/app_colors.dart';
+import 'package:media_tool/ui/core/themes/app_spacing.dart';
+import 'package:media_tool/ui/core/themes/theme.dart';
 
 /// A rounded thumbnail for a local or remote image, with an optional
 /// duration pill and a saved check. Falls back to the kind's icon when there

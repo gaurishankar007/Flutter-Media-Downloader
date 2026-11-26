@@ -1,5 +1,5 @@
-import 'package:media_downloader/core/messages/app_messages.dart';
-import 'package:media_downloader/domain/models/site.dart';
+import 'package:media_tool/core/messages/app_messages.dart';
+import 'package:media_tool/domain/models/site.dart';
 
 /// Why a photo extractor couldn't read a post.
 enum ExtractorFailure { loginRequired, notFound, noMedia, broken }

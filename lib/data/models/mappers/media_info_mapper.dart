@@ -1,8 +1,8 @@
-import 'package:media_downloader/data/models/responses/probe_response_dto.dart';
-import 'package:media_downloader/domain/models/media_info.dart';
-import 'package:media_downloader/domain/models/preview_stream.dart';
-import 'package:media_downloader/domain/models/site.dart';
-import 'package:media_downloader/domain/models/video_option.dart';
+import 'package:media_tool/data/models/responses/probe_response_dto.dart';
+import 'package:media_tool/domain/models/media_info.dart';
+import 'package:media_tool/domain/models/preview_stream.dart';
+import 'package:media_tool/domain/models/site.dart';
+import 'package:media_tool/domain/models/video_option.dart';
 
 /// `yt-dlp -J` → [MediaInfo]: quality tiers with size estimates and whether
 /// an iPhone-compatible file needs a re-encode. See docs/engine/media_engine.md#probe.

@@ -2,17 +2,17 @@ import 'dart:async';
 
 import 'package:get_it/get_it.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:media_downloader/core/data/states/data_state.dart';
-import 'package:media_downloader/core/messages/app_messages.dart';
-import 'package:media_downloader/domain/models/background_activity.dart';
-import 'package:media_downloader/domain/models/download_job.dart';
-import 'package:media_downloader/domain/models/download_request.dart';
-import 'package:media_downloader/domain/models/job_progress.dart';
-import 'package:media_downloader/domain/repositories/background_work_repository.dart';
-import 'package:media_downloader/domain/repositories/job_repository.dart';
-import 'package:media_downloader/domain/repositories/library_repository.dart';
-import 'package:media_downloader/domain/use_cases/download_media_use_case.dart';
-import 'package:media_downloader/ui/core/providers/base/base_notifier.dart';
+import 'package:media_tool/core/data/states/data_state.dart';
+import 'package:media_tool/core/messages/app_messages.dart';
+import 'package:media_tool/domain/models/background_activity.dart';
+import 'package:media_tool/domain/models/download_job.dart';
+import 'package:media_tool/domain/models/download_request.dart';
+import 'package:media_tool/domain/models/job_progress.dart';
+import 'package:media_tool/domain/repositories/background_work_repository.dart';
+import 'package:media_tool/domain/repositories/job_repository.dart';
+import 'package:media_tool/domain/repositories/library_repository.dart';
+import 'package:media_tool/domain/use_cases/download_media_use_case.dart';
+import 'package:media_tool/ui/core/providers/base/base_notifier.dart';
 import 'package:uuid/uuid.dart';
 
 part 'download_queue_state.dart';

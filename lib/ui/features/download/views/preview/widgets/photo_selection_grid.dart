@@ -1,10 +1,10 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/core/messages/app_messages.dart';
-import 'package:media_downloader/domain/models/post_media.dart';
-import 'package:media_downloader/ui/core/themes/app_spacing.dart';
-import 'package:media_downloader/ui/core/themes/theme.dart';
-import 'package:media_downloader/ui/core/ui/base/buttons/ghost_button.dart';
-import 'package:media_downloader/ui/core/ui/base/media/photo_grid.dart';
+import 'package:media_tool/core/messages/app_messages.dart';
+import 'package:media_tool/domain/models/post_media.dart';
+import 'package:media_tool/ui/core/themes/app_spacing.dart';
+import 'package:media_tool/ui/core/themes/theme.dart';
+import 'package:media_tool/ui/core/ui/base/buttons/ghost_button.dart';
+import 'package:media_tool/ui/core/ui/base/media/photo_grid.dart';
 
 /// Every photo (and video) of a post, all selected at first: tap to toggle,
 /// "Select all / none" above. See docs/features/download.md#preview.

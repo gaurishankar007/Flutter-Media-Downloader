@@ -6,11 +6,11 @@ What happens from launch to the first screen.
 
 ## Entry Point
 
-`lib/main.dart` calls `WidgetsFlutterBinding.ensureInitialized()` and then `runMediaDownloaderApp()` (`lib/ui/startup/run_media_downloader_app.dart`), which:
+`lib/main.dart` calls `WidgetsFlutterBinding.ensureInitialized()` and then `runMediaToolApp()` (`lib/ui/startup/run_media_tool_app.dart`), which:
 
 1. Awaits `AppInitializer.initializeApp()` (returns `true` / `false`, never throws).
-2. On success: `runApp(const ProviderScope(child: MediaDownloaderApp()))`.
-3. On failure: `runApp(const StartupErrorApp(onRetry: runMediaDownloaderApp))`, a minimal screen (`EmptyState` + **Retry**) that runs the whole sequence again.
+2. On success: `runApp(const ProviderScope(child: MediaToolApp()))`.
+3. On failure: `runApp(const StartupErrorApp(onRetry: runMediaToolApp))`, a minimal screen (`EmptyState` + **Retry**) that runs the whole sequence again.
 
 ## AppInitializer
 
@@ -50,7 +50,7 @@ There is no separate recovery step. `DownloadQueueNotifier` loads saved jobs thr
 - If `init()` fails, the preview sheet shows the error in place with **Retry**, which re-runs `init()`.
 - Once ready, the launch update check runs at most once a day when **Check on launch** is on. It never updates by itself; an available update puts a badge on the Settings tab. See [Settings](../features/settings.md#engine).
 
-## Root Widget: MediaDownloaderApp
+## Root Widget: MediaToolApp
 
 - Builds `MaterialApp.router` with the auto_route config, `buildTheme(.light)` / `buildTheme(.dark)` and `themeMode` from settings (system by default).
 - Watches `didChangeMetrics` and updates `ScreenTypeNotifier` in a post-frame callback.

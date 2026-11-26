@@ -1,8 +1,8 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/core/messages/app_messages.dart';
-import 'package:media_downloader/domain/models/audio_quality.dart';
-import 'package:media_downloader/ui/core/themes/app_spacing.dart';
-import 'package:media_downloader/ui/core/ui/base/chips/select_chip.dart';
+import 'package:media_tool/core/messages/app_messages.dart';
+import 'package:media_tool/domain/models/audio_quality.dart';
+import 'package:media_tool/ui/core/themes/app_spacing.dart';
+import 'package:media_tool/ui/core/ui/base/chips/select_chip.dart';
 
 /// 320 / 192 / 128 kbps.
 class const AudioQualityPicker({

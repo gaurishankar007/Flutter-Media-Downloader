@@ -1,6 +1,6 @@
 ---
 name: release
-description: Publish a new Media Downloader version to GitHub Releases (Android APKs + macOS DMG). Checks the local toolchain against the release workflow and updates it first, validates the build, bumps the version, drafts release notes for approval, then tags and watches the CI run. Use when the user asks to release, publish, ship a new version, or cut vX.Y.Z.
+description: Publish a new Media Tool version to GitHub Releases (Android APKs + macOS DMG). Checks the local toolchain against the release workflow and updates it first, validates the build, bumps the version, drafts release notes for approval, then tags and watches the CI run. Use when the user asks to release, publish, ship a new version, or cut vX.Y.Z.
 ---
 
 # Release workflow
@@ -66,4 +66,4 @@ No AI-attribution trailer in the commit (CLAUDE.md).
 
 ## Secrets and keys (never print them)
 - Repo secrets: `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`.
-- Keystore: `~/Keystores/media_downloader/release.jks` (+ `key.properties`), outside the repo. Never commit them, and never change the app ID `com.gss.mediadownloader`.
+- Keystore: `~/Keystores/media_downloader/release.jks` (+ `key.properties`), outside the repo. Never commit them, and never change the app ID `com.gss.mediatool`.

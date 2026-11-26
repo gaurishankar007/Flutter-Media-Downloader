@@ -2,18 +2,18 @@ import 'package:auto_route/auto_route.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/core/messages/app_messages.dart';
-import 'package:media_downloader/ui/core/ui/base/buttons/tonal_button.dart';
-import 'package:media_downloader/ui/core/ui/base/layout/screen_back_button.dart';
-import 'package:media_downloader/ui/core/ui/base/layout/screen_header.dart';
-import 'package:media_downloader/ui/core/ui/base/layout/screen_scroll_view.dart';
-import 'package:media_downloader/ui/core/utils/extensions/ref_extension.dart';
-import 'package:media_downloader/ui/features/download/providers/engine_status/engine_status_notifier.dart';
-import 'package:media_downloader/ui/features/settings/providers/about/about_notifier.dart';
-import 'package:media_downloader/ui/features/settings/views/about/widgets/version_row.dart';
-import 'package:media_downloader/ui/features/settings/widgets/settings_section.dart';
-import 'package:media_downloader/ui/features/settings/widgets/settings_tile.dart';
-import 'package:media_downloader/ui/startup/rights_notice_dialog.dart';
+import 'package:media_tool/core/messages/app_messages.dart';
+import 'package:media_tool/ui/core/ui/base/buttons/tonal_button.dart';
+import 'package:media_tool/ui/core/ui/base/layout/screen_back_button.dart';
+import 'package:media_tool/ui/core/ui/base/layout/screen_header.dart';
+import 'package:media_tool/ui/core/ui/base/layout/screen_scroll_view.dart';
+import 'package:media_tool/ui/core/utils/extensions/ref_extension.dart';
+import 'package:media_tool/ui/features/download/providers/engine_status/engine_status_notifier.dart';
+import 'package:media_tool/ui/features/settings/providers/about/about_notifier.dart';
+import 'package:media_tool/ui/features/settings/views/about/widgets/version_row.dart';
+import 'package:media_tool/ui/features/settings/widgets/settings_section.dart';
+import 'package:media_tool/ui/features/settings/widgets/settings_tile.dart';
+import 'package:media_tool/ui/startup/rights_notice_dialog.dart';
 
 /// Settings → About: rights notice, versions, licences and the error log.
 @RoutePage()

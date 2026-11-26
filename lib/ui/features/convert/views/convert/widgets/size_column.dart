@@ -1,6 +1,6 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/core/utils/format_utils.dart';
-import 'package:media_downloader/ui/core/themes/theme.dart';
+import 'package:media_tool/core/utils/format_utils.dart';
+import 'package:media_tool/ui/core/themes/theme.dart';
 
 /// A small label over a file size ("Before / 120 MB").
 class const SizeColumn({super.key, required final String label, required final int bytes}) extends StatelessWidget {

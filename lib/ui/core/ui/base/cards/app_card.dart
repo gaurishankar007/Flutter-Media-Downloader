@@ -1,6 +1,6 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/ui/core/themes/app_spacing.dart';
-import 'package:media_downloader/ui/core/themes/theme.dart';
+import 'package:media_tool/ui/core/themes/app_spacing.dart';
+import 'package:media_tool/ui/core/themes/theme.dart';
 
 /// A surface card. Separated from the background by colour, plus a 1px
 /// outline in light mode.

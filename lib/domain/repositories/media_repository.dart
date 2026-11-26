@@ -1,10 +1,10 @@
-import 'package:media_downloader/core/types/types.dart';
-import 'package:media_downloader/domain/models/download_event.dart';
-import 'package:media_downloader/domain/models/download_job.dart';
-import 'package:media_downloader/domain/models/engine_info.dart';
-import 'package:media_downloader/domain/models/engine_update.dart';
-import 'package:media_downloader/domain/models/media_info.dart';
-import 'package:media_downloader/domain/models/site.dart';
+import 'package:media_tool/core/types/types.dart';
+import 'package:media_tool/domain/models/download_event.dart';
+import 'package:media_tool/domain/models/download_job.dart';
+import 'package:media_tool/domain/models/engine_info.dart';
+import 'package:media_tool/domain/models/engine_update.dart';
+import 'package:media_tool/domain/models/media_info.dart';
+import 'package:media_tool/domain/models/site.dart';
 
 /// Talks to the download engine: probe, download, re-encode, cancel.
 abstract interface class MediaRepository {

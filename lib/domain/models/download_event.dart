@@ -1,4 +1,4 @@
-import 'package:media_downloader/domain/models/job_progress.dart';
+import 'package:media_tool/domain/models/job_progress.dart';
 
 /// One step of an engine run (download or re-encode) for the use case.
 sealed class const DownloadEvent();

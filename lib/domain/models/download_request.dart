@@ -1,9 +1,9 @@
 import 'package:equatable/equatable.dart';
-import 'package:media_downloader/core/types/types.dart';
-import 'package:media_downloader/domain/models/audio_quality.dart';
-import 'package:media_downloader/domain/models/media_kind.dart';
-import 'package:media_downloader/domain/models/post_media.dart';
-import 'package:media_downloader/domain/models/site.dart';
+import 'package:media_tool/core/types/types.dart';
+import 'package:media_tool/domain/models/audio_quality.dart';
+import 'package:media_tool/domain/models/media_kind.dart';
+import 'package:media_tool/domain/models/post_media.dart';
+import 'package:media_tool/domain/models/site.dart';
 
 /// Everything needed to run (or retry) one download. Stored as JSON on the job.
 final class const DownloadRequest({

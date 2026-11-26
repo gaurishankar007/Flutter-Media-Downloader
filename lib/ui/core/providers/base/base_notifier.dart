@@ -1,8 +1,8 @@
 import 'package:equatable/equatable.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:media_downloader/core/data/states/data_state.dart';
-import 'package:media_downloader/core/errors/error_flow.dart';
-import 'package:media_downloader/core/errors/error_recorders/app_error_recorder.dart';
+import 'package:media_tool/core/data/states/data_state.dart';
+import 'package:media_tool/core/errors/error_flow.dart';
+import 'package:media_tool/core/errors/error_recorders/app_error_recorder.dart';
 
 part 'base_state.dart';
 part 'error_tracking.dart';

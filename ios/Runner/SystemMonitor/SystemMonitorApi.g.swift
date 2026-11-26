@@ -371,7 +371,7 @@ class SystemMonitorHostApiSetup {
   /// Sets up an instance of `SystemMonitorHostApi` to handle messages through the `binaryMessenger`.
   static func setUp(binaryMessenger: FlutterBinaryMessenger, api: SystemMonitorHostApi?, messageChannelSuffix: String = "") {
     let channelSuffix = messageChannelSuffix.count > 0 ? ".\(messageChannelSuffix)" : ""
-    let capabilitiesChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.media_downloader.SystemMonitorHostApi.capabilities\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    let capabilitiesChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.media_tool.SystemMonitorHostApi.capabilities\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       capabilitiesChannel.setMessageHandler { _, reply in
         do {
@@ -384,7 +384,7 @@ class SystemMonitorHostApiSetup {
     } else {
       capabilitiesChannel.setMessageHandler(nil)
     }
-    let sampleChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.media_downloader.SystemMonitorHostApi.sample\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    let sampleChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.media_tool.SystemMonitorHostApi.sample\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       sampleChannel.setMessageHandler { _, reply in
         do {

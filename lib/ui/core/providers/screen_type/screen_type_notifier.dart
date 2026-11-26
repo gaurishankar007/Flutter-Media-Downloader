@@ -1,8 +1,8 @@
 import 'dart:ui';
 
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:media_downloader/ui/core/providers/base/base_notifier.dart';
-import 'package:media_downloader/ui/core/providers/screen_type/screen_type.dart';
+import 'package:media_tool/ui/core/providers/base/base_notifier.dart';
+import 'package:media_tool/ui/core/providers/screen_type/screen_type.dart';
 
 /// The current breakpoint. Only changes when the window crosses one, so
 /// widgets watching it don't rebuild on every resize.

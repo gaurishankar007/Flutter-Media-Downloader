@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:media_downloader/core/data/states/data_state.dart';
+import 'package:media_tool/core/data/states/data_state.dart';
 
 /// An asynchronous operation that completes with a [DataState] containing [T].
 typedef FutureData<T> = Future<DataState<T>>;

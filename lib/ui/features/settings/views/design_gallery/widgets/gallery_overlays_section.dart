@@ -1,12 +1,12 @@
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/core/messages/app_messages.dart';
-import 'package:media_downloader/ui/core/themes/app_spacing.dart';
-import 'package:media_downloader/ui/core/ui/base/buttons/tonal_button.dart';
-import 'package:media_downloader/ui/core/ui/base/dialog/confirm_dialog.dart';
-import 'package:media_downloader/ui/core/ui/base/dialog/saved_remove_prompt.dart';
-import 'package:media_downloader/ui/core/ui/base/sheets/action_sheet.dart';
-import 'package:media_downloader/ui/core/ui/base/text/section_header.dart';
+import 'package:media_tool/core/messages/app_messages.dart';
+import 'package:media_tool/ui/core/themes/app_spacing.dart';
+import 'package:media_tool/ui/core/ui/base/buttons/tonal_button.dart';
+import 'package:media_tool/ui/core/ui/base/dialog/confirm_dialog.dart';
+import 'package:media_tool/ui/core/ui/base/dialog/saved_remove_prompt.dart';
+import 'package:media_tool/ui/core/ui/base/sheets/action_sheet.dart';
+import 'package:media_tool/ui/core/ui/base/text/section_header.dart';
 
 class const GalleryOverlaysSection({super.key}) extends StatelessWidget {
   @override

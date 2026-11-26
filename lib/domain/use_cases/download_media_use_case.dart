@@ -1,13 +1,13 @@
 import 'package:injectable/injectable.dart';
-import 'package:media_downloader/core/data/states/data_state.dart';
-import 'package:media_downloader/domain/models/download_event.dart';
-import 'package:media_downloader/domain/models/download_job.dart';
-import 'package:media_downloader/domain/models/job_progress.dart';
-import 'package:media_downloader/domain/models/media_kind.dart';
-import 'package:media_downloader/domain/models/post_file.dart';
-import 'package:media_downloader/domain/repositories/library_repository.dart';
-import 'package:media_downloader/domain/repositories/media_repository.dart';
-import 'package:media_downloader/domain/repositories/post_repository.dart';
+import 'package:media_tool/core/data/states/data_state.dart';
+import 'package:media_tool/domain/models/download_event.dart';
+import 'package:media_tool/domain/models/download_job.dart';
+import 'package:media_tool/domain/models/job_progress.dart';
+import 'package:media_tool/domain/models/media_kind.dart';
+import 'package:media_tool/domain/models/post_file.dart';
+import 'package:media_tool/domain/repositories/library_repository.dart';
+import 'package:media_tool/domain/repositories/media_repository.dart';
+import 'package:media_tool/domain/repositories/post_repository.dart';
 import 'package:path/path.dart' as p;
 
 /// Runs one download end to end. Videos / audio: engine download → iPhone

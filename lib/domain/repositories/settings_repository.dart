@@ -1,5 +1,5 @@
-import 'package:media_downloader/core/types/types.dart';
-import 'package:media_downloader/domain/models/app_settings.dart';
+import 'package:media_tool/core/types/types.dart';
+import 'package:media_tool/domain/models/app_settings.dart';
 
 abstract interface class SettingsRepository {
   /// The settings loaded by [load], or defaults before that.

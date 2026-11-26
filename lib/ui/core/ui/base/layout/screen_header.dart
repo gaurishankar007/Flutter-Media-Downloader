@@ -1,6 +1,6 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/ui/core/themes/app_spacing.dart';
-import 'package:media_downloader/ui/core/themes/theme.dart';
+import 'package:media_tool/ui/core/themes/app_spacing.dart';
+import 'package:media_tool/ui/core/themes/theme.dart';
 
 /// A screen's large title and subtitle.
 class const ScreenHeader({super.key, required final String title, final String? subtitle, final bool large = false})

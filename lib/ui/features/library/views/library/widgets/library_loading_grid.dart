@@ -1,6 +1,6 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/ui/core/themes/app_spacing.dart';
-import 'package:media_downloader/ui/core/ui/base/states/shimmer_box.dart';
+import 'package:media_tool/ui/core/themes/app_spacing.dart';
+import 'package:media_tool/ui/core/ui/base/states/shimmer_box.dart';
 
 /// Shimmer cards in the Library grid's layout while the Library loads.
 class const LibraryLoadingGrid({super.key}) extends StatelessWidget {

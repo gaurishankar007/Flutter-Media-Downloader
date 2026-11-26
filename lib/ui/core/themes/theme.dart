@@ -1,6 +1,6 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/ui/core/themes/app_colors.dart';
-import 'package:media_downloader/ui/core/themes/app_typography.dart';
+import 'package:media_tool/ui/core/themes/app_colors.dart';
+import 'package:media_tool/ui/core/themes/app_typography.dart';
 
 /// Token access from widgets: `context.colors.surface`, `context.text.title`.
 extension ThemeTokens on BuildContext {

@@ -1,7 +1,7 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/ui/core/themes/app_gradients.dart';
-import 'package:media_downloader/ui/core/themes/app_spacing.dart';
-import 'package:media_downloader/ui/core/themes/theme.dart';
+import 'package:media_tool/ui/core/themes/app_gradients.dart';
+import 'package:media_tool/ui/core/themes/app_spacing.dart';
+import 'package:media_tool/ui/core/themes/theme.dart';
 
 /// A labelled slider with its current value on the right and an Aurora
 /// active track (compression quality, target resolution).

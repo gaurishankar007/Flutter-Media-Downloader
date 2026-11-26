@@ -1,16 +1,16 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/routing/routes.gr.dart';
-import 'package:media_downloader/ui/core/providers/screen_type/screen_type_notifier.dart';
-import 'package:media_downloader/ui/core/themes/app_motion.dart';
-import 'package:media_downloader/ui/core/utils/extensions/ref_extension.dart';
-import 'package:media_downloader/ui/features/download/providers/engine_status/engine_status_notifier.dart';
-import 'package:media_downloader/ui/features/home/models/nav_destination.dart';
-import 'package:media_downloader/ui/features/home/views/home_shell/widgets/app_navigation_bar.dart';
-import 'package:media_downloader/ui/features/home/views/home_shell/widgets/app_sidebar.dart';
-import 'package:media_downloader/ui/features/settings/providers/settings/settings_notifier.dart';
-import 'package:media_downloader/ui/startup/rights_notice_dialog.dart';
+import 'package:media_tool/routing/routes.gr.dart';
+import 'package:media_tool/ui/core/providers/screen_type/screen_type_notifier.dart';
+import 'package:media_tool/ui/core/themes/app_motion.dart';
+import 'package:media_tool/ui/core/utils/extensions/ref_extension.dart';
+import 'package:media_tool/ui/features/download/providers/engine_status/engine_status_notifier.dart';
+import 'package:media_tool/ui/features/home/models/nav_destination.dart';
+import 'package:media_tool/ui/features/home/views/home_shell/widgets/app_navigation_bar.dart';
+import 'package:media_tool/ui/features/home/views/home_shell/widgets/app_sidebar.dart';
+import 'package:media_tool/ui/features/settings/providers/settings/settings_notifier.dart';
+import 'package:media_tool/ui/startup/rights_notice_dialog.dart';
 
 /// The tab shell: floating bottom bar on phones/tablets, sidebar on wide screens.
 @RoutePage()

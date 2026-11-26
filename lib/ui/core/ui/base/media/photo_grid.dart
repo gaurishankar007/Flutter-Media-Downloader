@@ -1,12 +1,12 @@
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/domain/models/media_kind.dart';
-import 'package:media_downloader/ui/core/themes/app_colors.dart';
-import 'package:media_downloader/ui/core/themes/app_gradients.dart';
-import 'package:media_downloader/ui/core/themes/app_motion.dart';
-import 'package:media_downloader/ui/core/themes/app_spacing.dart';
-import 'package:media_downloader/ui/core/themes/theme.dart';
-import 'package:media_downloader/ui/core/ui/base/media/media_thumbnail.dart';
+import 'package:media_tool/domain/models/media_kind.dart';
+import 'package:media_tool/ui/core/themes/app_colors.dart';
+import 'package:media_tool/ui/core/themes/app_gradients.dart';
+import 'package:media_tool/ui/core/themes/app_motion.dart';
+import 'package:media_tool/ui/core/themes/app_spacing.dart';
+import 'package:media_tool/ui/core/themes/theme.dart';
+import 'package:media_tool/ui/core/ui/base/media/media_thumbnail.dart';
 
 /// The photos of a post, selectable. Selected tiles get an Aurora ring and a
 /// numbered check. Sizes itself to its content (sits inside a scroll view).

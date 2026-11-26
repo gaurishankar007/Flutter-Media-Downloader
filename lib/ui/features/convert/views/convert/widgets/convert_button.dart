@@ -1,11 +1,11 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/core/messages/app_messages.dart';
-import 'package:media_downloader/core/utils/format_utils.dart';
-import 'package:media_downloader/ui/core/ui/base/buttons/gradient_button.dart';
-import 'package:media_downloader/ui/features/convert/providers/convert_job/convert_job_notifier.dart';
-import 'package:media_downloader/ui/features/convert/providers/convert_options/convert_options_notifier.dart';
+import 'package:media_tool/core/messages/app_messages.dart';
+import 'package:media_tool/core/utils/format_utils.dart';
+import 'package:media_tool/ui/core/ui/base/buttons/gradient_button.dart';
+import 'package:media_tool/ui/features/convert/providers/convert_job/convert_job_notifier.dart';
+import 'package:media_tool/ui/features/convert/providers/convert_options/convert_options_notifier.dart';
 
 /// Starts the job: "Convert · about 48 MB".
 class const ConvertButton({super.key}) extends ConsumerWidget {

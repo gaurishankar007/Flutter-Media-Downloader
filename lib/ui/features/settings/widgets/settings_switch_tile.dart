@@ -1,5 +1,5 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/ui/features/settings/widgets/settings_tile.dart';
+import 'package:media_tool/ui/features/settings/widgets/settings_tile.dart';
 
 /// A [SettingsTile] with a switch; the whole row toggles.
 class const SettingsSwitchTile({

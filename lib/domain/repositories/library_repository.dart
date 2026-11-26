@@ -1,10 +1,10 @@
-import 'package:media_downloader/core/types/types.dart';
-import 'package:media_downloader/domain/models/download_request.dart';
-import 'package:media_downloader/domain/models/library_item.dart';
-import 'package:media_downloader/domain/models/media_kind.dart';
-import 'package:media_downloader/domain/models/post_file.dart';
-import 'package:media_downloader/domain/models/save_result.dart';
-import 'package:media_downloader/domain/models/storage_usage.dart';
+import 'package:media_tool/core/types/types.dart';
+import 'package:media_tool/domain/models/download_request.dart';
+import 'package:media_tool/domain/models/library_item.dart';
+import 'package:media_tool/domain/models/media_kind.dart';
+import 'package:media_tool/domain/models/post_file.dart';
+import 'package:media_tool/domain/models/save_result.dart';
+import 'package:media_tool/domain/models/storage_usage.dart';
 
 /// The Library: files in the app's downloads folder and their rows.
 abstract interface class LibraryRepository {

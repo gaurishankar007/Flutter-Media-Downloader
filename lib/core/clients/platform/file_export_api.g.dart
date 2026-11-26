@@ -79,7 +79,7 @@ class FileExportHostApi {
   /// Asks where to save [path] as [suggestedName] and copies it there.
   /// Returns true when saved, false when the user cancelled; throws on failure.
   Future<bool> exportFile(String path, String suggestedName, String mimeType) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.media_downloader.FileExportHostApi.exportFile$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.media_tool.FileExportHostApi.exportFile$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,

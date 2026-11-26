@@ -1,4 +1,4 @@
-import 'package:media_downloader/domain/models/job_progress.dart';
+import 'package:media_tool/domain/models/job_progress.dart';
 
 /// Turns ffmpeg `-progress pipe:1` lines (`out_time_us=`, `speed=`) into a
 /// [JobProgress] against the input's duration. One instance per run.

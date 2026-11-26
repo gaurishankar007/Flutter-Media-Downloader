@@ -1,12 +1,12 @@
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/core/messages/app_messages.dart';
-import 'package:media_downloader/domain/models/site.dart';
-import 'package:media_downloader/ui/core/themes/app_motion.dart';
-import 'package:media_downloader/ui/core/themes/app_spacing.dart';
-import 'package:media_downloader/ui/core/themes/theme.dart';
-import 'package:media_downloader/ui/core/ui/base/buttons/gradient_button.dart';
-import 'package:media_downloader/ui/features/download/providers/link_input/link_input_notifier.dart';
+import 'package:media_tool/core/messages/app_messages.dart';
+import 'package:media_tool/domain/models/site.dart';
+import 'package:media_tool/ui/core/themes/app_motion.dart';
+import 'package:media_tool/ui/core/themes/app_spacing.dart';
+import 'package:media_tool/ui/core/themes/theme.dart';
+import 'package:media_tool/ui/core/ui/base/buttons/gradient_button.dart';
+import 'package:media_tool/ui/features/download/providers/link_input/link_input_notifier.dart';
 
 /// Under the link field: what the link is, and the Preview action.
 class const LinkStatusPanel({

@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:media_downloader/domain/models/media_kind.dart';
+import 'package:media_tool/domain/models/media_kind.dart';
 
 /// A local file picked for conversion, as ffmpeg (or the image decoder) read it.
 final class const LocalMediaInfo({

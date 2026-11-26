@@ -1,15 +1,15 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/core/messages/app_messages.dart';
-import 'package:media_downloader/ui/core/themes/app_spacing.dart';
-import 'package:media_downloader/ui/core/themes/theme.dart';
-import 'package:media_downloader/ui/core/ui/base/buttons/app_icon_button.dart';
-import 'package:media_downloader/ui/core/ui/base/buttons/ghost_button.dart';
-import 'package:media_downloader/ui/core/ui/base/cards/app_card.dart';
-import 'package:media_downloader/ui/features/library/providers/library/library_notifier.dart';
-import 'package:media_downloader/ui/features/library/providers/library_actions/library_actions_notifier.dart';
-import 'package:media_downloader/ui/features/library/widgets/item_action_sheet.dart';
+import 'package:media_tool/core/messages/app_messages.dart';
+import 'package:media_tool/ui/core/themes/app_spacing.dart';
+import 'package:media_tool/ui/core/themes/theme.dart';
+import 'package:media_tool/ui/core/ui/base/buttons/app_icon_button.dart';
+import 'package:media_tool/ui/core/ui/base/buttons/ghost_button.dart';
+import 'package:media_tool/ui/core/ui/base/cards/app_card.dart';
+import 'package:media_tool/ui/features/library/providers/library/library_notifier.dart';
+import 'package:media_tool/ui/features/library/providers/library_actions/library_actions_notifier.dart';
+import 'package:media_tool/ui/features/library/widgets/item_action_sheet.dart';
 
 /// Multi-select: count, Select all, and Save to Photos / Share / Delete for
 /// the selected items.

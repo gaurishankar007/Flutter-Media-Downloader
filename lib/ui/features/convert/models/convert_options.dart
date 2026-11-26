@@ -1,8 +1,8 @@
 import 'package:equatable/equatable.dart';
-import 'package:media_downloader/domain/models/convert_format.dart';
-import 'package:media_downloader/domain/models/convert_mode.dart';
-import 'package:media_downloader/domain/models/image_compress_options.dart';
-import 'package:media_downloader/domain/models/video_compress_preset.dart';
+import 'package:media_tool/domain/models/convert_format.dart';
+import 'package:media_tool/domain/models/convert_mode.dart';
+import 'package:media_tool/domain/models/image_compress_options.dart';
+import 'package:media_tool/domain/models/video_compress_preset.dart';
 
 /// The choices on the Convert screen. See docs/features/convert.md#steps.
 final class const ConvertOptions({

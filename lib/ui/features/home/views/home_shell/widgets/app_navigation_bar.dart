@@ -1,10 +1,10 @@
 import 'dart:ui';
 
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/ui/core/themes/app_spacing.dart';
-import 'package:media_downloader/ui/core/themes/theme.dart';
-import 'package:media_downloader/ui/features/home/models/nav_destination.dart';
-import 'package:media_downloader/ui/features/home/views/home_shell/widgets/nav_bar_item.dart';
+import 'package:media_tool/ui/core/themes/app_spacing.dart';
+import 'package:media_tool/ui/core/themes/theme.dart';
+import 'package:media_tool/ui/features/home/models/nav_destination.dart';
+import 'package:media_tool/ui/features/home/views/home_shell/widgets/nav_bar_item.dart';
 
 /// Floating, blurred bottom bar for phones and small tablets.
 class const AppNavigationBar({

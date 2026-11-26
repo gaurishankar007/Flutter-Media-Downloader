@@ -1,6 +1,6 @@
-# Media Downloader
+# Media Tool
 
-**Paste a link, pick a quality, and keep the video, audio or photos.** Media Downloader is a Flutter app for **Android, iOS and macOS**. It downloads from YouTube, Facebook, Instagram, Threads, X/Twitter and TikTok, keeps everything in its own Library, and converts or compresses media files. It also shows live device stats.
+**Paste a link, pick a quality, and keep the video, audio or photos.** Media Tool is a Flutter app for **Android, iOS and macOS**. It downloads from YouTube, Facebook, Instagram, Threads, X/Twitter and TikTok, keeps everything in its own Library, and converts or compresses media files. It also shows live device stats.
 
 Everything runs **on your device**. There is no server, account, analytics or crash reporting. Your cookies, history and errors never leave the device.
 
@@ -8,12 +8,12 @@ Everything runs **on your device**. There is no server, account, analytics or cr
 
 ## ⬇️ Download the app
 
-Get the latest version from the **[Releases page](https://github.com/gaurishankar007/Flutter-Media-Downloader/releases)** (pre-releases like `1.0.0-beta.1` are listed there too). No developer tools needed.
+Get the latest version from the **[Releases page](https://github.com/gaurishankar007/Flutter-Media-Tool/releases)** (pre-releases like `1.0.0-beta.1` are listed there too). No developer tools needed.
 
 | Platform | File | How to install |
 |---|---|---|
-| **Android** | `MediaDownloader-<version>-android-arm64-v8a.apk` (most phones). Use `armeabi-v7a` for very old phones and `x86_64` for emulators or Chromebooks. | Open the APK on your phone and allow *Install unknown apps* when asked. Updates install over the old version. |
-| **macOS** | `MediaDownloader-<version>-macos.dmg` (Apple silicon and Intel) | Open the DMG and drag **Media Downloader** to **Applications**. The app isn't notarized, so on first launch macOS blocks it. Click **Done**, then go to **System Settings → Privacy & Security → Open Anyway**. |
+| **Android** | `MediaTool-<version>-android-arm64-v8a.apk` (most phones). Use `armeabi-v7a` for very old phones and `x86_64` for emulators or Chromebooks. | Open the APK on your phone and allow *Install unknown apps* when asked. Updates install over the old version. |
+| **macOS** | `MediaTool-<version>-macos.dmg` (Apple silicon and Intel) | Open the DMG and drag **Media Tool** to **Applications**. The app isn't notarized, so on first launch macOS blocks it. Click **Done**, then go to **System Settings → Privacy & Security → Open Anyway**. |
 | **iPhone** | Not available as a download | Apple only allows installs from the App Store or a developer's Mac, so build it from source (see [Getting started](#getting-started)). |
 
 > **Status:** all v1 features are implemented and compile on all three platforms. On-device testing is in progress, so expect rough edges, especially with site extractors, which break whenever a site changes its pages.
@@ -155,7 +155,7 @@ It polls only while the tab is on screen.
 
 ## How to use it
 
-1. **Download a video:** open a post in the YouTube, Instagram, TikTok or X app → **Share → Copy link** → open Media Downloader → tap **Paste** → **Preview** → pick **Video** and **1080p** → **Download**.
+1. **Download a video:** open a post in the YouTube, Instagram, TikTok or X app → **Share → Copy link** → open Media Tool → tap **Paste** → **Preview** → pick **Video** and **1080p** → **Download**.
 2. **Get the MP3:** do the same, but choose **Audio** and **320 kbps**.
 3. **Save carousel photos:** paste an Instagram, TikTok, Facebook, Threads or X photo post → **Photos** → untick the ones you don't want → **Download N photos**.
 4. **Move it to your gallery:** **Library** → long-press the item → **Save to Photos** → choose whether to remove it from the app.
@@ -172,8 +172,8 @@ It polls only while the tab is on screen.
 
 ### Clone and set up
 ```bash
-git clone https://github.com/gaurishankar007/Flutter-Media-Downloader.git
-cd Flutter-Media-Downloader
+git clone https://github.com/gaurishankar007/Flutter-Media-Tool.git
+cd Flutter-Media-Tool
 flutter pub get
 
 # The engine binaries are not in git. Fetch them once per machine:

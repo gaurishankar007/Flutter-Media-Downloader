@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart' show immutable;
-import 'package:media_downloader/core/messages/app_messages.dart';
+import 'package:media_tool/core/messages/app_messages.dart';
 
 part 'failure_state.dart';
 part 'loading_state.dart';

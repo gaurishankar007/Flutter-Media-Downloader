@@ -61,7 +61,7 @@ jobs:
             --build-name "$BUILD_NAME" --build-number "${{ github.run_number }}"
           mkdir -p dist
           for abi in arm64-v8a armeabi-v7a x86_64; do
-            cp "build/app/outputs/flutter-apk/app-$abi-release.apk" "dist/MediaDownloader-$LABEL-android-$abi.apk"
+            cp "build/app/outputs/flutter-apk/app-$abi-release.apk" "dist/MediaTool-$LABEL-android-$abi.apk"
           done
       - uses: actions/upload-artifact@v7
         with:
@@ -94,10 +94,10 @@ jobs:
           APP=$(ls -d build/macos/Build/Products/Release/*.app | head -1)
           STAGE="$RUNNER_TEMP/dmg"
           mkdir -p "$STAGE" dist
-          ditto "$APP" "$STAGE/Media Downloader.app"
+          ditto "$APP" "$STAGE/Media Tool.app"
           ln -s /Applications "$STAGE/Applications"
-          hdiutil create -volname "Media Downloader" -srcfolder "$STAGE" -ov -format UDZO \
-            "dist/MediaDownloader-$LABEL-macos.dmg"
+          hdiutil create -volname "Media Tool" -srcfolder "$STAGE" -ov -format UDZO \
+            "dist/MediaTool-$LABEL-macos.dmg"
       - uses: actions/upload-artifact@v7
         with:
           name: macos
@@ -128,7 +128,7 @@ jobs:
       - uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ env.TAG }}
-          name: Media Downloader ${{ env.TAG }}
+          name: Media Tool ${{ env.TAG }}
           generate_release_notes: true
           files: dist/*
           prerelease: ${{ contains(env.TAG, '-') }}

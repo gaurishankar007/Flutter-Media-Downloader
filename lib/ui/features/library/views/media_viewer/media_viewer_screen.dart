@@ -3,17 +3,17 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/core/messages/app_messages.dart';
-import 'package:media_downloader/ui/core/themes/app_spacing.dart';
-import 'package:media_downloader/ui/core/themes/theme.dart';
-import 'package:media_downloader/ui/core/ui/base/buttons/app_icon_button.dart';
-import 'package:media_downloader/ui/features/library/providers/library/library_notifier.dart';
-import 'package:media_downloader/ui/features/library/providers/media_viewer/media_viewer_notifier.dart';
-import 'package:media_downloader/ui/features/library/views/media_viewer/widgets/audio_viewer.dart';
-import 'package:media_downloader/ui/features/library/views/media_viewer/widgets/photo_viewer.dart';
-import 'package:media_downloader/ui/features/library/views/media_viewer/widgets/video_viewer.dart';
-import 'package:media_downloader/ui/features/library/views/media_viewer/widgets/viewer_action_bar.dart';
-import 'package:media_downloader/ui/features/library/widgets/library_actions_listener.dart';
+import 'package:media_tool/core/messages/app_messages.dart';
+import 'package:media_tool/ui/core/themes/app_spacing.dart';
+import 'package:media_tool/ui/core/themes/theme.dart';
+import 'package:media_tool/ui/core/ui/base/buttons/app_icon_button.dart';
+import 'package:media_tool/ui/features/library/providers/library/library_notifier.dart';
+import 'package:media_tool/ui/features/library/providers/media_viewer/media_viewer_notifier.dart';
+import 'package:media_tool/ui/features/library/views/media_viewer/widgets/audio_viewer.dart';
+import 'package:media_tool/ui/features/library/views/media_viewer/widgets/photo_viewer.dart';
+import 'package:media_tool/ui/features/library/views/media_viewer/widgets/video_viewer.dart';
+import 'package:media_tool/ui/features/library/views/media_viewer/widgets/viewer_action_bar.dart';
+import 'package:media_tool/ui/features/library/widgets/library_actions_listener.dart';
 
 /// Full-screen viewer for Library items, swiping through [ids].
 /// See docs/features/library.md#viewer.

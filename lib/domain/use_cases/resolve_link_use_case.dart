@@ -1,12 +1,12 @@
 import 'package:injectable/injectable.dart';
-import 'package:media_downloader/core/data/states/data_state.dart';
-import 'package:media_downloader/core/messages/app_messages.dart';
-import 'package:media_downloader/core/types/types.dart';
-import 'package:media_downloader/core/utils/url_utils.dart';
-import 'package:media_downloader/domain/models/media_info.dart';
-import 'package:media_downloader/domain/models/site.dart';
-import 'package:media_downloader/domain/repositories/media_repository.dart';
-import 'package:media_downloader/domain/repositories/post_repository.dart';
+import 'package:media_tool/core/data/states/data_state.dart';
+import 'package:media_tool/core/messages/app_messages.dart';
+import 'package:media_tool/core/types/types.dart';
+import 'package:media_tool/core/utils/url_utils.dart';
+import 'package:media_tool/domain/models/media_info.dart';
+import 'package:media_tool/domain/models/site.dart';
+import 'package:media_tool/domain/repositories/media_repository.dart';
+import 'package:media_tool/domain/repositories/post_repository.dart';
 
 /// Decides whether a pasted link is a video (engine probe) or a photo post
 /// (Dart extractor), and returns what the preview shows.

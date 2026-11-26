@@ -1,8 +1,8 @@
 import 'dart:io';
 
-import 'package:media_downloader/core/data/states/data_state.dart';
-import 'package:media_downloader/core/errors/error_translators/error_translator.dart';
-import 'package:media_downloader/core/messages/app_messages.dart';
+import 'package:media_tool/core/data/states/data_state.dart';
+import 'package:media_tool/core/errors/error_translators/error_translator.dart';
+import 'package:media_tool/core/messages/app_messages.dart';
 
 /// Turns file system errors into a storage failure.
 final class FileSystemErrorTranslator implements ErrorTranslator<FileSystemException> {

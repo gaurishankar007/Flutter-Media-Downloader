@@ -1,5 +1,5 @@
 import 'package:intl/intl.dart';
-import 'package:media_downloader/core/messages/app_messages.dart';
+import 'package:media_tool/core/messages/app_messages.dart';
 
 /// Human-readable sizes, durations and speeds.
 abstract final class FormatUtils {

@@ -2,7 +2,7 @@
 // See also: https://pub.dev/packages/pigeon
 @file:Suppress("UNCHECKED_CAST", "ArrayInDataClass")
 
-package com.gss.mediadownloader.background
+package com.gss.mediatool.background
 
 import android.util.Log
 import io.flutter.plugin.common.BasicMessageChannel
@@ -300,7 +300,7 @@ interface BackgroundWorkHostApi {
     fun setUp(binaryMessenger: BinaryMessenger, api: BackgroundWorkHostApi?, messageChannelSuffix: String = "") {
       val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.media_downloader.BackgroundWorkHostApi.update$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.media_tool.BackgroundWorkHostApi.update$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -318,7 +318,7 @@ interface BackgroundWorkHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.media_downloader.BackgroundWorkHostApi.stop$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.media_tool.BackgroundWorkHostApi.stop$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { _, reply ->
             val wrapped: List<Any?> = try {
@@ -353,7 +353,7 @@ class BackgroundWorkFlutterApi(private val binaryMessenger: BinaryMessenger, pri
 {
     val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
     return suspendCancellableCoroutine { continuation ->
-      val channelName = "dev.flutter.pigeon.media_downloader.BackgroundWorkFlutterApi.cancelRequested$separatedMessageChannelSuffix"
+      val channelName = "dev.flutter.pigeon.media_tool.BackgroundWorkFlutterApi.cancelRequested$separatedMessageChannelSuffix"
       val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
       channel.send(listOf(jobIdArg)) {
         if (it is List<*>) {

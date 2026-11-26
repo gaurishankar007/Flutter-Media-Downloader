@@ -3,17 +3,17 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:injectable/injectable.dart';
-import 'package:media_downloader/config/injector/platform_env.dart';
-import 'package:media_downloader/core/data/states/data_state.dart';
-import 'package:media_downloader/core/errors/engine_errors.dart';
-import 'package:media_downloader/core/errors/error_handler.dart';
-import 'package:media_downloader/core/messages/app_messages.dart';
-import 'package:media_downloader/core/services/app_directories.dart';
-import 'package:media_downloader/core/types/types.dart';
-import 'package:media_downloader/data/models/responses/probe_response_dto.dart';
-import 'package:media_downloader/data/services/platform/media_engine/engine_event.dart';
-import 'package:media_downloader/data/services/platform/media_engine/media_engine.dart';
-import 'package:media_downloader/domain/models/engine_info.dart';
+import 'package:media_tool/config/injector/platform_env.dart';
+import 'package:media_tool/core/data/states/data_state.dart';
+import 'package:media_tool/core/errors/engine_errors.dart';
+import 'package:media_tool/core/errors/error_handler.dart';
+import 'package:media_tool/core/messages/app_messages.dart';
+import 'package:media_tool/core/services/app_directories.dart';
+import 'package:media_tool/core/types/types.dart';
+import 'package:media_tool/data/models/responses/probe_response_dto.dart';
+import 'package:media_tool/data/services/platform/media_engine/engine_event.dart';
+import 'package:media_tool/data/services/platform/media_engine/media_engine.dart';
+import 'package:media_tool/domain/models/engine_info.dart';
 import 'package:path/path.dart' as p;
 
 /// Runs the yt-dlp / ffmpeg binaries bundled in `Contents/Resources/bin/` with

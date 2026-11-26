@@ -1,9 +1,9 @@
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/ui/core/themes/app_spacing.dart';
-import 'package:media_downloader/ui/core/themes/theme.dart';
-import 'package:media_downloader/ui/core/ui/base/cards/app_card.dart';
-import 'package:media_downloader/ui/core/ui/base/icons/gradient_icon_tile.dart';
+import 'package:media_tool/ui/core/themes/app_spacing.dart';
+import 'package:media_tool/ui/core/themes/theme.dart';
+import 'package:media_tool/ui/core/ui/base/cards/app_card.dart';
+import 'package:media_tool/ui/core/ui/base/icons/gradient_icon_tile.dart';
 
 /// One place to pick the input from. Null [onTap] disables it (while a file is read).
 class const SourceTile({

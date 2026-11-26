@@ -1,11 +1,11 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/core/messages/app_messages.dart';
-import 'package:media_downloader/ui/core/themes/app_spacing.dart';
-import 'package:media_downloader/ui/core/ui/base/buttons/ghost_button.dart';
-import 'package:media_downloader/ui/features/library/providers/library/library_notifier.dart';
-import 'package:media_downloader/ui/features/library/views/library/widgets/library_search_field.dart';
-import 'package:media_downloader/ui/features/library/views/library/widgets/sort_menu.dart';
+import 'package:media_tool/core/messages/app_messages.dart';
+import 'package:media_tool/ui/core/themes/app_spacing.dart';
+import 'package:media_tool/ui/core/ui/base/buttons/ghost_button.dart';
+import 'package:media_tool/ui/features/library/providers/library/library_notifier.dart';
+import 'package:media_tool/ui/features/library/views/library/widgets/library_search_field.dart';
+import 'package:media_tool/ui/features/library/views/library/widgets/sort_menu.dart';
 
 /// Search, sort and Select / Done.
 class const LibraryToolbar({super.key}) extends ConsumerWidget {

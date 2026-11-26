@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
-import 'package:media_downloader/domain/models/media_kind.dart';
-import 'package:media_downloader/domain/models/site.dart';
+import 'package:media_tool/domain/models/media_kind.dart';
+import 'package:media_tool/domain/models/site.dart';
 
 /// One file in the Library. Paths are relative to the app's base folder.
 final class const LibraryItem({

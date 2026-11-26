@@ -1,8 +1,8 @@
 import 'dart:developer';
 
 import 'package:flutter/foundation.dart';
-import 'package:media_downloader/core/data/states/data_state.dart';
-import 'package:media_downloader/core/errors/error_recorders/error_recorder.dart';
+import 'package:media_tool/core/data/states/data_state.dart';
+import 'package:media_tool/core/errors/error_recorders/error_recorder.dart';
 
 /// Prints recorded errors to the console in debug builds.
 final class LoggerErrorRecorder implements ErrorRecorder {
@@ -17,7 +17,7 @@ final class LoggerErrorRecorder implements ErrorRecorder {
     final path = failureState?.actionPath.join(' > ');
     log(
       '${failureState?.message ?? 'Error'}${path == null || path.isEmpty ? '' : ' ($path)'}',
-      name: 'media_downloader',
+      name: 'media_tool',
       error: failureState?.error ?? error,
       stackTrace: stackTrace,
     );

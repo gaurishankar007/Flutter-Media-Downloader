@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:media_downloader/domain/models/job_stage.dart';
+import 'package:media_tool/domain/models/job_stage.dart';
 
 /// What a running job is doing during [JobStage.processing].
 enum ProcessingStep { merging, extractingAudio, convertingForIphone, convertingPhotos, makingSlideshow, finishing }

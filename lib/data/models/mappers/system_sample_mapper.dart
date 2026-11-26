@@ -1,6 +1,6 @@
-import 'package:media_downloader/core/clients/platform/system_monitor_api.g.dart';
-import 'package:media_downloader/domain/models/system_metric.dart';
-import 'package:media_downloader/domain/models/system_sample.dart';
+import 'package:media_tool/core/clients/platform/system_monitor_api.g.dart';
+import 'package:media_tool/domain/models/system_metric.dart';
+import 'package:media_tool/domain/models/system_sample.dart';
 
 /// Raw platform counters → [SystemSample]. CPU load and network speed come
 /// from the difference between two readings.

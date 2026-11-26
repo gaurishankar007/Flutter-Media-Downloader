@@ -1,9 +1,9 @@
 import 'package:injectable/injectable.dart';
-import 'package:media_downloader/core/data/states/data_state.dart';
-import 'package:media_downloader/domain/models/convert_request.dart';
-import 'package:media_downloader/domain/models/download_event.dart';
-import 'package:media_downloader/domain/models/job_progress.dart';
-import 'package:media_downloader/domain/repositories/convert_repository.dart';
+import 'package:media_tool/core/data/states/data_state.dart';
+import 'package:media_tool/domain/models/convert_request.dart';
+import 'package:media_tool/domain/models/download_event.dart';
+import 'package:media_tool/domain/models/job_progress.dart';
+import 'package:media_tool/domain/repositories/convert_repository.dart';
 
 /// Runs one conversion end to end: ffmpeg / image encoder → into the Library.
 /// The last [JobProgress] is done, failed or cancelled. See docs/features/convert.md.

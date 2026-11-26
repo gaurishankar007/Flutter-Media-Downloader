@@ -1,8 +1,8 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/domain/models/site.dart';
-import 'package:media_downloader/ui/core/themes/app_spacing.dart';
-import 'package:media_downloader/ui/core/themes/theme.dart';
-import 'package:media_downloader/ui/core/ui/base/media/site_badge.dart';
+import 'package:media_tool/domain/models/site.dart';
+import 'package:media_tool/ui/core/themes/app_spacing.dart';
+import 'package:media_tool/ui/core/themes/theme.dart';
+import 'package:media_tool/ui/core/ui/base/media/site_badge.dart';
 
 /// Badge + name for every supported site.
 class const SupportedSitesRow({super.key}) extends StatelessWidget {

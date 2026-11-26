@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
-import 'package:media_downloader/domain/models/download_request.dart';
-import 'package:media_downloader/domain/models/job_progress.dart';
-import 'package:media_downloader/domain/models/job_stage.dart';
+import 'package:media_tool/domain/models/download_request.dart';
+import 'package:media_tool/domain/models/job_progress.dart';
+import 'package:media_tool/domain/models/job_stage.dart';
 
 /// A download on the Download screen. Stage changes are stored; live numbers
 /// (percent, speed) only live in [progress].

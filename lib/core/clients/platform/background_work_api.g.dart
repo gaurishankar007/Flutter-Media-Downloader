@@ -219,7 +219,7 @@ class BackgroundWorkHostApi {
 
   /// Starts the service, or updates its notification when it's running.
   Future<void> update(BackgroundWorkMsg work) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.media_downloader.BackgroundWorkHostApi.update$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.media_tool.BackgroundWorkHostApi.update$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -237,7 +237,7 @@ class BackgroundWorkHostApi {
 
   /// Stops the service and removes the notification.
   Future<void> stop() async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.media_downloader.BackgroundWorkHostApi.stop$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.media_tool.BackgroundWorkHostApi.stop$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -269,7 +269,7 @@ abstract class BackgroundWorkFlutterApi {
     messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
     {
       final pigeonVar_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.media_downloader.BackgroundWorkFlutterApi.cancelRequested$messageChannelSuffix', pigeonChannelCodec,
+          'dev.flutter.pigeon.media_tool.BackgroundWorkFlutterApi.cancelRequested$messageChannelSuffix', pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
         pigeonVar_channel.setMessageHandler(null);

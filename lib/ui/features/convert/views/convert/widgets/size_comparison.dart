@@ -1,9 +1,9 @@
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/core/messages/app_messages.dart';
-import 'package:media_downloader/ui/core/themes/app_spacing.dart';
-import 'package:media_downloader/ui/core/themes/theme.dart';
-import 'package:media_downloader/ui/features/convert/views/convert/widgets/size_column.dart';
+import 'package:media_tool/core/messages/app_messages.dart';
+import 'package:media_tool/ui/core/themes/app_spacing.dart';
+import 'package:media_tool/ui/core/themes/theme.dart';
+import 'package:media_tool/ui/features/convert/views/convert/widgets/size_column.dart';
 
 /// Before → after sizes with the change as a badge ("−62%" in `success`).
 class const SizeComparison({super.key, required final int beforeBytes, required final int afterBytes})

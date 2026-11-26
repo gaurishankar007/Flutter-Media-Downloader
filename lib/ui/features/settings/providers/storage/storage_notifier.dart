@@ -1,10 +1,10 @@
 import 'package:get_it/get_it.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:media_downloader/core/data/states/data_state.dart';
-import 'package:media_downloader/core/messages/app_messages.dart';
-import 'package:media_downloader/domain/models/storage_usage.dart';
-import 'package:media_downloader/domain/repositories/library_repository.dart';
-import 'package:media_downloader/ui/core/providers/base/base_notifier.dart';
+import 'package:media_tool/core/data/states/data_state.dart';
+import 'package:media_tool/core/messages/app_messages.dart';
+import 'package:media_tool/domain/models/storage_usage.dart';
+import 'package:media_tool/domain/repositories/library_repository.dart';
+import 'package:media_tool/ui/core/providers/base/base_notifier.dart';
 
 part 'storage_state.dart';
 

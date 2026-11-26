@@ -1,11 +1,11 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/core/messages/app_messages.dart';
-import 'package:media_downloader/ui/features/settings/providers/settings/settings_notifier.dart';
-import 'package:media_downloader/ui/features/settings/views/settings/widgets/theme_mode_picker.dart';
-import 'package:media_downloader/ui/features/settings/widgets/settings_section.dart';
-import 'package:media_downloader/ui/features/settings/widgets/settings_tile.dart';
+import 'package:media_tool/core/messages/app_messages.dart';
+import 'package:media_tool/ui/features/settings/providers/settings/settings_notifier.dart';
+import 'package:media_tool/ui/features/settings/views/settings/widgets/theme_mode_picker.dart';
+import 'package:media_tool/ui/features/settings/widgets/settings_section.dart';
+import 'package:media_tool/ui/features/settings/widgets/settings_tile.dart';
 
 /// Theme: System / Dark / Light.
 class const AppearanceSettingsSection({super.key}) extends ConsumerWidget {

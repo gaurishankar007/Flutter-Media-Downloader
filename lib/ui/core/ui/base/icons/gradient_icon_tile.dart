@@ -1,6 +1,6 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/ui/core/themes/app_gradients.dart';
-import 'package:media_downloader/ui/core/themes/theme.dart';
+import 'package:media_tool/ui/core/themes/app_gradients.dart';
+import 'package:media_tool/ui/core/themes/theme.dart';
 
 /// An icon painted with the Aurora gradient on a soft tinted square.
 class const GradientIconTile({super.key, required final IconData icon, final double size = 44})

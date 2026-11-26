@@ -1,10 +1,10 @@
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 import 'package:get_it/get_it.dart';
-import 'package:media_downloader/core/clients/database/tables/download_job_local.dart';
-import 'package:media_downloader/core/clients/database/tables/error_log_local.dart';
-import 'package:media_downloader/core/clients/database/tables/key_value_local.dart';
-import 'package:media_downloader/core/clients/database/tables/library_item_local.dart';
+import 'package:media_tool/core/clients/database/tables/download_job_local.dart';
+import 'package:media_tool/core/clients/database/tables/error_log_local.dart';
+import 'package:media_tool/core/clients/database/tables/key_value_local.dart';
+import 'package:media_tool/core/clients/database/tables/library_item_local.dart';
 import 'package:path_provider/path_provider.dart';
 
 part 'app_database.g.dart';
@@ -23,7 +23,7 @@ final class AppDatabase([QueryExecutor? executor]) extends _$AppDatabase {
   MigrationStrategy get migration => MigrationStrategy(onCreate: (migrator) => migrator.createAll());
 
   static QueryExecutor _openConnection() => driftDatabase(
-    name: 'media_downloader',
+    name: 'media_tool',
     native: const DriftNativeOptions(databaseDirectory: getApplicationSupportDirectory),
   );
 }

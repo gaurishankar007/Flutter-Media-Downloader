@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:media_downloader/domain/models/library_item.dart';
+import 'package:media_tool/domain/models/library_item.dart';
 
 /// A [LibraryItem] with its file and thumbnail resolved to absolute paths for
 /// players and images. In the grid, one entry can stand for a whole post

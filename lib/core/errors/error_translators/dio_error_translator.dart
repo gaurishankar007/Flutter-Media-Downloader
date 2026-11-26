@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
-import 'package:media_downloader/core/data/states/data_state.dart';
-import 'package:media_downloader/core/errors/error_translators/error_translator.dart';
-import 'package:media_downloader/core/messages/app_messages.dart';
+import 'package:media_tool/core/data/states/data_state.dart';
+import 'package:media_tool/core/errors/error_translators/error_translator.dart';
+import 'package:media_tool/core/messages/app_messages.dart';
 
 /// HTTP failures of the photo extractors and direct downloads. The logged
 /// error has the host and path only: no query string, headers or cookies.

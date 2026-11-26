@@ -1,5 +1,5 @@
-import 'package:media_downloader/core/types/types.dart';
-import 'package:media_downloader/domain/models/download_job.dart';
+import 'package:media_tool/core/types/types.dart';
+import 'package:media_tool/domain/models/download_job.dart';
 
 /// Stored Download-screen jobs.
 abstract interface class JobRepository {

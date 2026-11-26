@@ -1,10 +1,10 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/core/messages/app_messages.dart';
-import 'package:media_downloader/domain/models/convert_mode.dart';
-import 'package:media_downloader/ui/core/ui/base/form/segmented_picker.dart';
-import 'package:media_downloader/ui/features/convert/providers/convert_options/convert_options_notifier.dart';
+import 'package:media_tool/core/messages/app_messages.dart';
+import 'package:media_tool/domain/models/convert_mode.dart';
+import 'package:media_tool/ui/core/ui/base/form/segmented_picker.dart';
+import 'package:media_tool/ui/features/convert/providers/convert_options/convert_options_notifier.dart';
 
 /// Convert / Compress. Hidden by the screen when the file can't be compressed.
 class const ModePicker({super.key}) extends ConsumerWidget {

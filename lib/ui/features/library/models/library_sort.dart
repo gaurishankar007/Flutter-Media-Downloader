@@ -1,4 +1,4 @@
-import 'package:media_downloader/core/messages/app_messages.dart';
+import 'package:media_tool/core/messages/app_messages.dart';
 
 /// The Library's sort order.
 enum LibrarySort {

@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:injectable/injectable.dart';
-import 'package:media_downloader/config/injector/platform_env.dart';
-import 'package:media_downloader/core/clients/platform/background_work_api.g.dart';
-import 'package:media_downloader/data/services/platform/background_work/background_work_service.dart';
-import 'package:media_downloader/domain/models/background_activity.dart';
+import 'package:media_tool/config/injector/platform_env.dart';
+import 'package:media_tool/core/clients/platform/background_work_api.g.dart';
+import 'package:media_tool/data/services/platform/background_work/background_work_service.dart';
+import 'package:media_tool/domain/models/background_activity.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 /// `DownloadService` (a `dataSync` foreground service) through Pigeon

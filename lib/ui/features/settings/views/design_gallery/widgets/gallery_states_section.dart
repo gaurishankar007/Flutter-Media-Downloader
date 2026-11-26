@@ -1,12 +1,12 @@
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/core/messages/app_messages.dart';
-import 'package:media_downloader/ui/core/themes/app_spacing.dart';
-import 'package:media_downloader/ui/core/ui/base/cards/app_card.dart';
-import 'package:media_downloader/ui/core/ui/base/states/empty_state.dart';
-import 'package:media_downloader/ui/core/ui/base/states/error_state.dart';
-import 'package:media_downloader/ui/core/ui/base/states/shimmer_box.dart';
-import 'package:media_downloader/ui/core/ui/base/text/section_header.dart';
+import 'package:media_tool/core/messages/app_messages.dart';
+import 'package:media_tool/ui/core/themes/app_spacing.dart';
+import 'package:media_tool/ui/core/ui/base/cards/app_card.dart';
+import 'package:media_tool/ui/core/ui/base/states/empty_state.dart';
+import 'package:media_tool/ui/core/ui/base/states/error_state.dart';
+import 'package:media_tool/ui/core/ui/base/states/shimmer_box.dart';
+import 'package:media_tool/ui/core/ui/base/text/section_header.dart';
 
 class const GalleryStatesSection({super.key}) extends StatelessWidget {
   @override

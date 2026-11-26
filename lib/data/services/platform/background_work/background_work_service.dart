@@ -1,4 +1,4 @@
-import 'package:media_downloader/domain/models/background_activity.dart';
+import 'package:media_tool/domain/models/background_activity.dart';
 
 /// Keeps downloads running while the app is in the background (Android's
 /// foreground service + notification). Methods throw; repositories call them

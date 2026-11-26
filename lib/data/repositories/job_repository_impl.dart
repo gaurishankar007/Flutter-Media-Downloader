@@ -1,11 +1,11 @@
 import 'package:injectable/injectable.dart';
-import 'package:media_downloader/core/data/states/data_state.dart';
-import 'package:media_downloader/core/messages/app_messages.dart';
-import 'package:media_downloader/core/types/types.dart';
-import 'package:media_downloader/data/services/local/job_local_service.dart';
-import 'package:media_downloader/domain/models/download_job.dart';
-import 'package:media_downloader/domain/models/job_progress.dart';
-import 'package:media_downloader/domain/repositories/job_repository.dart';
+import 'package:media_tool/core/data/states/data_state.dart';
+import 'package:media_tool/core/messages/app_messages.dart';
+import 'package:media_tool/core/types/types.dart';
+import 'package:media_tool/data/services/local/job_local_service.dart';
+import 'package:media_tool/domain/models/download_job.dart';
+import 'package:media_tool/domain/models/job_progress.dart';
+import 'package:media_tool/domain/repositories/job_repository.dart';
 
 @LazySingleton(as: JobRepository)
 final class JobRepositoryImpl({required final JobLocalService _localService}) implements JobRepository {

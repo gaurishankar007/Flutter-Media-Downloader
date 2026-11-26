@@ -1,6 +1,6 @@
-import 'package:media_downloader/core/types/types.dart';
-import 'package:media_downloader/domain/models/system_metric.dart';
-import 'package:media_downloader/domain/models/system_sample.dart';
+import 'package:media_tool/core/types/types.dart';
+import 'package:media_tool/domain/models/system_metric.dart';
+import 'package:media_tool/domain/models/system_sample.dart';
 
 /// Live device stats (RAM, CPU, GPU, network) read on the device only.
 abstract interface class SystemMonitorRepository {

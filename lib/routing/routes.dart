@@ -1,5 +1,5 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:media_downloader/routing/routes.gr.dart';
+import 'package:media_tool/routing/routes.gr.dart';
 
 /// Route tree. See docs/core/routing.md.
 @AutoRouterConfig(replaceInRouteName: 'Screen,Route')

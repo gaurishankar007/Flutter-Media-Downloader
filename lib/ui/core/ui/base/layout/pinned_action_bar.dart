@@ -1,5 +1,5 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/ui/core/themes/app_spacing.dart';
+import 'package:media_tool/ui/core/themes/app_spacing.dart';
 
 /// Holds a screen's or sheet's primary action at the bottom, under its
 /// scrolling content (see `ScreenScrollView.bottomAction` and

@@ -1,7 +1,7 @@
 import 'package:injectable/injectable.dart';
-import 'package:media_downloader/config/injector/platform_env.dart';
-import 'package:media_downloader/data/services/platform/background_work/background_work_service.dart';
-import 'package:media_downloader/domain/models/background_activity.dart';
+import 'package:media_tool/config/injector/platform_env.dart';
+import 'package:media_tool/data/services/platform/background_work/background_work_service.dart';
+import 'package:media_tool/domain/models/background_activity.dart';
 
 /// iOS and macOS: macOS keeps running in the background anyway; iOS
 /// background time is handled with the iOS engine (build-order step 5).

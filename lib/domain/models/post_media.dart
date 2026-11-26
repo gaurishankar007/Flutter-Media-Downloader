@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
-import 'package:media_downloader/core/types/types.dart';
-import 'package:media_downloader/domain/models/media_kind.dart';
+import 'package:media_tool/core/types/types.dart';
+import 'package:media_tool/domain/models/media_kind.dart';
 
 /// One photo or video of a post found by a photo extractor, downloaded
 /// directly (no engine). See docs/extractors/photo_extractors.md.

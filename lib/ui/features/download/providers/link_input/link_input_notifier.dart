@@ -1,10 +1,10 @@
 import 'package:get_it/get_it.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:media_downloader/core/messages/app_messages.dart';
-import 'package:media_downloader/core/services/clipboard_service.dart';
-import 'package:media_downloader/core/utils/url_utils.dart';
-import 'package:media_downloader/domain/models/site.dart';
-import 'package:media_downloader/ui/core/providers/base/base_notifier.dart';
+import 'package:media_tool/core/messages/app_messages.dart';
+import 'package:media_tool/core/services/clipboard_service.dart';
+import 'package:media_tool/core/utils/url_utils.dart';
+import 'package:media_tool/domain/models/site.dart';
+import 'package:media_tool/ui/core/providers/base/base_notifier.dart';
 
 part 'link_input_state.dart';
 

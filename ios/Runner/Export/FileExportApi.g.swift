@@ -114,7 +114,7 @@ class FileExportHostApiSetup {
     let channelSuffix = messageChannelSuffix.count > 0 ? ".\(messageChannelSuffix)" : ""
     /// Asks where to save [path] as [suggestedName] and copies it there.
     /// Returns true when saved, false when the user cancelled; throws on failure.
-    let exportFileChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.media_downloader.FileExportHostApi.exportFile\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    let exportFileChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.media_tool.FileExportHostApi.exportFile\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       exportFileChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]

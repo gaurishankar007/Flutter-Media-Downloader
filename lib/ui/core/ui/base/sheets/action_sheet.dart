@@ -1,7 +1,7 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/ui/core/themes/app_spacing.dart';
-import 'package:media_downloader/ui/core/themes/theme.dart';
-import 'package:media_downloader/ui/core/ui/base/sheets/app_bottom_sheet.dart';
+import 'package:media_tool/ui/core/themes/app_spacing.dart';
+import 'package:media_tool/ui/core/themes/theme.dart';
+import 'package:media_tool/ui/core/ui/base/sheets/app_bottom_sheet.dart';
 
 /// One row of an [ActionSheet].
 typedef SheetAction = ({IconData icon, String label, VoidCallback onTap, bool destructive});

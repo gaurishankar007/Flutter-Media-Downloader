@@ -13,25 +13,25 @@
 import 'package:auto_route/auto_route.dart' as _i11;
 import 'package:collection/collection.dart' as _i13;
 import 'package:material_ui/material_ui.dart' as _i12;
-import 'package:media_downloader/ui/features/convert/views/convert/convert_screen.dart'
+import 'package:media_tool/ui/features/convert/views/convert/convert_screen.dart'
     as _i2;
-import 'package:media_downloader/ui/features/download/views/download/download_screen.dart'
+import 'package:media_tool/ui/features/download/views/download/download_screen.dart'
     as _i5;
-import 'package:media_downloader/ui/features/home/views/home_shell/home_shell_screen.dart'
+import 'package:media_tool/ui/features/home/views/home_shell/home_shell_screen.dart'
     as _i6;
-import 'package:media_downloader/ui/features/library/views/library/library_screen.dart'
+import 'package:media_tool/ui/features/library/views/library/library_screen.dart'
     as _i7;
-import 'package:media_downloader/ui/features/library/views/media_viewer/media_viewer_screen.dart'
+import 'package:media_tool/ui/features/library/views/media_viewer/media_viewer_screen.dart'
     as _i8;
-import 'package:media_downloader/ui/features/settings/views/about/about_screen.dart'
+import 'package:media_tool/ui/features/settings/views/about/about_screen.dart'
     as _i1;
-import 'package:media_downloader/ui/features/settings/views/cookies/cookies_screen.dart'
+import 'package:media_tool/ui/features/settings/views/cookies/cookies_screen.dart'
     as _i3;
-import 'package:media_downloader/ui/features/settings/views/design_gallery/design_gallery_screen.dart'
+import 'package:media_tool/ui/features/settings/views/design_gallery/design_gallery_screen.dart'
     as _i4;
-import 'package:media_downloader/ui/features/settings/views/settings/settings_screen.dart'
+import 'package:media_tool/ui/features/settings/views/settings/settings_screen.dart'
     as _i9;
-import 'package:media_downloader/ui/features/system/views/system/system_screen.dart'
+import 'package:media_tool/ui/features/system/views/system/system_screen.dart'
     as _i10;
 
 /// generated route for

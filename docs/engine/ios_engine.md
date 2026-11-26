@@ -62,7 +62,7 @@ The engine adds roughly 285 MB to the app.
 ## Running on your device
 
 - Deployment target iOS 15.0.
-- Change the bundle id from `com.gss.mediadownloader` to your own, then in Xcode → Runner → *Signing & Capabilities* pick your team (automatic signing).
+- Change the bundle id from `com.gss.mediatool` to your own, then in Xcode → Runner → *Signing & Capabilities* pick your team (automatic signing).
 - A free Apple ID installs for 7 days; a paid developer account for about a year.
 - `Info.plist`: `NSPhotoLibraryAddUsageDescription` and `NSPhotoLibraryUsageDescription`.
 

@@ -2,7 +2,7 @@
 
 > Status: built. Files: `lib/core/clients/database/app_database.dart`, `lib/core/clients/database/tables/`. `schemaVersion`: `1`.
 
-All on-device data lives in one drift (SQLite) database, `AppDatabase` (file `media_downloader` in Application Support, opened with `drift_flutter`). Media files themselves are **not** in the database: they're files in the app's folder (see [Core Services: Directories](core_services.md#app-directories)), and the database indexes them.
+All on-device data lives in one drift (SQLite) database, `AppDatabase` (file `media_tool` in Application Support, opened with `drift_flutter`). Media files themselves are **not** in the database: they're files in the app's folder (see [Core Services: Directories](core_services.md#app-directories)), and the database indexes them.
 
 ## Tables
 

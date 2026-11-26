@@ -1,9 +1,9 @@
-import 'package:media_downloader/core/types/types.dart';
-import 'package:media_downloader/domain/models/convert_format.dart';
-import 'package:media_downloader/domain/models/convert_request.dart';
-import 'package:media_downloader/domain/models/download_event.dart';
-import 'package:media_downloader/domain/models/library_item.dart';
-import 'package:media_downloader/domain/models/local_media_info.dart';
+import 'package:media_tool/core/types/types.dart';
+import 'package:media_tool/domain/models/convert_format.dart';
+import 'package:media_tool/domain/models/convert_request.dart';
+import 'package:media_tool/domain/models/download_event.dart';
+import 'package:media_tool/domain/models/library_item.dart';
+import 'package:media_tool/domain/models/local_media_info.dart';
 
 /// The converter: reads local files, runs ffmpeg / the image encoders and
 /// adds results to the Library. See docs/features/convert.md.

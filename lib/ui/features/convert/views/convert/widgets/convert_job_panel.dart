@@ -1,13 +1,13 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/core/messages/app_messages.dart';
-import 'package:media_downloader/core/utils/format_utils.dart';
-import 'package:media_downloader/ui/core/ui/base/buttons/app_icon_button.dart';
-import 'package:media_downloader/ui/core/ui/base/buttons/tonal_button.dart';
-import 'package:media_downloader/ui/core/ui/base/cards/job_card.dart';
-import 'package:media_downloader/ui/core/utils/local_media.dart';
-import 'package:media_downloader/ui/features/convert/providers/convert_job/convert_job_notifier.dart';
+import 'package:media_tool/core/messages/app_messages.dart';
+import 'package:media_tool/core/utils/format_utils.dart';
+import 'package:media_tool/ui/core/ui/base/buttons/app_icon_button.dart';
+import 'package:media_tool/ui/core/ui/base/buttons/tonal_button.dart';
+import 'package:media_tool/ui/core/ui/base/cards/job_card.dart';
+import 'package:media_tool/ui/core/utils/local_media.dart';
+import 'package:media_tool/ui/features/convert/providers/convert_job/convert_job_notifier.dart';
 
 /// The running conversion as a [JobCard] with Cancel, or its failure with Try again.
 class const ConvertJobPanel({super.key}) extends ConsumerWidget {

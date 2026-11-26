@@ -1,8 +1,8 @@
 import 'package:equatable/equatable.dart';
-import 'package:media_downloader/domain/models/post_media.dart';
-import 'package:media_downloader/domain/models/preview_stream.dart';
-import 'package:media_downloader/domain/models/site.dart';
-import 'package:media_downloader/domain/models/video_option.dart';
+import 'package:media_tool/domain/models/post_media.dart';
+import 'package:media_tool/domain/models/preview_stream.dart';
+import 'package:media_tool/domain/models/site.dart';
+import 'package:media_tool/domain/models/video_option.dart';
 
 /// What a probe found behind a link.
 final class const MediaInfo({

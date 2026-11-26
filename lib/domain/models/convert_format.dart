@@ -1,4 +1,4 @@
-import 'package:media_downloader/domain/models/media_kind.dart';
+import 'package:media_tool/domain/models/media_kind.dart';
 
 /// A format the converter writes. See docs/features/convert.md#formats.
 enum ConvertFormat {

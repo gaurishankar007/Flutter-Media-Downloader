@@ -1,17 +1,17 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/core/messages/app_messages.dart';
-import 'package:media_downloader/core/utils/format_utils.dart';
-import 'package:media_downloader/ui/core/ui/base/dialog/confirm_dialog.dart';
-import 'package:media_downloader/ui/core/ui/base/states/shimmer_box.dart';
-import 'package:media_downloader/ui/core/utils/extensions/ref_extension.dart';
-import 'package:media_downloader/ui/features/settings/providers/settings/settings_notifier.dart';
-import 'package:media_downloader/ui/features/settings/providers/storage/storage_notifier.dart';
-import 'package:media_downloader/ui/features/settings/views/settings/widgets/storage_breakdown.dart';
-import 'package:media_downloader/ui/features/settings/widgets/settings_section.dart';
-import 'package:media_downloader/ui/features/settings/widgets/settings_switch_tile.dart';
-import 'package:media_downloader/ui/features/settings/widgets/settings_tile.dart';
+import 'package:media_tool/core/messages/app_messages.dart';
+import 'package:media_tool/core/utils/format_utils.dart';
+import 'package:media_tool/ui/core/ui/base/dialog/confirm_dialog.dart';
+import 'package:media_tool/ui/core/ui/base/states/shimmer_box.dart';
+import 'package:media_tool/ui/core/utils/extensions/ref_extension.dart';
+import 'package:media_tool/ui/features/settings/providers/settings/settings_notifier.dart';
+import 'package:media_tool/ui/features/settings/providers/storage/storage_notifier.dart';
+import 'package:media_tool/ui/features/settings/views/settings/widgets/storage_breakdown.dart';
+import 'package:media_tool/ui/features/settings/widgets/settings_section.dart';
+import 'package:media_tool/ui/features/settings/widgets/settings_switch_tile.dart';
+import 'package:media_tool/ui/features/settings/widgets/settings_tile.dart';
 
 /// The remove-after-save prompt, storage used and "clear saved items".
 class const LibraryStorageSection({super.key}) extends ConsumerWidget {

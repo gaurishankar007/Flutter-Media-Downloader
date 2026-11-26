@@ -1,5 +1,5 @@
-import 'package:media_downloader/domain/models/cookie_browser.dart';
-import 'package:media_downloader/domain/models/download_request.dart';
+import 'package:media_tool/domain/models/cookie_browser.dart';
+import 'package:media_tool/domain/models/download_request.dart';
 import 'package:path/path.dart' as p;
 
 /// Builds every yt-dlp command line. Platform engines only run them. See

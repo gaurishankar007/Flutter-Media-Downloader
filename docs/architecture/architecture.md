@@ -2,7 +2,7 @@
 
 > Status: implemented (all v1 steps; untested on devices).
 
-Media Downloader uses **MVVM** (Model-View-ViewModel), following Flutter's official app architecture guidelines. It is **feature-first**, uses **Riverpod** for state management and **get_it + injectable** for dependency injection, and keeps business logic out of widgets.
+Media Tool uses **MVVM** (Model-View-ViewModel), following Flutter's official app architecture guidelines. It is **feature-first**, uses **Riverpod** for state management and **get_it + injectable** for dependency injection, and keeps business logic out of widgets.
 
 - **UI layer:** Views (screens, widgets) and ViewModels (Riverpod `Notifier`s), grouped by feature.
 - **Logic layer (optional):** use cases, for flows that combine several repositories.
@@ -71,8 +71,8 @@ lib/
 │   │   ├── convert/         # pick -> convert or compress -> result
 │   │   ├── system/          # system monitor (RAM / CPU / GPU / network)
 │   │   └── settings/        # defaults, cookies, storage, engine update, about, design gallery
-│   ├── startup/             # runMediaDownloaderApp, StartupErrorApp, one-time rights notice
-│   └── application.dart     # MediaDownloaderApp (MaterialApp.router)
+│   ├── startup/             # runMediaToolApp, StartupErrorApp, one-time rights notice
+│   └── application.dart     # MediaToolApp (MaterialApp.router)
 └── main.dart
 ```
 

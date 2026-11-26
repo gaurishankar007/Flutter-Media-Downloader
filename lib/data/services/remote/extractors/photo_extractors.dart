@@ -1,11 +1,11 @@
 import 'package:injectable/injectable.dart';
-import 'package:media_downloader/data/services/remote/extractors/facebook_photo_extractor.dart';
-import 'package:media_downloader/data/services/remote/extractors/instagram_photo_extractor.dart';
-import 'package:media_downloader/data/services/remote/extractors/photo_extractor.dart';
-import 'package:media_downloader/data/services/remote/extractors/threads_extractor.dart';
-import 'package:media_downloader/data/services/remote/extractors/tiktok_photo_extractor.dart';
-import 'package:media_downloader/data/services/remote/extractors/x_image_extractor.dart';
-import 'package:media_downloader/domain/models/site.dart';
+import 'package:media_tool/data/services/remote/extractors/facebook_photo_extractor.dart';
+import 'package:media_tool/data/services/remote/extractors/instagram_photo_extractor.dart';
+import 'package:media_tool/data/services/remote/extractors/photo_extractor.dart';
+import 'package:media_tool/data/services/remote/extractors/threads_extractor.dart';
+import 'package:media_tool/data/services/remote/extractors/tiktok_photo_extractor.dart';
+import 'package:media_tool/data/services/remote/extractors/x_image_extractor.dart';
+import 'package:media_tool/domain/models/site.dart';
 
 /// Every photo extractor, looked up by site and link.
 @lazySingleton

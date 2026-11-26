@@ -298,7 +298,7 @@ class SystemMonitorHostApi {
 
 
   Future<SystemCapabilitiesMsg> capabilities() async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.media_downloader.SystemMonitorHostApi.capabilities$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.media_tool.SystemMonitorHostApi.capabilities$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -316,7 +316,7 @@ class SystemMonitorHostApi {
   }
 
   Future<SystemSampleMsg> sample() async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.media_downloader.SystemMonitorHostApi.sample$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.media_tool.SystemMonitorHostApi.sample$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,

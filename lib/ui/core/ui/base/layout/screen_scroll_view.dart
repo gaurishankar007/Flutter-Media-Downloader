@@ -1,9 +1,9 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/ui/core/providers/screen_type/screen_type_notifier.dart';
-import 'package:media_downloader/ui/core/themes/app_spacing.dart';
-import 'package:media_downloader/ui/core/themes/theme.dart';
-import 'package:media_downloader/ui/core/ui/base/layout/pinned_action_bar.dart';
+import 'package:media_tool/ui/core/providers/screen_type/screen_type_notifier.dart';
+import 'package:media_tool/ui/core/themes/app_spacing.dart';
+import 'package:media_tool/ui/core/themes/theme.dart';
+import 'package:media_tool/ui/core/ui/base/layout/pinned_action_bar.dart';
 
 /// A screen's scrolling body: safe area, side padding by breakpoint, content
 /// capped at a readable width, and room for the floating nav bar.

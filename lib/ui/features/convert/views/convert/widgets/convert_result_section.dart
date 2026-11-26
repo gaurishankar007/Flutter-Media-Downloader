@@ -1,13 +1,13 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/core/messages/app_messages.dart';
-import 'package:media_downloader/ui/core/themes/app_spacing.dart';
-import 'package:media_downloader/ui/core/themes/theme.dart';
-import 'package:media_downloader/ui/core/ui/base/cards/app_card.dart';
-import 'package:media_downloader/ui/core/ui/base/media/media_thumbnail.dart';
-import 'package:media_downloader/ui/core/utils/local_media.dart';
-import 'package:media_downloader/ui/features/convert/providers/convert_job/convert_job_notifier.dart';
-import 'package:media_downloader/ui/features/convert/views/convert/widgets/size_comparison.dart';
+import 'package:media_tool/core/messages/app_messages.dart';
+import 'package:media_tool/ui/core/themes/app_spacing.dart';
+import 'package:media_tool/ui/core/themes/theme.dart';
+import 'package:media_tool/ui/core/ui/base/cards/app_card.dart';
+import 'package:media_tool/ui/core/ui/base/media/media_thumbnail.dart';
+import 'package:media_tool/ui/core/utils/local_media.dart';
+import 'package:media_tool/ui/features/convert/providers/convert_job/convert_job_notifier.dart';
+import 'package:media_tool/ui/features/convert/views/convert/widgets/size_comparison.dart';
 
 /// Step 3: preview of the new file and before → after sizes. Its actions
 /// (ResultActions) are pinned at the bottom of the screen.

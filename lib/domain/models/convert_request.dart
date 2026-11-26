@@ -1,9 +1,9 @@
 import 'package:equatable/equatable.dart';
-import 'package:media_downloader/domain/models/convert_format.dart';
-import 'package:media_downloader/domain/models/convert_mode.dart';
-import 'package:media_downloader/domain/models/image_compress_options.dart';
-import 'package:media_downloader/domain/models/local_media_info.dart';
-import 'package:media_downloader/domain/models/video_compress_preset.dart';
+import 'package:media_tool/domain/models/convert_format.dart';
+import 'package:media_tool/domain/models/convert_mode.dart';
+import 'package:media_tool/domain/models/image_compress_options.dart';
+import 'package:media_tool/domain/models/local_media_info.dart';
+import 'package:media_tool/domain/models/video_compress_preset.dart';
 
 /// One conversion or compression of [source] into [format].
 /// See docs/features/convert.md and docs/engine/ffmpeg_recipes.md.

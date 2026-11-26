@@ -1,5 +1,5 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/ui/core/themes/app_spacing.dart';
+import 'package:media_tool/ui/core/themes/app_spacing.dart';
 
 /// The System page cards: one column on phones, two (equal height per row)
 /// once there's room.

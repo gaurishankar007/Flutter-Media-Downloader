@@ -1,14 +1,14 @@
 import 'dart:io';
 
 import 'package:injectable/injectable.dart';
-import 'package:media_downloader/core/data/states/data_state.dart';
-import 'package:media_downloader/core/errors/error_handler.dart';
-import 'package:media_downloader/core/types/types.dart';
-import 'package:media_downloader/data/services/local/cookies_local_service.dart';
-import 'package:media_downloader/data/services/platform/file_picker_service.dart';
-import 'package:media_downloader/domain/models/site.dart';
-import 'package:media_downloader/domain/models/site_cookies.dart';
-import 'package:media_downloader/domain/repositories/cookies_repository.dart';
+import 'package:media_tool/core/data/states/data_state.dart';
+import 'package:media_tool/core/errors/error_handler.dart';
+import 'package:media_tool/core/types/types.dart';
+import 'package:media_tool/data/services/local/cookies_local_service.dart';
+import 'package:media_tool/data/services/platform/file_picker_service.dart';
+import 'package:media_tool/domain/models/site.dart';
+import 'package:media_tool/domain/models/site_cookies.dart';
+import 'package:media_tool/domain/repositories/cookies_repository.dart';
 
 @LazySingleton(as: CookiesRepository)
 final class CookiesRepositoryImpl({

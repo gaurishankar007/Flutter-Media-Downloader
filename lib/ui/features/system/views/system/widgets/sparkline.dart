@@ -1,9 +1,9 @@
 import 'dart:math' as math;
 
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/ui/core/themes/app_gradients.dart';
-import 'package:media_downloader/ui/core/themes/theme.dart';
-import 'package:media_downloader/ui/features/system/providers/system_monitor/system_monitor_notifier.dart';
+import 'package:media_tool/ui/core/themes/app_gradients.dart';
+import 'package:media_tool/ui/core/themes/theme.dart';
+import 'package:media_tool/ui/features/system/providers/system_monitor/system_monitor_notifier.dart';
 
 /// A rolling line chart of the last minute: [values] oldest first, newest at
 /// the right edge. [max] fixes the scale (1 for loads); null scales to the

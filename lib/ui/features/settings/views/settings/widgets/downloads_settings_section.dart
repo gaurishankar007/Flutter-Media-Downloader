@@ -1,13 +1,13 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/core/messages/app_messages.dart';
-import 'package:media_downloader/ui/features/settings/providers/settings/settings_notifier.dart';
-import 'package:media_downloader/ui/features/settings/views/settings/widgets/audio_quality_picker.dart';
-import 'package:media_downloader/ui/features/settings/views/settings/widgets/video_quality_picker.dart';
-import 'package:media_downloader/ui/features/settings/widgets/settings_section.dart';
-import 'package:media_downloader/ui/features/settings/widgets/settings_switch_tile.dart';
-import 'package:media_downloader/ui/features/settings/widgets/settings_tile.dart';
+import 'package:media_tool/core/messages/app_messages.dart';
+import 'package:media_tool/ui/features/settings/providers/settings/settings_notifier.dart';
+import 'package:media_tool/ui/features/settings/views/settings/widgets/audio_quality_picker.dart';
+import 'package:media_tool/ui/features/settings/views/settings/widgets/video_quality_picker.dart';
+import 'package:media_tool/ui/features/settings/widgets/settings_section.dart';
+import 'package:media_tool/ui/features/settings/widgets/settings_switch_tile.dart';
+import 'package:media_tool/ui/features/settings/widgets/settings_tile.dart';
 
 /// Default qualities, iPhone-compatible output and photo format.
 class const DownloadsSettingsSection({super.key}) extends ConsumerWidget {

@@ -1,5 +1,5 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/ui/core/themes/theme.dart';
+import 'package:media_tool/ui/core/themes/theme.dart';
 
 /// A 40px circular icon button on a raised surface. [label] is the tooltip
 /// and the screen-reader label, so it's required.

@@ -1,4 +1,4 @@
-import 'package:media_downloader/core/data/states/data_state.dart';
+import 'package:media_tool/core/data/states/data_state.dart';
 
 /// Records errors to one channel (console, local error log).
 abstract interface class ErrorRecorder {

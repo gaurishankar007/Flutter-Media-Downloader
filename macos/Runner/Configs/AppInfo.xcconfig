@@ -5,10 +5,10 @@
 // 'flutter create' template.
 
 // The application's name. By default this is also the title of the Flutter window.
-PRODUCT_NAME = media_downloader
+PRODUCT_NAME = Media Tool
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.gss.mediadownloader
+PRODUCT_BUNDLE_IDENTIFIER = com.gss.mediatool
 
 // The copyright displayed in application information
 PRODUCT_COPYRIGHT = Copyright © 2026 GSS. All rights reserved.

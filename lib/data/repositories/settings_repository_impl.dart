@@ -1,11 +1,11 @@
 import 'dart:async';
 
 import 'package:injectable/injectable.dart';
-import 'package:media_downloader/core/data/states/data_state.dart';
-import 'package:media_downloader/core/types/types.dart';
-import 'package:media_downloader/data/services/local/settings_local_service.dart';
-import 'package:media_downloader/domain/models/app_settings.dart';
-import 'package:media_downloader/domain/repositories/settings_repository.dart';
+import 'package:media_tool/core/data/states/data_state.dart';
+import 'package:media_tool/core/types/types.dart';
+import 'package:media_tool/data/services/local/settings_local_service.dart';
+import 'package:media_tool/domain/models/app_settings.dart';
+import 'package:media_tool/domain/repositories/settings_repository.dart';
 
 @LazySingleton(as: SettingsRepository)
 final class SettingsRepositoryImpl({required final SettingsLocalService _localService}) implements SettingsRepository {

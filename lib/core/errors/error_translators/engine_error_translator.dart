@@ -1,7 +1,7 @@
 import 'package:flutter/services.dart';
-import 'package:media_downloader/core/data/states/data_state.dart';
-import 'package:media_downloader/core/errors/engine_errors.dart';
-import 'package:media_downloader/core/errors/error_translators/error_translator.dart';
+import 'package:media_tool/core/data/states/data_state.dart';
+import 'package:media_tool/core/errors/engine_errors.dart';
+import 'package:media_tool/core/errors/error_translators/error_translator.dart';
 
 /// yt-dlp / ffmpeg failures, whether thrown in Dart ([EngineException]) or
 /// coming back from the native engine ([PlatformException]).

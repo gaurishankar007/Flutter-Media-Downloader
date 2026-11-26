@@ -1,9 +1,9 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/domain/models/system_metric.dart';
-import 'package:media_downloader/domain/models/system_sample.dart';
-import 'package:media_downloader/ui/features/system/models/system_metric_display.dart';
-import 'package:media_downloader/ui/features/system/views/system/widgets/gauge_metric_card.dart';
-import 'package:media_downloader/ui/features/system/views/system/widgets/network_metric_card.dart';
+import 'package:media_tool/domain/models/system_metric.dart';
+import 'package:media_tool/domain/models/system_sample.dart';
+import 'package:media_tool/ui/features/system/models/system_metric_display.dart';
+import 'package:media_tool/ui/features/system/views/system/widgets/gauge_metric_card.dart';
+import 'package:media_tool/ui/features/system/views/system/widgets/network_metric_card.dart';
 
 /// The System page card for [metric], from the latest reading and the last
 /// minute of [history] (oldest first).

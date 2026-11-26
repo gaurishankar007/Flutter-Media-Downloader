@@ -1,5 +1,5 @@
-import 'package:media_downloader/data/models/responses/extracted_post_dto.dart';
-import 'package:media_downloader/domain/models/site.dart';
+import 'package:media_tool/data/models/responses/extracted_post_dto.dart';
+import 'package:media_tool/domain/models/site.dart';
 
 /// Reads one site's photo posts with plain HTTP + HTML/JSON parsing, so it
 /// works the same on every platform. Throws `ExtractorException` or

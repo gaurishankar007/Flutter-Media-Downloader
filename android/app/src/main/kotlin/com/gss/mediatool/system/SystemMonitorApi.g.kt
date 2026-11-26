@@ -2,7 +2,7 @@
 // See also: https://pub.dev/packages/pigeon
 @file:Suppress("UNCHECKED_CAST", "ArrayInDataClass")
 
-package com.gss.mediadownloader.system
+package com.gss.mediatool.system
 
 import android.util.Log
 import io.flutter.plugin.common.BasicMessageChannel
@@ -371,7 +371,7 @@ interface SystemMonitorHostApi {
     fun setUp(binaryMessenger: BinaryMessenger, api: SystemMonitorHostApi?, messageChannelSuffix: String = "") {
       val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.media_downloader.SystemMonitorHostApi.capabilities$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.media_tool.SystemMonitorHostApi.capabilities$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { _, reply ->
             val wrapped: List<Any?> = try {
@@ -386,7 +386,7 @@ interface SystemMonitorHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.media_downloader.SystemMonitorHostApi.sample$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.media_tool.SystemMonitorHostApi.sample$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { _, reply ->
             val wrapped: List<Any?> = try {

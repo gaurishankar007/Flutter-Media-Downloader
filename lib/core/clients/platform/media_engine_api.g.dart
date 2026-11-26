@@ -276,7 +276,7 @@ class MediaEngineHostApi {
 
   /// Unpacks Python, yt-dlp and ffmpeg (slow on first launch).
   Future<EngineInfoMsg> init() async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.media_downloader.MediaEngineHostApi.init$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.media_tool.MediaEngineHostApi.init$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -295,7 +295,7 @@ class MediaEngineHostApi {
 
   /// Runs yt-dlp with [args] and returns its stdout (the `-J` JSON).
   Future<String> probe(List<String> args) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.media_downloader.MediaEngineHostApi.probe$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.media_tool.MediaEngineHostApi.probe$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -314,7 +314,7 @@ class MediaEngineHostApi {
 
   /// Starts yt-dlp for [jobId]; progress and the result arrive as events.
   Future<void> startDownload(String jobId, List<String> args) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.media_downloader.MediaEngineHostApi.startDownload$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.media_tool.MediaEngineHostApi.startDownload$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -332,7 +332,7 @@ class MediaEngineHostApi {
 
   /// Starts ffmpeg for [jobId]; progress and the result arrive as events.
   Future<void> startFfmpeg(String jobId, List<String> args) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.media_downloader.MediaEngineHostApi.startFfmpeg$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.media_tool.MediaEngineHostApi.startFfmpeg$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -350,7 +350,7 @@ class MediaEngineHostApi {
 
   /// Stops [jobId]'s process. Returns whether one was running.
   Future<bool> cancel(String jobId) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.media_downloader.MediaEngineHostApi.cancel$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.media_tool.MediaEngineHostApi.cancel$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -369,7 +369,7 @@ class MediaEngineHostApi {
 
   /// Updates yt-dlp. Returns the version after the update.
   Future<String> updateYtDlp() async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.media_downloader.MediaEngineHostApi.updateYtDlp$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.media_tool.MediaEngineHostApi.updateYtDlp$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -398,7 +398,7 @@ Stream<EngineEventMsg> engineEvents( {String instanceName = ''}) {
     instanceName = '.$instanceName';
   }
   final EventChannel engineEventsChannel =
-      EventChannel('dev.flutter.pigeon.media_downloader.MediaEngineEventsApi.engineEvents$instanceName', pigeonMethodCodec);
+      EventChannel('dev.flutter.pigeon.media_tool.MediaEngineEventsApi.engineEvents$instanceName', pigeonMethodCodec);
   return engineEventsChannel.receiveBroadcastStream().map((dynamic event) {
     return event as EngineEventMsg;
   });

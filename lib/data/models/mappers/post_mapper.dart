@@ -1,8 +1,8 @@
-import 'package:media_downloader/data/models/responses/extracted_post_dto.dart';
-import 'package:media_downloader/domain/models/media_info.dart';
-import 'package:media_downloader/domain/models/post_media.dart';
-import 'package:media_downloader/domain/models/preview_stream.dart';
-import 'package:media_downloader/domain/models/site.dart';
+import 'package:media_tool/data/models/responses/extracted_post_dto.dart';
+import 'package:media_tool/domain/models/media_info.dart';
+import 'package:media_tool/domain/models/post_media.dart';
+import 'package:media_tool/domain/models/preview_stream.dart';
+import 'package:media_tool/domain/models/site.dart';
 
 /// A photo extractor's [ExtractedPostDto] → the [MediaInfo] the preview shows.
 /// See docs/extractors/photo_extractors.md#interface.

@@ -1,13 +1,13 @@
 import 'package:drift/drift.dart';
 import 'package:injectable/injectable.dart';
-import 'package:media_downloader/core/clients/database/app_database.dart';
-import 'package:media_downloader/core/data/states/data_state.dart';
-import 'package:media_downloader/core/errors/error_handler.dart';
-import 'package:media_downloader/core/types/types.dart';
-import 'package:media_downloader/domain/models/library_item.dart';
-import 'package:media_downloader/domain/models/media_kind.dart';
-import 'package:media_downloader/domain/models/save_destination.dart';
-import 'package:media_downloader/domain/models/site.dart';
+import 'package:media_tool/core/clients/database/app_database.dart';
+import 'package:media_tool/core/data/states/data_state.dart';
+import 'package:media_tool/core/errors/error_handler.dart';
+import 'package:media_tool/core/types/types.dart';
+import 'package:media_tool/domain/models/library_item.dart';
+import 'package:media_tool/domain/models/media_kind.dart';
+import 'package:media_tool/domain/models/save_destination.dart';
+import 'package:media_tool/domain/models/site.dart';
 
 abstract interface class LibraryLocalService {
   /// [origin]: `download` or `convert`.

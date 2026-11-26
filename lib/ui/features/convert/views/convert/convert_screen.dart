@@ -1,25 +1,25 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/core/messages/app_messages.dart';
-import 'package:media_downloader/ui/core/ui/base/layout/screen_header.dart';
-import 'package:media_downloader/ui/core/ui/base/layout/screen_scroll_view.dart';
-import 'package:media_downloader/ui/core/ui/base/text/section_header.dart';
-import 'package:media_downloader/ui/core/utils/extensions/ref_extension.dart';
-import 'package:media_downloader/ui/features/convert/providers/convert_job/convert_job_notifier.dart';
-import 'package:media_downloader/ui/features/convert/providers/convert_options/convert_options_notifier.dart';
-import 'package:media_downloader/ui/features/convert/providers/convert_source/convert_source_notifier.dart';
-import 'package:media_downloader/ui/features/convert/views/convert/widgets/convert_button.dart';
-import 'package:media_downloader/ui/features/convert/views/convert/widgets/convert_job_panel.dart';
-import 'package:media_downloader/ui/features/convert/views/convert/widgets/convert_result_section.dart';
-import 'package:media_downloader/ui/features/convert/views/convert/widgets/format_chips.dart';
-import 'package:media_downloader/ui/features/convert/views/convert/widgets/format_overview_card.dart';
-import 'package:media_downloader/ui/features/convert/views/convert/widgets/image_compress_options.dart';
-import 'package:media_downloader/ui/features/convert/views/convert/widgets/mode_picker.dart';
-import 'package:media_downloader/ui/features/convert/views/convert/widgets/result_actions.dart';
-import 'package:media_downloader/ui/features/convert/views/convert/widgets/source_preview.dart';
-import 'package:media_downloader/ui/features/convert/views/convert/widgets/source_tiles.dart';
-import 'package:media_downloader/ui/features/convert/views/convert/widgets/video_compress_options.dart';
+import 'package:media_tool/core/messages/app_messages.dart';
+import 'package:media_tool/ui/core/ui/base/layout/screen_header.dart';
+import 'package:media_tool/ui/core/ui/base/layout/screen_scroll_view.dart';
+import 'package:media_tool/ui/core/ui/base/text/section_header.dart';
+import 'package:media_tool/ui/core/utils/extensions/ref_extension.dart';
+import 'package:media_tool/ui/features/convert/providers/convert_job/convert_job_notifier.dart';
+import 'package:media_tool/ui/features/convert/providers/convert_options/convert_options_notifier.dart';
+import 'package:media_tool/ui/features/convert/providers/convert_source/convert_source_notifier.dart';
+import 'package:media_tool/ui/features/convert/views/convert/widgets/convert_button.dart';
+import 'package:media_tool/ui/features/convert/views/convert/widgets/convert_job_panel.dart';
+import 'package:media_tool/ui/features/convert/views/convert/widgets/convert_result_section.dart';
+import 'package:media_tool/ui/features/convert/views/convert/widgets/format_chips.dart';
+import 'package:media_tool/ui/features/convert/views/convert/widgets/format_overview_card.dart';
+import 'package:media_tool/ui/features/convert/views/convert/widgets/image_compress_options.dart';
+import 'package:media_tool/ui/features/convert/views/convert/widgets/mode_picker.dart';
+import 'package:media_tool/ui/features/convert/views/convert/widgets/result_actions.dart';
+import 'package:media_tool/ui/features/convert/views/convert/widgets/source_preview.dart';
+import 'package:media_tool/ui/features/convert/views/convert/widgets/source_tiles.dart';
+import 'package:media_tool/ui/features/convert/views/convert/widgets/video_compress_options.dart';
 
 /// Pick a file → convert or compress → result, in one screen.
 /// See docs/features/convert.md.

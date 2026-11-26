@@ -2,7 +2,7 @@
 // See also: https://pub.dev/packages/pigeon
 @file:Suppress("UNCHECKED_CAST", "ArrayInDataClass")
 
-package com.gss.mediadownloader.engine
+package com.gss.mediatool.engine
 
 import android.util.Log
 import io.flutter.plugin.common.BasicMessageChannel
@@ -383,7 +383,7 @@ interface MediaEngineHostApi {
     fun setUp(binaryMessenger: BinaryMessenger, api: MediaEngineHostApi?, messageChannelSuffix: String = "") {
       val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.media_downloader.MediaEngineHostApi.init$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.media_tool.MediaEngineHostApi.init$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { _, reply ->
             CoroutineScope(Dispatchers.Main).launch {
@@ -400,7 +400,7 @@ interface MediaEngineHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.media_downloader.MediaEngineHostApi.probe$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.media_tool.MediaEngineHostApi.probe$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -419,7 +419,7 @@ interface MediaEngineHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.media_downloader.MediaEngineHostApi.startDownload$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.media_tool.MediaEngineHostApi.startDownload$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -438,7 +438,7 @@ interface MediaEngineHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.media_downloader.MediaEngineHostApi.startFfmpeg$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.media_tool.MediaEngineHostApi.startFfmpeg$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -457,7 +457,7 @@ interface MediaEngineHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.media_downloader.MediaEngineHostApi.cancel$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.media_tool.MediaEngineHostApi.cancel$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
@@ -474,7 +474,7 @@ interface MediaEngineHostApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.media_downloader.MediaEngineHostApi.updateYtDlp$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.media_tool.MediaEngineHostApi.updateYtDlp$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { _, reply ->
             CoroutineScope(Dispatchers.Main).launch {
@@ -535,7 +535,7 @@ class EngineEventsEventChannel(messenger: BinaryMessenger, instanceName: String 
   private val channel: EventChannel
 
   init {
-    var channelName = "dev.flutter.pigeon.media_downloader.MediaEngineEventsApi.engineEvents"
+    var channelName = "dev.flutter.pigeon.media_tool.MediaEngineEventsApi.engineEvents"
     if (instanceName.isNotEmpty()) {
       channelName += ".$instanceName"
     }

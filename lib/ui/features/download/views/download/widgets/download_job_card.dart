@@ -2,18 +2,18 @@ import 'package:auto_route/auto_route.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/core/messages/app_messages.dart';
-import 'package:media_downloader/core/utils/format_utils.dart';
-import 'package:media_downloader/domain/models/download_job.dart';
-import 'package:media_downloader/domain/models/job_progress.dart';
-import 'package:media_downloader/routing/routes.gr.dart';
-import 'package:media_downloader/ui/core/ui/base/buttons/app_icon_button.dart';
-import 'package:media_downloader/ui/core/ui/base/buttons/ghost_button.dart';
-import 'package:media_downloader/ui/core/ui/base/buttons/tonal_button.dart';
-import 'package:media_downloader/ui/core/ui/base/cards/job_card.dart';
-import 'package:media_downloader/ui/core/ui/base/dialog/confirm_dialog.dart';
-import 'package:media_downloader/ui/features/download/providers/download_queue/download_queue_notifier.dart';
-import 'package:media_downloader/ui/features/download/providers/engine_status/engine_status_notifier.dart';
+import 'package:media_tool/core/messages/app_messages.dart';
+import 'package:media_tool/core/utils/format_utils.dart';
+import 'package:media_tool/domain/models/download_job.dart';
+import 'package:media_tool/domain/models/job_progress.dart';
+import 'package:media_tool/routing/routes.gr.dart';
+import 'package:media_tool/ui/core/ui/base/buttons/app_icon_button.dart';
+import 'package:media_tool/ui/core/ui/base/buttons/ghost_button.dart';
+import 'package:media_tool/ui/core/ui/base/buttons/tonal_button.dart';
+import 'package:media_tool/ui/core/ui/base/cards/job_card.dart';
+import 'package:media_tool/ui/core/ui/base/dialog/confirm_dialog.dart';
+import 'package:media_tool/ui/features/download/providers/download_queue/download_queue_notifier.dart';
+import 'package:media_tool/ui/features/download/providers/engine_status/engine_status_notifier.dart';
 
 /// A [JobCard] for one download with the actions its stage allows:
 /// Cancel while running, Share / Remove when done, Retry / Dismiss after a

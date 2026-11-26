@@ -1,4 +1,4 @@
-import 'package:media_downloader/domain/models/job_progress.dart';
+import 'package:media_tool/domain/models/job_progress.dart';
 
 /// Turns yt-dlp / ffmpeg stdout lines into [JobProgress]. One instance per
 /// job: it keeps state so a video + audio download reads as one bar that

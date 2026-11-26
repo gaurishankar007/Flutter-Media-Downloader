@@ -1,9 +1,9 @@
 import 'package:flutter_sliding_toast/flutter_sliding_toast.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/ui/core/providers/base/base_notifier.dart';
-import 'package:media_downloader/ui/core/themes/app_spacing.dart';
-import 'package:media_downloader/ui/core/themes/theme.dart';
+import 'package:media_tool/ui/core/providers/base/base_notifier.dart';
+import 'package:media_tool/ui/core/themes/app_spacing.dart';
+import 'package:media_tool/ui/core/themes/theme.dart';
 
 /// Shows toasts stacked like notifications, the oldest in front.
 /// Views call it; notifiers never do.

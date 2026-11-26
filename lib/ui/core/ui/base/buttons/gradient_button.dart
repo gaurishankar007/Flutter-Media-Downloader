@@ -1,8 +1,8 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/ui/core/themes/app_gradients.dart';
-import 'package:media_downloader/ui/core/themes/app_motion.dart';
-import 'package:media_downloader/ui/core/themes/app_spacing.dart';
-import 'package:media_downloader/ui/core/themes/theme.dart';
+import 'package:media_tool/ui/core/themes/app_gradients.dart';
+import 'package:media_tool/ui/core/themes/app_motion.dart';
+import 'package:media_tool/ui/core/themes/app_spacing.dart';
+import 'package:media_tool/ui/core/themes/theme.dart';
 
 /// The one primary action on a screen, filled with the Aurora gradient.
 /// Disabled when [onPressed] is null.

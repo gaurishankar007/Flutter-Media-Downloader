@@ -2,15 +2,15 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:injectable/injectable.dart';
-import 'package:media_downloader/config/injector/platform_env.dart';
-import 'package:media_downloader/core/clients/platform/media_engine_api.g.dart';
-import 'package:media_downloader/core/data/states/data_state.dart';
-import 'package:media_downloader/core/errors/error_handler.dart';
-import 'package:media_downloader/core/types/types.dart';
-import 'package:media_downloader/data/models/responses/probe_response_dto.dart';
-import 'package:media_downloader/data/services/platform/media_engine/engine_event.dart';
-import 'package:media_downloader/data/services/platform/media_engine/media_engine.dart';
-import 'package:media_downloader/domain/models/engine_info.dart';
+import 'package:media_tool/config/injector/platform_env.dart';
+import 'package:media_tool/core/clients/platform/media_engine_api.g.dart';
+import 'package:media_tool/core/data/states/data_state.dart';
+import 'package:media_tool/core/errors/error_handler.dart';
+import 'package:media_tool/core/types/types.dart';
+import 'package:media_tool/data/models/responses/probe_response_dto.dart';
+import 'package:media_tool/data/services/platform/media_engine/engine_event.dart';
+import 'package:media_tool/data/services/platform/media_engine/media_engine.dart';
+import 'package:media_tool/domain/models/engine_info.dart';
 
 /// The Pigeon engine bridge. Android: youtubedl-android (Kotlin:
 /// `engine/MediaEngine.kt`). iOS: embedded CPython + FFmpegKit (Swift:

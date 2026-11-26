@@ -1,12 +1,12 @@
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/core/messages/app_messages.dart';
-import 'package:media_downloader/ui/core/themes/app_spacing.dart';
-import 'package:media_downloader/ui/core/themes/theme.dart';
-import 'package:media_downloader/ui/core/ui/base/cards/app_card.dart';
-import 'package:media_downloader/ui/features/system/views/system/widgets/metric_card_header.dart';
-import 'package:media_downloader/ui/features/system/views/system/widgets/network_speed_row.dart';
-import 'package:media_downloader/ui/features/system/views/system/widgets/sparkline.dart';
+import 'package:media_tool/core/messages/app_messages.dart';
+import 'package:media_tool/ui/core/themes/app_spacing.dart';
+import 'package:media_tool/ui/core/themes/theme.dart';
+import 'package:media_tool/ui/core/ui/base/cards/app_card.dart';
+import 'package:media_tool/ui/features/system/views/system/widgets/metric_card_header.dart';
+import 'package:media_tool/ui/features/system/views/system/widgets/network_speed_row.dart';
+import 'package:media_tool/ui/features/system/views/system/widgets/sparkline.dart';
 
 /// Whole-device download and upload speed with both as sparklines
 /// (bytes per second, oldest first; scaled to the busiest second shown).

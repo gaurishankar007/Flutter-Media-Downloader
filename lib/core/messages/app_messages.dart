@@ -525,7 +525,7 @@ abstract final class CookiesMessages {
 abstract final class AboutMessages {
   /// About screen header.
   static const title = 'About';
-  static const subtitle = 'Media Downloader, for personal use.';
+  static const subtitle = 'Media Tool, for personal use.';
 
   /// Version rows.
   static const versions = 'Versions';
@@ -542,7 +542,7 @@ abstract final class AboutMessages {
   static const copy = 'Copy';
   static String copied(int count) => count == 1 ? 'Copied 1 entry' : 'Copied $count entries';
   static const errorLogEmpty = 'The error log is empty.';
-  static const appName = 'Media Downloader';
+  static const appName = 'Media Tool';
 }
 
 /// System monitor: the live strip on the Download page and the System page.

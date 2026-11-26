@@ -1,6 +1,6 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/ui/core/ui/base/cards/app_card.dart';
-import 'package:media_downloader/ui/core/ui/base/text/section_header.dart';
+import 'package:media_tool/ui/core/ui/base/cards/app_card.dart';
+import 'package:media_tool/ui/core/ui/base/text/section_header.dart';
 
 /// A titled card of settings tiles, separated by dividers.
 class const SettingsSection({super.key, required final String title, required final List<Widget> children})

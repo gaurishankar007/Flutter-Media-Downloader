@@ -2,9 +2,9 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
-import 'package:media_downloader/core/types/types.dart';
-import 'package:media_downloader/data/services/local/cookies_local_service.dart';
-import 'package:media_downloader/domain/models/site.dart';
+import 'package:media_tool/core/types/types.dart';
+import 'package:media_tool/data/services/local/cookies_local_service.dart';
+import 'package:media_tool/domain/models/site.dart';
 
 /// A fetched page and where it ended up after redirects.
 typedef FetchedPage = ({Uri url, String body, int statusCode});

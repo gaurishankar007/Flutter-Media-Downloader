@@ -52,7 +52,7 @@ All in `lib/data/services/platform/`, each behind an interface. Per-platform imp
 | Service | Does | Built on |
 | --- | --- | --- |
 | `MediaEngine` | probe, download, ffmpeg, cancel, update | See [Media Engine](../engine/media_engine.md) |
-| `GalleryService` | Save a video or photo to Photos (iOS/macOS) / the gallery (Android), into a `MediaDownloader` album. **Audio can't** go to Photos (`supports(kind)` is false), so the Library hides that action for audio. | `gal` |
+| `GalleryService` | Save a video or photo to Photos (iOS/macOS) / the gallery (Android), into a `MediaTool` album. **Audio can't** go to Photos (`supports(kind)` is false), so the Library hides that action for audio. | `gal` |
 | `FileExportService` | Save to Files. Returns `true` when saved, `false` when cancelled. Android: SAF `ACTION_CREATE_DOCUMENT` + streamed copy (Kotlin `export/FileExporter.kt`). iOS: `UIDocumentPickerViewController(forExporting:)` (Swift `Runner/Export/FileExporter.swift`). Both through Pigeon `file_export_api.dart`. macOS: `NSSavePanel` via `file_picker`'s `saveFile`, then a Dart file copy. | Pigeon / `file_picker` |
 | `ShareService` | System share sheet for one or more files | `share_plus` |
 | `MediaPickerService` | Converter import: `pickFromPhotos()` (media picker), `pickFromFiles()` (any file), `clearTemporaryFiles()` | `file_picker` |

@@ -1,16 +1,16 @@
 import 'package:get_it/get_it.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:media_downloader/core/data/states/data_state.dart';
-import 'package:media_downloader/domain/models/audio_quality.dart';
-import 'package:media_downloader/domain/models/download_request.dart';
-import 'package:media_downloader/domain/models/media_info.dart';
-import 'package:media_downloader/domain/models/media_kind.dart';
-import 'package:media_downloader/domain/models/site.dart';
-import 'package:media_downloader/domain/models/video_option.dart';
-import 'package:media_downloader/domain/use_cases/resolve_link_use_case.dart';
-import 'package:media_downloader/ui/core/providers/base/base_notifier.dart';
-import 'package:media_downloader/ui/features/download/providers/engine_status/engine_status_notifier.dart';
-import 'package:media_downloader/ui/features/settings/providers/settings/settings_notifier.dart';
+import 'package:media_tool/core/data/states/data_state.dart';
+import 'package:media_tool/domain/models/audio_quality.dart';
+import 'package:media_tool/domain/models/download_request.dart';
+import 'package:media_tool/domain/models/media_info.dart';
+import 'package:media_tool/domain/models/media_kind.dart';
+import 'package:media_tool/domain/models/site.dart';
+import 'package:media_tool/domain/models/video_option.dart';
+import 'package:media_tool/domain/use_cases/resolve_link_use_case.dart';
+import 'package:media_tool/ui/core/providers/base/base_notifier.dart';
+import 'package:media_tool/ui/features/download/providers/engine_status/engine_status_notifier.dart';
+import 'package:media_tool/ui/features/settings/providers/settings/settings_notifier.dart';
 
 part 'media_preview_state.dart';
 

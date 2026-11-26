@@ -1,11 +1,11 @@
 import 'package:injectable/injectable.dart';
-import 'package:media_downloader/core/errors/extractor_errors.dart';
-import 'package:media_downloader/core/types/types.dart';
-import 'package:media_downloader/data/models/responses/extracted_post_dto.dart';
-import 'package:media_downloader/data/services/remote/extractors/extractor_html.dart';
-import 'package:media_downloader/data/services/remote/extractors/photo_extractor.dart';
-import 'package:media_downloader/data/services/remote/site_http_client.dart';
-import 'package:media_downloader/domain/models/site.dart';
+import 'package:media_tool/core/errors/extractor_errors.dart';
+import 'package:media_tool/core/types/types.dart';
+import 'package:media_tool/data/models/responses/extracted_post_dto.dart';
+import 'package:media_tool/data/services/remote/extractors/extractor_html.dart';
+import 'package:media_tool/data/services/remote/extractors/photo_extractor.dart';
+import 'package:media_tool/data/services/remote/site_http_client.dart';
+import 'package:media_tool/domain/models/site.dart';
 
 /// Tweet images (and a tweet's videos alongside them) from X's public
 /// embed data, at full size (`name=orig`).

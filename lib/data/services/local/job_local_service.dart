@@ -2,14 +2,14 @@ import 'dart:convert';
 
 import 'package:drift/drift.dart';
 import 'package:injectable/injectable.dart';
-import 'package:media_downloader/core/clients/database/app_database.dart';
-import 'package:media_downloader/core/data/states/data_state.dart';
-import 'package:media_downloader/core/errors/error_handler.dart';
-import 'package:media_downloader/core/types/types.dart';
-import 'package:media_downloader/domain/models/download_job.dart';
-import 'package:media_downloader/domain/models/download_request.dart';
-import 'package:media_downloader/domain/models/job_progress.dart';
-import 'package:media_downloader/domain/models/job_stage.dart';
+import 'package:media_tool/core/clients/database/app_database.dart';
+import 'package:media_tool/core/data/states/data_state.dart';
+import 'package:media_tool/core/errors/error_handler.dart';
+import 'package:media_tool/core/types/types.dart';
+import 'package:media_tool/domain/models/download_job.dart';
+import 'package:media_tool/domain/models/download_request.dart';
+import 'package:media_tool/domain/models/job_progress.dart';
+import 'package:media_tool/domain/models/job_stage.dart';
 
 abstract interface class JobLocalService {
   /// All jobs, newest first.

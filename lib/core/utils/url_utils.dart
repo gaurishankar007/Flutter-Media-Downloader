@@ -1,4 +1,4 @@
-import 'package:media_downloader/domain/models/site.dart';
+import 'package:media_tool/domain/models/site.dart';
 
 /// Link helpers for pasted text. See docs/core/core_services.md#url-utils.
 abstract final class UrlUtils {

@@ -22,7 +22,7 @@ Idioms:
 
 ## Code Style
 
-- Package imports only (`package:media_downloader/...`), never relative.
+- Package imports only (`package:media_tool/...`), never relative.
 - Single quotes; `const` wherever possible; `if`/`for`/`while` bodies on a new line; constructors first in a class; method tear-offs over lambdas.
 - `Future<void>` for async methods, never `void`.
 - Short comments that explain a non-obvious *why* only.
@@ -70,11 +70,11 @@ VS Code: `.vscode/launch.json` has **Android (debug)**, **iOS (debug)** and **ma
 
 - **How to release:** ask Claude to "release" (the `release` skill in `.claude/skills/release/`). It syncs `FLUTTER_VERSION`, `JAVA_VERSION` and the action versions in the workflow with the local toolchain, validates the build, bumps `pubspec.yaml`, writes the approved notes to `.github/RELEASE_NOTES.md`, then tags and watches CI. The release body is made from `RELEASE_NOTES.md`, `.github/RELEASE_INSTALL.md` and GitHub's auto-generated changelog.
 - **Trigger:** push a tag (`git tag v1.2.0 && git push origin v1.2.0`), or run the *Release* workflow by hand with a version. The tag sets the version name (`--build-name`). The build number is the workflow run number, so it always goes up.
-- **Android job (Ubuntu):** `flutter build apk --release --split-per-abi`, giving `MediaDownloader-<ver>-android-{arm64-v8a,armeabi-v7a,x86_64}.apk`. Releases are signed with the release keystore, which is decoded from the secrets `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD` and `ANDROID_KEY_ALIAS` into `android/key.properties`. R8 minify is off (youtubedl-android isn't R8-proofed).
-- **macOS job:** `fetch_engine_binaries.sh --universal --with-deno`, then `flutter build macos --release`, then `MediaDownloader-<ver>-macos.dmg` with an Applications link. The DMG is **ad-hoc signed and not notarized**, so users allow it once under System Settings → Privacy & Security → *Open Anyway*. The release notes explain this.
+- **Android job (Ubuntu):** `flutter build apk --release --split-per-abi`, giving `MediaTool-<ver>-android-{arm64-v8a,armeabi-v7a,x86_64}.apk`. Releases are signed with the release keystore, which is decoded from the secrets `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD` and `ANDROID_KEY_ALIAS` into `android/key.properties`. R8 minify is off (youtubedl-android isn't R8-proofed).
+- **macOS job:** `fetch_engine_binaries.sh --universal --with-deno`, then `flutter build macos --release`, then `MediaTool-<ver>-macos.dmg` with an Applications link. The DMG is **ad-hoc signed and not notarized**, so users allow it once under System Settings → Privacy & Security → *Open Anyway*. The release notes explain this.
 - **iOS:** no release build (installs need the App Store, TestFlight or a developer's Mac).
 - **Local release builds:** `android/key.properties` (gitignored) points to the keystore outside the repo. Without it, `flutter build apk --release` falls back to debug keys. **Back up the keystore and its password:** losing it means users can't update without uninstalling first.
-- **App ID:** `com.gss.mediadownloader` on all platforms. Never change it after a release, or updates break.
+- **App ID:** `com.gss.mediatool` on all platforms. Never change it after a release, or updates break.
 
 ## Scaffolding (later)
 

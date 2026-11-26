@@ -5,9 +5,9 @@ import 'package:pigeon/pigeon.dart';
 @ConfigurePigeon(
   PigeonOptions(
     dartOut: 'lib/core/clients/platform/background_work_api.g.dart',
-    dartPackageName: 'media_downloader',
-    kotlinOut: 'android/app/src/main/kotlin/com/gss/mediadownloader/background/BackgroundWorkApi.g.kt',
-    kotlinOptions: KotlinOptions(package: 'com.gss.mediadownloader.background'),
+    dartPackageName: 'media_tool',
+    kotlinOut: 'android/app/src/main/kotlin/com/gss/mediatool/background/BackgroundWorkApi.g.kt',
+    kotlinOptions: KotlinOptions(package: 'com.gss.mediatool.background'),
   ),
 )
 /// What the download notification shows.

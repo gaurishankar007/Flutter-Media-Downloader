@@ -1,4 +1,4 @@
-import 'package:media_downloader/core/data/states/data_state.dart';
+import 'package:media_tool/core/data/states/data_state.dart';
 
 /// Translates a thrown error into a [FailureState].
 abstract interface class ErrorTranslator<E extends Object> {

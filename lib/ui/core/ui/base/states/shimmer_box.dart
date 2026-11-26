@@ -1,7 +1,7 @@
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/ui/core/themes/app_spacing.dart';
-import 'package:media_downloader/ui/core/themes/theme.dart';
+import 'package:media_tool/ui/core/themes/app_spacing.dart';
+import 'package:media_tool/ui/core/themes/theme.dart';
 
 /// A loading placeholder with a soft light sweeping across. Build the same
 /// layout as the final content out of these. Static when animations are off.

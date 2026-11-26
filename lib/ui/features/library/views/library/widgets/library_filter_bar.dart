@@ -1,8 +1,8 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/domain/models/site.dart';
-import 'package:media_downloader/ui/core/themes/app_spacing.dart';
-import 'package:media_downloader/ui/core/ui/base/chips/select_chip.dart';
-import 'package:media_downloader/ui/features/library/models/library_kind_filter.dart';
+import 'package:media_tool/domain/models/site.dart';
+import 'package:media_tool/ui/core/themes/app_spacing.dart';
+import 'package:media_tool/ui/core/ui/base/chips/select_chip.dart';
+import 'package:media_tool/ui/features/library/models/library_kind_filter.dart';
 
 /// All · Videos · Audio · Photos, then one chip per site that has items.
 /// Scrolls sideways on narrow screens.

@@ -1,14 +1,14 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/core/utils/format_utils.dart';
-import 'package:media_downloader/routing/routes.gr.dart';
-import 'package:media_downloader/ui/core/themes/app_spacing.dart';
-import 'package:media_downloader/ui/core/ui/base/cards/media_card.dart';
-import 'package:media_downloader/ui/core/utils/local_media.dart';
-import 'package:media_downloader/ui/features/library/models/library_entry.dart';
-import 'package:media_downloader/ui/features/library/providers/library/library_notifier.dart';
-import 'package:media_downloader/ui/features/library/widgets/item_action_sheet.dart';
+import 'package:media_tool/core/utils/format_utils.dart';
+import 'package:media_tool/routing/routes.gr.dart';
+import 'package:media_tool/ui/core/themes/app_spacing.dart';
+import 'package:media_tool/ui/core/ui/base/cards/media_card.dart';
+import 'package:media_tool/ui/core/utils/local_media.dart';
+import 'package:media_tool/ui/features/library/models/library_entry.dart';
+import 'package:media_tool/ui/features/library/providers/library/library_notifier.dart';
+import 'package:media_tool/ui/features/library/widgets/item_action_sheet.dart';
 
 /// The Library's cards. Tap opens the viewer (or toggles selection in
 /// multi-select); long-press / right-click opens the item's actions.

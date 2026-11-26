@@ -5,9 +5,9 @@ import 'package:pigeon/pigeon.dart';
 @ConfigurePigeon(
   PigeonOptions(
     dartOut: 'lib/core/clients/platform/file_export_api.g.dart',
-    dartPackageName: 'media_downloader',
-    kotlinOut: 'android/app/src/main/kotlin/com/gss/mediadownloader/export/FileExportApi.g.kt',
-    kotlinOptions: KotlinOptions(package: 'com.gss.mediadownloader.export'),
+    dartPackageName: 'media_tool',
+    kotlinOut: 'android/app/src/main/kotlin/com/gss/mediatool/export/FileExportApi.g.kt',
+    kotlinOptions: KotlinOptions(package: 'com.gss.mediatool.export'),
     swiftOut: 'ios/Runner/Export/FileExportApi.g.swift',
     swiftOptions: SwiftOptions(errorClassName: 'FileExportPigeonError'),
   ),

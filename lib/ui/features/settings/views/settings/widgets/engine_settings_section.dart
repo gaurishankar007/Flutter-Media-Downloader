@@ -1,14 +1,14 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/core/messages/app_messages.dart';
-import 'package:media_downloader/ui/core/ui/base/buttons/tonal_button.dart';
-import 'package:media_downloader/ui/features/download/providers/engine_status/engine_status_notifier.dart';
-import 'package:media_downloader/ui/features/settings/providers/settings/settings_notifier.dart';
-import 'package:media_downloader/ui/features/settings/views/settings/widgets/engine_update_banner.dart';
-import 'package:media_downloader/ui/features/settings/widgets/settings_section.dart';
-import 'package:media_downloader/ui/features/settings/widgets/settings_switch_tile.dart';
-import 'package:media_downloader/ui/features/settings/widgets/settings_tile.dart';
+import 'package:media_tool/core/messages/app_messages.dart';
+import 'package:media_tool/ui/core/ui/base/buttons/tonal_button.dart';
+import 'package:media_tool/ui/features/download/providers/engine_status/engine_status_notifier.dart';
+import 'package:media_tool/ui/features/settings/providers/settings/settings_notifier.dart';
+import 'package:media_tool/ui/features/settings/views/settings/widgets/engine_update_banner.dart';
+import 'package:media_tool/ui/features/settings/widgets/settings_section.dart';
+import 'package:media_tool/ui/features/settings/widgets/settings_switch_tile.dart';
+import 'package:media_tool/ui/features/settings/widgets/settings_tile.dart';
 
 /// yt-dlp version, Update, and the launch check.
 class const EngineSettingsSection({super.key}) extends ConsumerWidget {

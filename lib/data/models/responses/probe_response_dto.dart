@@ -1,4 +1,4 @@
-import 'package:media_downloader/core/types/types.dart';
+import 'package:media_tool/core/types/types.dart';
 
 /// The parts of `yt-dlp -J` the app uses. See docs/engine/media_engine.md#probe.
 final class const ProbeResponseDto({

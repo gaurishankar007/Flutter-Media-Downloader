@@ -363,7 +363,7 @@ class MediaEngineHostApiSetup {
   static func setUp(binaryMessenger: FlutterBinaryMessenger, api: MediaEngineHostApi?, messageChannelSuffix: String = "") {
     let channelSuffix = messageChannelSuffix.count > 0 ? ".\(messageChannelSuffix)" : ""
     /// Unpacks Python, yt-dlp and ffmpeg (slow on first launch).
-    let initChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.media_downloader.MediaEngineHostApi.init\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    let initChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.media_tool.MediaEngineHostApi.init\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       initChannel.setMessageHandler { _, reply in
         Task { @MainActor in
@@ -379,7 +379,7 @@ class MediaEngineHostApiSetup {
       initChannel.setMessageHandler(nil)
     }
     /// Runs yt-dlp with [args] and returns its stdout (the `-J` JSON).
-    let probeChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.media_downloader.MediaEngineHostApi.probe\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    let probeChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.media_tool.MediaEngineHostApi.probe\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       probeChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
@@ -397,7 +397,7 @@ class MediaEngineHostApiSetup {
       probeChannel.setMessageHandler(nil)
     }
     /// Starts yt-dlp for [jobId]; progress and the result arrive as events.
-    let startDownloadChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.media_downloader.MediaEngineHostApi.startDownload\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    let startDownloadChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.media_tool.MediaEngineHostApi.startDownload\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       startDownloadChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
@@ -414,7 +414,7 @@ class MediaEngineHostApiSetup {
       startDownloadChannel.setMessageHandler(nil)
     }
     /// Starts ffmpeg for [jobId]; progress and the result arrive as events.
-    let startFfmpegChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.media_downloader.MediaEngineHostApi.startFfmpeg\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    let startFfmpegChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.media_tool.MediaEngineHostApi.startFfmpeg\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       startFfmpegChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
@@ -431,7 +431,7 @@ class MediaEngineHostApiSetup {
       startFfmpegChannel.setMessageHandler(nil)
     }
     /// Stops [jobId]'s process. Returns whether one was running.
-    let cancelChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.media_downloader.MediaEngineHostApi.cancel\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    let cancelChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.media_tool.MediaEngineHostApi.cancel\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       cancelChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
@@ -447,7 +447,7 @@ class MediaEngineHostApiSetup {
       cancelChannel.setMessageHandler(nil)
     }
     /// Updates yt-dlp. Returns the version after the update.
-    let updateYtDlpChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.media_downloader.MediaEngineHostApi.updateYtDlp\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    let updateYtDlpChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.media_tool.MediaEngineHostApi.updateYtDlp\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       updateYtDlpChannel.setMessageHandler { _, reply in
         Task { @MainActor in
@@ -519,7 +519,7 @@ class EngineEventsEventChannel {
   private let channel: FlutterEventChannel
 
   init(messenger: FlutterBinaryMessenger, instanceName: String = "") {
-    var channelName = "dev.flutter.pigeon.media_downloader.MediaEngineEventsApi.engineEvents"
+    var channelName = "dev.flutter.pigeon.media_tool.MediaEngineEventsApi.engineEvents"
     if !instanceName.isEmpty {
       channelName += ".\(instanceName)"
     }

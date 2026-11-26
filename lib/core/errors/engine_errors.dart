@@ -1,4 +1,4 @@
-import 'package:media_downloader/core/messages/app_messages.dart';
+import 'package:media_tool/core/messages/app_messages.dart';
 
 /// Thrown when yt-dlp or ffmpeg fails; [output] is its stderr.
 final class const EngineException(final String output) implements Exception {

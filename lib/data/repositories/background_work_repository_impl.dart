@@ -1,10 +1,10 @@
 import 'package:injectable/injectable.dart';
-import 'package:media_downloader/core/data/states/data_state.dart';
-import 'package:media_downloader/core/errors/error_handler.dart';
-import 'package:media_downloader/core/types/types.dart';
-import 'package:media_downloader/data/services/platform/background_work/background_work_service.dart';
-import 'package:media_downloader/domain/models/background_activity.dart';
-import 'package:media_downloader/domain/repositories/background_work_repository.dart';
+import 'package:media_tool/core/data/states/data_state.dart';
+import 'package:media_tool/core/errors/error_handler.dart';
+import 'package:media_tool/core/types/types.dart';
+import 'package:media_tool/data/services/platform/background_work/background_work_service.dart';
+import 'package:media_tool/domain/models/background_activity.dart';
+import 'package:media_tool/domain/repositories/background_work_repository.dart';
 
 @LazySingleton(as: BackgroundWorkRepository)
 final class BackgroundWorkRepositoryImpl({

@@ -1,4 +1,4 @@
-package com.gss.mediadownloader.system
+package com.gss.mediatool.system
 
 import android.app.ActivityManager
 import android.content.Context

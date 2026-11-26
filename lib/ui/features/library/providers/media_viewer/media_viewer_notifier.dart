@@ -1,5 +1,5 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:media_downloader/ui/core/providers/base/base_notifier.dart';
+import 'package:media_tool/ui/core/providers/base/base_notifier.dart';
 
 part 'media_viewer_state.dart';
 

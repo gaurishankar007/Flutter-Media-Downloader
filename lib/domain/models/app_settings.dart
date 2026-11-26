@@ -1,9 +1,9 @@
 import 'package:equatable/equatable.dart';
-import 'package:media_downloader/core/types/types.dart';
-import 'package:media_downloader/domain/models/app_theme_mode.dart';
-import 'package:media_downloader/domain/models/audio_quality.dart';
-import 'package:media_downloader/domain/models/cookie_browser.dart';
-import 'package:media_downloader/domain/models/video_quality.dart';
+import 'package:media_tool/core/types/types.dart';
+import 'package:media_tool/domain/models/app_theme_mode.dart';
+import 'package:media_tool/domain/models/audio_quality.dart';
+import 'package:media_tool/domain/models/cookie_browser.dart';
+import 'package:media_tool/domain/models/video_quality.dart';
 
 /// Every user setting. Stored as JSON under the `settings` key. See docs/features/settings.md.
 final class const AppSettings({

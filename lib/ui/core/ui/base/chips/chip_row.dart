@@ -1,5 +1,5 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/ui/core/themes/app_spacing.dart';
+import 'package:media_tool/ui/core/themes/app_spacing.dart';
 
 /// A single horizontally scrolling row of chips. Wraps onto more lines
 /// instead when [wrap] is true (large text sizes, wide screens).

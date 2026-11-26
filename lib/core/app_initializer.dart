@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
-import 'package:media_downloader/config/injector/injector.dart';
-import 'package:media_downloader/config/injector/platform_env.dart';
-import 'package:media_downloader/core/errors/error_handler.dart';
-import 'package:media_downloader/core/services/app_directories.dart';
-import 'package:media_downloader/domain/repositories/settings_repository.dart';
+import 'package:media_tool/config/injector/injector.dart';
+import 'package:media_tool/config/injector/platform_env.dart';
+import 'package:media_tool/core/errors/error_handler.dart';
+import 'package:media_tool/core/services/app_directories.dart';
+import 'package:media_tool/domain/repositories/settings_repository.dart';
 
 /// Prepares everything the first screen needs. See docs/architecture/app_startup.md.
 abstract final class AppInitializer {

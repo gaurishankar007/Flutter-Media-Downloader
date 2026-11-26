@@ -3,7 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:injectable/injectable.dart';
-import 'package:media_downloader/domain/models/convert_format.dart';
+import 'package:media_tool/domain/models/convert_format.dart';
 
 /// Image convert / compress with the platform's own encoders
 /// (`flutter_image_compress`). Methods throw; repositories call them inside

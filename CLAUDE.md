@@ -1,4 +1,4 @@
-# Media Downloader — Claude Code Rules (CLAUDE.md)
+# Media Tool — Claude Code Rules (CLAUDE.md)
 
 > These rules apply to Claude Code working in this project. Follow them strictly.
 
@@ -6,10 +6,10 @@
 
 ## 1. Project Identity
 
-- **App:** Media Downloader. A Flutter app that downloads videos, audio and photos from YouTube, Facebook, Instagram, Threads, X/Twitter and TikTok, keeps them in its own Library, and converts or compresses media files.
+- **App:** Media Tool. A Flutter app that downloads videos, audio and photos from YouTube, Facebook, Instagram, Threads, X/Twitter and TikTok, keeps them in its own Library, and converts or compresses media files.
 - **Architecture:** Feature-first MVVM with Riverpod, get_it/injectable, auto_route and drift. See `docs/architecture/architecture.md`.
 - **Platforms:** Android, iOS, macOS. No web, no flavors.
-- **Entry point:** `lib/main.dart`. Package name: `media_downloader`.
+- **Entry point:** `lib/main.dart`. Package name: `media_tool`.
 - **Personal-use tool, released on GitHub.** No app stores. Tagged versions publish signed Android APKs and an unsigned macOS DMG to GitHub Releases (`.github/workflows/release.yml`; see `docs/architecture/development.md#releases`). iOS is run from source only. **To release, ALWAYS follow the `release` skill** (`.claude/skills/release/SKILL.md`): toolchain parity check → validate → version → approved notes → tag → watch CI.
 
 ---
@@ -20,7 +20,7 @@
 - **NEVER** update `docs/` as part of a code change without **asking the user first**. Make the change, stop, and let the user try it. Only after they say it's final, ask whether to update the docs, and do it in one pass. Approval to *implement* is not approval to write docs. Exception: a task that is itself a docs task.
 - **NO automated tests.** The project has no test suite; verify changes with `flutter analyze` and by running the app.
 - **ALWAYS** write code for the SDK installed on this machine (Flutter 3.50.1 / Dart 3.14 as of 2026-11-25) with its newest idioms. If a newer SDK is installed than `pubspec.yaml` allows, tell the user and offer to upgrade before writing feature code.
-- **NEVER** use relative imports. Always `package:media_downloader/...`.
+- **NEVER** use relative imports. Always `package:media_tool/...`.
 - **NEVER** write business logic in widgets or Views. It belongs in Notifiers, use cases and repositories.
 - **NEVER** add platform-specific code under `lib/ui/`. Route it through `lib/data/services/platform/` (Pigeon or `dart:io` `Process`).
 - **NEVER** call `MediaEngine`, dio, drift or `dart:io` file APIs from Notifiers or Views. Go through repositories.
@@ -142,7 +142,7 @@ Engine files aren't committed: after cloning run `macos/scripts/fetch_engine_bin
 | ❌ Don't | ✅ Do instead |
 | --- | --- |
 | Business logic in widgets | Notifier / use case / repository |
-| Relative imports | `package:media_downloader/...` |
+| Relative imports | `package:media_tool/...` |
 | Hex colours / raw sizes in widgets | Theme tokens (`context.colors`, `context.text`, spacing) |
 | `SnackBar` | `ToastUtil` with `StateMessage` |
 | Hard-coded user text | `lib/core/messages/app_messages.dart` |

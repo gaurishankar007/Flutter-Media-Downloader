@@ -1,9 +1,9 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/core/messages/app_messages.dart';
-import 'package:media_downloader/ui/core/ui/base/dialog/saved_remove_prompt.dart';
-import 'package:media_downloader/ui/core/utils/toast_util.dart';
-import 'package:media_downloader/ui/features/library/providers/library_actions/library_actions_notifier.dart';
+import 'package:media_tool/core/messages/app_messages.dart';
+import 'package:media_tool/ui/core/ui/base/dialog/saved_remove_prompt.dart';
+import 'package:media_tool/ui/core/utils/toast_util.dart';
+import 'package:media_tool/ui/features/library/providers/library_actions/library_actions_notifier.dart';
 
 /// Shows [libraryActionsProvider]'s toasts and the "remove from app?" prompt.
 /// The Library screen and the viewer both wrap their content in it; only the

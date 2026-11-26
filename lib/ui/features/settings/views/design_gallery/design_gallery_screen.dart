@@ -1,15 +1,15 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/core/messages/app_messages.dart';
-import 'package:media_downloader/ui/core/ui/base/layout/screen_back_button.dart';
-import 'package:media_downloader/ui/core/ui/base/layout/screen_header.dart';
-import 'package:media_downloader/ui/core/ui/base/layout/screen_scroll_view.dart';
-import 'package:media_downloader/ui/features/settings/views/design_gallery/widgets/gallery_controls_section.dart';
-import 'package:media_downloader/ui/features/settings/views/design_gallery/widgets/gallery_jobs_section.dart';
-import 'package:media_downloader/ui/features/settings/views/design_gallery/widgets/gallery_library_section.dart';
-import 'package:media_downloader/ui/features/settings/views/design_gallery/widgets/gallery_overlays_section.dart';
-import 'package:media_downloader/ui/features/settings/views/design_gallery/widgets/gallery_states_section.dart';
-import 'package:media_downloader/ui/features/settings/views/design_gallery/widgets/gallery_toasts_section.dart';
+import 'package:media_tool/core/messages/app_messages.dart';
+import 'package:media_tool/ui/core/ui/base/layout/screen_back_button.dart';
+import 'package:media_tool/ui/core/ui/base/layout/screen_header.dart';
+import 'package:media_tool/ui/core/ui/base/layout/screen_scroll_view.dart';
+import 'package:media_tool/ui/features/settings/views/design_gallery/widgets/gallery_controls_section.dart';
+import 'package:media_tool/ui/features/settings/views/design_gallery/widgets/gallery_jobs_section.dart';
+import 'package:media_tool/ui/features/settings/views/design_gallery/widgets/gallery_library_section.dart';
+import 'package:media_tool/ui/features/settings/views/design_gallery/widgets/gallery_overlays_section.dart';
+import 'package:media_tool/ui/features/settings/views/design_gallery/widgets/gallery_states_section.dart';
+import 'package:media_tool/ui/features/settings/views/design_gallery/widgets/gallery_toasts_section.dart';
 
 /// Debug builds only: every base component on one page.
 @RoutePage()

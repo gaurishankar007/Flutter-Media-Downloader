@@ -2,7 +2,7 @@
 // See also: https://pub.dev/packages/pigeon
 @file:Suppress("UNCHECKED_CAST", "ArrayInDataClass")
 
-package com.gss.mediadownloader.export
+package com.gss.mediatool.export
 
 import android.util.Log
 import io.flutter.plugin.common.BasicMessageChannel
@@ -86,7 +86,7 @@ interface FileExportHostApi {
     fun setUp(binaryMessenger: BinaryMessenger, api: FileExportHostApi?, messageChannelSuffix: String = "") {
       val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.media_downloader.FileExportHostApi.exportFile$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.media_tool.FileExportHostApi.exportFile$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>

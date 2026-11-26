@@ -3,8 +3,8 @@ import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:injectable/injectable.dart';
-import 'package:media_downloader/config/injector/platform_env.dart';
-import 'package:media_downloader/data/services/platform/file_export/file_export_service.dart';
+import 'package:media_tool/config/injector/platform_env.dart';
+import 'package:media_tool/data/services/platform/file_export/file_export_service.dart';
 
 /// `NSSavePanel` (through file_picker), then a streamed copy to the chosen path.
 @LazySingleton(as: FileExportService, env: [PlatformEnv.macos])

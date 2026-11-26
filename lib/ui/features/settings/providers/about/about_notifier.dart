@@ -1,9 +1,9 @@
 import 'package:get_it/get_it.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:media_downloader/core/data/states/data_state.dart';
-import 'package:media_downloader/core/messages/app_messages.dart';
-import 'package:media_downloader/domain/repositories/app_info_repository.dart';
-import 'package:media_downloader/ui/core/providers/base/base_notifier.dart';
+import 'package:media_tool/core/data/states/data_state.dart';
+import 'package:media_tool/core/messages/app_messages.dart';
+import 'package:media_tool/domain/repositories/app_info_repository.dart';
+import 'package:media_tool/ui/core/providers/base/base_notifier.dart';
 
 part 'about_state.dart';
 

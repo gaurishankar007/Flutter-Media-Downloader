@@ -2,11 +2,11 @@ import 'dart:async';
 
 import 'package:get_it/get_it.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:media_downloader/core/data/states/data_state.dart';
-import 'package:media_downloader/domain/models/system_metric.dart';
-import 'package:media_downloader/domain/models/system_sample.dart';
-import 'package:media_downloader/domain/repositories/system_monitor_repository.dart';
-import 'package:media_downloader/ui/core/providers/base/base_notifier.dart';
+import 'package:media_tool/core/data/states/data_state.dart';
+import 'package:media_tool/domain/models/system_metric.dart';
+import 'package:media_tool/domain/models/system_sample.dart';
+import 'package:media_tool/domain/repositories/system_monitor_repository.dart';
+import 'package:media_tool/ui/core/providers/base/base_notifier.dart';
 
 part 'system_monitor_state.dart';
 

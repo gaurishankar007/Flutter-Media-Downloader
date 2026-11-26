@@ -1,6 +1,6 @@
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/core/messages/app_messages.dart';
+import 'package:media_tool/core/messages/app_messages.dart';
 
 /// The Library's kind filter chips.
 enum LibraryKindFilter {

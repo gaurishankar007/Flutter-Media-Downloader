@@ -1,5 +1,5 @@
 import 'package:injectable/injectable.dart';
-import 'package:media_downloader/core/clients/platform/system_monitor_api.g.dart';
+import 'package:media_tool/core/clients/platform/system_monitor_api.g.dart';
 
 /// Raw device counters through Pigeon (Kotlin: `system/`, Swift:
 /// `Runner/SystemMonitor/` on iOS and macOS). Methods throw; the repository

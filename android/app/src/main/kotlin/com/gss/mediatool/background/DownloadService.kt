@@ -1,4 +1,4 @@
-package com.gss.mediadownloader.background
+package com.gss.mediatool.background
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -58,7 +58,7 @@ class DownloadService : Service() {
     companion object {
         private const val CHANNEL_ID = "downloads"
         private const val NOTIFICATION_ID = 7001
-        private const val ACTION_CANCEL = "com.gss.mediadownloader.CANCEL_JOB"
+        private const val ACTION_CANCEL = "com.gss.mediatool.CANCEL_JOB"
         private const val EXTRA_JOB_ID = "jobId"
 
         @Volatile

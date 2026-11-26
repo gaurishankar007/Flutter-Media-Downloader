@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
-import 'package:media_downloader/data/services/remote/site_http_client.dart';
+import 'package:media_tool/data/services/remote/site_http_client.dart';
 import 'package:path/path.dart' as p;
 
 /// Downloads a post's photos and videos straight from their CDN URLs (no

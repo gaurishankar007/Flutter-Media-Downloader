@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:drift/drift.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
-import 'package:media_downloader/core/clients/database/app_database.dart';
-import 'package:media_downloader/core/data/states/data_state.dart';
-import 'package:media_downloader/core/errors/error_recorders/error_recorder.dart';
+import 'package:media_tool/core/clients/database/app_database.dart';
+import 'package:media_tool/core/data/states/data_state.dart';
+import 'package:media_tool/core/errors/error_recorders/error_recorder.dart';
 import 'package:uuid/uuid.dart';
 
 /// Keeps the last [_maxEntries] errors in the local error log (`ErrorLogLocal`),

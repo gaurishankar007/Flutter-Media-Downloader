@@ -1,7 +1,7 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/ui/core/themes/app_colors.dart';
-import 'package:media_downloader/ui/core/themes/app_spacing.dart';
-import 'package:media_downloader/ui/core/themes/app_typography.dart';
+import 'package:media_tool/ui/core/themes/app_colors.dart';
+import 'package:media_tool/ui/core/themes/app_spacing.dart';
+import 'package:media_tool/ui/core/themes/app_typography.dart';
 
 /// Material 3 theme filled from the tokens, so stock widgets (dialogs,
 /// switches, sliders) match without extra styling.

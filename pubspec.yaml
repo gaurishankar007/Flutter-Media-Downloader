@@ -1,4 +1,4 @@
-name: media_downloader
+name: media_tool
 description: "Download and convert videos, audio and photos from YouTube, Facebook, Instagram, Threads, X and TikTok"
 publish_to: 'none'
 

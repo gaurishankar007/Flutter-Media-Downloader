@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
-import 'package:media_downloader/domain/models/site.dart';
-import 'package:media_downloader/ui/features/library/models/library_kind_filter.dart';
-import 'package:media_downloader/ui/features/library/models/library_sort.dart';
+import 'package:media_tool/domain/models/site.dart';
+import 'package:media_tool/ui/features/library/models/library_kind_filter.dart';
+import 'package:media_tool/ui/features/library/models/library_sort.dart';
 
 /// What the Library grid shows: kind, sites (none = all), search text and sort.
 final class const LibraryFilter({

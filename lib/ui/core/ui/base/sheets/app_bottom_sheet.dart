@@ -1,7 +1,7 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/ui/core/themes/app_spacing.dart';
-import 'package:media_downloader/ui/core/themes/theme.dart';
-import 'package:media_downloader/ui/core/ui/base/layout/pinned_action_bar.dart';
+import 'package:media_tool/ui/core/themes/app_spacing.dart';
+import 'package:media_tool/ui/core/themes/theme.dart';
+import 'package:media_tool/ui/core/ui/base/layout/pinned_action_bar.dart';
 
 /// Opens [child] in the app's bottom sheet: drag handle, `xl` top corners,
 /// scrim, keyboard-aware, scrolls when taller than the screen.

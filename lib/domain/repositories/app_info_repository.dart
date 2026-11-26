@@ -1,4 +1,4 @@
-import 'package:media_downloader/core/types/types.dart';
+import 'package:media_tool/core/types/types.dart';
 
 /// Settings → About: app version and the local error log.
 abstract interface class AppInfoRepository {

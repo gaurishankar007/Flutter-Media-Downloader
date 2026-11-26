@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:media_downloader/ui/core/providers/base/base_notifier.dart';
-import 'package:media_downloader/ui/core/utils/toast_util.dart';
+import 'package:media_tool/ui/core/providers/base/base_notifier.dart';
+import 'package:media_tool/ui/core/utils/toast_util.dart';
 
 extension WidgetRefMessages on WidgetRef {
   /// Shows [provider]'s [BaseState.message] as a toast whenever it's set.

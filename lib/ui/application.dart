@@ -1,18 +1,18 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/domain/models/app_theme_mode.dart';
-import 'package:media_downloader/routing/routes.dart';
-import 'package:media_downloader/ui/core/providers/screen_type/screen_type_notifier.dart';
-import 'package:media_downloader/ui/core/themes/theme_data.dart';
-import 'package:media_downloader/ui/features/settings/providers/settings/settings_notifier.dart';
+import 'package:media_tool/domain/models/app_theme_mode.dart';
+import 'package:media_tool/routing/routes.dart';
+import 'package:media_tool/ui/core/providers/screen_type/screen_type_notifier.dart';
+import 'package:media_tool/ui/core/themes/theme_data.dart';
+import 'package:media_tool/ui/features/settings/providers/settings/settings_notifier.dart';
 
 /// Root widget: router, themes and breakpoint tracking.
-class const MediaDownloaderApp({super.key}) extends ConsumerStatefulWidget {
+class const MediaToolApp({super.key}) extends ConsumerStatefulWidget {
   @override
-  ConsumerState<MediaDownloaderApp> createState() => _MediaDownloaderAppState();
+  ConsumerState<MediaToolApp> createState() => _MediaToolAppState();
 }
 
-class _MediaDownloaderAppState extends ConsumerState<MediaDownloaderApp> with WidgetsBindingObserver {
+class _MediaToolAppState extends ConsumerState<MediaToolApp> with WidgetsBindingObserver {
   final _router = AppRouter();
   final _lightTheme = buildTheme(.light);
   final _darkTheme = buildTheme(.dark);
@@ -44,7 +44,7 @@ class _MediaDownloaderAppState extends ConsumerState<MediaDownloaderApp> with Wi
   Widget build(BuildContext context) {
     final themeMode = ref.watch(settingsProvider.select((state) => state.settings.themeMode));
     return MaterialApp.router(
-      title: 'Media Downloader',
+      title: 'Media Tool',
       debugShowCheckedModeBanner: false,
       theme: _lightTheme,
       darkTheme: _darkTheme,

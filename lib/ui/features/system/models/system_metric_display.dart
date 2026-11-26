@@ -1,9 +1,9 @@
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/core/messages/app_messages.dart';
-import 'package:media_downloader/core/utils/format_utils.dart';
-import 'package:media_downloader/domain/models/system_metric.dart';
-import 'package:media_downloader/domain/models/system_sample.dart';
+import 'package:media_tool/core/messages/app_messages.dart';
+import 'package:media_tool/core/utils/format_utils.dart';
+import 'package:media_tool/domain/models/system_metric.dart';
+import 'package:media_tool/domain/models/system_sample.dart';
 
 /// Name, icon and values of a [SystemMetric] as the strip and page show them.
 extension SystemMetricDisplay on SystemMetric {

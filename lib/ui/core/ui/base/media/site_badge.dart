@@ -1,10 +1,10 @@
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/domain/models/site.dart';
-import 'package:media_downloader/ui/core/themes/app_colors.dart';
-import 'package:media_downloader/ui/core/themes/app_gradients.dart';
-import 'package:media_downloader/ui/core/themes/app_typography.dart';
-import 'package:media_downloader/ui/core/themes/theme.dart';
+import 'package:media_tool/domain/models/site.dart';
+import 'package:media_tool/ui/core/themes/app_colors.dart';
+import 'package:media_tool/ui/core/themes/app_gradients.dart';
+import 'package:media_tool/ui/core/themes/app_typography.dart';
+import 'package:media_tool/ui/core/themes/theme.dart';
 
 /// A small rounded square in the site's colour with a generic glyph (not the
 /// site's logo). Only the badge uses the site colour.

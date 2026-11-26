@@ -1,6 +1,6 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/ui/core/themes/app_gradients.dart';
-import 'package:media_downloader/ui/core/themes/theme.dart';
+import 'package:media_tool/ui/core/themes/app_gradients.dart';
+import 'package:media_tool/ui/core/themes/theme.dart';
 
 /// A soft, blurred Aurora glow behind a screen's header. Decoration only.
 class const AuroraGlow({super.key, final double height = 320}) extends StatelessWidget {

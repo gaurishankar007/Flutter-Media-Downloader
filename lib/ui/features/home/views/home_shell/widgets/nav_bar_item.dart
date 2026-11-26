@@ -1,10 +1,10 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/ui/core/themes/app_gradients.dart';
-import 'package:media_downloader/ui/core/themes/app_motion.dart';
-import 'package:media_downloader/ui/core/themes/app_spacing.dart';
-import 'package:media_downloader/ui/core/themes/theme.dart';
-import 'package:media_downloader/ui/features/home/models/nav_destination.dart';
-import 'package:media_downloader/ui/features/home/views/home_shell/widgets/nav_badge_dot.dart';
+import 'package:media_tool/ui/core/themes/app_gradients.dart';
+import 'package:media_tool/ui/core/themes/app_motion.dart';
+import 'package:media_tool/ui/core/themes/app_spacing.dart';
+import 'package:media_tool/ui/core/themes/theme.dart';
+import 'package:media_tool/ui/features/home/models/nav_destination.dart';
+import 'package:media_tool/ui/features/home/views/home_shell/widgets/nav_badge_dot.dart';
 
 /// One bottom-bar tab: gradient pill behind the icon when selected.
 class const NavBarItem({

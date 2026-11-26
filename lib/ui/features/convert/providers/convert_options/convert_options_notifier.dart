@@ -1,14 +1,14 @@
 import 'package:get_it/get_it.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:media_downloader/domain/models/convert_format.dart';
-import 'package:media_downloader/domain/models/convert_mode.dart';
-import 'package:media_downloader/domain/models/convert_request.dart';
-import 'package:media_downloader/domain/models/local_media_info.dart';
-import 'package:media_downloader/domain/models/video_compress_preset.dart';
-import 'package:media_downloader/domain/repositories/settings_repository.dart';
-import 'package:media_downloader/ui/core/providers/base/base_notifier.dart';
-import 'package:media_downloader/ui/features/convert/models/convert_options.dart';
-import 'package:media_downloader/ui/features/convert/providers/convert_source/convert_source_notifier.dart';
+import 'package:media_tool/domain/models/convert_format.dart';
+import 'package:media_tool/domain/models/convert_mode.dart';
+import 'package:media_tool/domain/models/convert_request.dart';
+import 'package:media_tool/domain/models/local_media_info.dart';
+import 'package:media_tool/domain/models/video_compress_preset.dart';
+import 'package:media_tool/domain/repositories/settings_repository.dart';
+import 'package:media_tool/ui/core/providers/base/base_notifier.dart';
+import 'package:media_tool/ui/features/convert/models/convert_options.dart';
+import 'package:media_tool/ui/features/convert/providers/convert_source/convert_source_notifier.dart';
 
 part 'convert_options_state.dart';
 

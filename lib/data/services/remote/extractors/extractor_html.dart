@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:html/dom.dart';
 import 'package:html/parser.dart' as html;
-import 'package:media_downloader/core/types/types.dart';
+import 'package:media_tool/core/types/types.dart';
 
 /// HTML and embedded-JSON helpers shared by the photo extractors.
 abstract final class ExtractorHtml {

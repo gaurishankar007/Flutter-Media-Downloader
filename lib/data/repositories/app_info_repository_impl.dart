@@ -1,11 +1,11 @@
 import 'package:injectable/injectable.dart';
-import 'package:media_downloader/core/data/states/data_state.dart';
-import 'package:media_downloader/core/errors/error_handler.dart';
-import 'package:media_downloader/core/services/clipboard_service.dart';
-import 'package:media_downloader/core/types/types.dart';
-import 'package:media_downloader/data/services/local/error_log_local_service.dart';
-import 'package:media_downloader/data/services/platform/app_info_service.dart';
-import 'package:media_downloader/domain/repositories/app_info_repository.dart';
+import 'package:media_tool/core/data/states/data_state.dart';
+import 'package:media_tool/core/errors/error_handler.dart';
+import 'package:media_tool/core/services/clipboard_service.dart';
+import 'package:media_tool/core/types/types.dart';
+import 'package:media_tool/data/services/local/error_log_local_service.dart';
+import 'package:media_tool/data/services/platform/app_info_service.dart';
+import 'package:media_tool/domain/repositories/app_info_repository.dart';
 
 @LazySingleton(as: AppInfoRepository)
 final class AppInfoRepositoryImpl({

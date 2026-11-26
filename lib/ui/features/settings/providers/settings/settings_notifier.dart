@@ -2,14 +2,14 @@ import 'dart:async';
 
 import 'package:get_it/get_it.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:media_downloader/core/data/states/data_state.dart';
-import 'package:media_downloader/domain/models/app_settings.dart';
-import 'package:media_downloader/domain/models/app_theme_mode.dart';
-import 'package:media_downloader/domain/models/audio_quality.dart';
-import 'package:media_downloader/domain/models/cookie_browser.dart';
-import 'package:media_downloader/domain/models/video_quality.dart';
-import 'package:media_downloader/domain/repositories/settings_repository.dart';
-import 'package:media_downloader/ui/core/providers/base/base_notifier.dart';
+import 'package:media_tool/core/data/states/data_state.dart';
+import 'package:media_tool/domain/models/app_settings.dart';
+import 'package:media_tool/domain/models/app_theme_mode.dart';
+import 'package:media_tool/domain/models/audio_quality.dart';
+import 'package:media_tool/domain/models/cookie_browser.dart';
+import 'package:media_tool/domain/models/video_quality.dart';
+import 'package:media_tool/domain/repositories/settings_repository.dart';
+import 'package:media_tool/ui/core/providers/base/base_notifier.dart';
 
 part 'settings_state.dart';
 

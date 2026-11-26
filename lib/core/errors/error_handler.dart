@@ -1,8 +1,8 @@
 import 'package:get_it/get_it.dart';
-import 'package:media_downloader/core/data/states/data_state.dart';
-import 'package:media_downloader/core/errors/error_recorders/error_recorder.dart';
-import 'package:media_downloader/core/errors/error_translators/error_translator.dart';
-import 'package:media_downloader/core/types/types.dart';
+import 'package:media_tool/core/data/states/data_state.dart';
+import 'package:media_tool/core/errors/error_recorders/error_recorder.dart';
+import 'package:media_tool/core/errors/error_translators/error_translator.dart';
+import 'package:media_tool/core/types/types.dart';
 import 'package:uuid/uuid.dart';
 
 abstract interface class ErrorHandler {

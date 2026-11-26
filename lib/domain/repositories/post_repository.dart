@@ -1,8 +1,8 @@
-import 'package:media_downloader/core/types/types.dart';
-import 'package:media_downloader/domain/models/download_event.dart';
-import 'package:media_downloader/domain/models/download_job.dart';
-import 'package:media_downloader/domain/models/media_info.dart';
-import 'package:media_downloader/domain/models/site.dart';
+import 'package:media_tool/core/types/types.dart';
+import 'package:media_tool/domain/models/download_event.dart';
+import 'package:media_tool/domain/models/download_job.dart';
+import 'package:media_tool/domain/models/media_info.dart';
+import 'package:media_tool/domain/models/site.dart';
 
 /// Photo posts (and Threads): reading them with the Dart extractors and
 /// downloading their files directly. See docs/extractors/photo_extractors.md.

@@ -3,18 +3,18 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/core/messages/app_messages.dart';
-import 'package:media_downloader/routing/routes.gr.dart';
-import 'package:media_downloader/ui/core/themes/app_spacing.dart';
-import 'package:media_downloader/ui/core/ui/base/cards/app_card.dart';
-import 'package:media_downloader/ui/core/ui/base/layout/screen_header.dart';
-import 'package:media_downloader/ui/core/ui/base/layout/screen_scroll_view.dart';
-import 'package:media_downloader/ui/core/ui/base/states/empty_state.dart';
-import 'package:media_downloader/ui/core/ui/base/states/shimmer_box.dart';
-import 'package:media_downloader/ui/features/system/models/monitor_visibility.dart';
-import 'package:media_downloader/ui/features/system/providers/system_monitor/system_monitor_notifier.dart';
-import 'package:media_downloader/ui/features/system/views/system/widgets/metric_cards_grid.dart';
-import 'package:media_downloader/ui/features/system/views/system/widgets/system_metric_card.dart';
+import 'package:media_tool/core/messages/app_messages.dart';
+import 'package:media_tool/routing/routes.gr.dart';
+import 'package:media_tool/ui/core/themes/app_spacing.dart';
+import 'package:media_tool/ui/core/ui/base/cards/app_card.dart';
+import 'package:media_tool/ui/core/ui/base/layout/screen_header.dart';
+import 'package:media_tool/ui/core/ui/base/layout/screen_scroll_view.dart';
+import 'package:media_tool/ui/core/ui/base/states/empty_state.dart';
+import 'package:media_tool/ui/core/ui/base/states/shimmer_box.dart';
+import 'package:media_tool/ui/features/system/models/monitor_visibility.dart';
+import 'package:media_tool/ui/features/system/providers/system_monitor/system_monitor_notifier.dart';
+import 'package:media_tool/ui/features/system/views/system/widgets/metric_cards_grid.dart';
+import 'package:media_tool/ui/features/system/views/system/widgets/system_metric_card.dart';
 
 /// The System tab: live device stats, one card per supported metric with the
 /// last minute as a sparkline. Polls only while this tab is on screen and the

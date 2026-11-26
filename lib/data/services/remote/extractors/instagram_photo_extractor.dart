@@ -1,13 +1,13 @@
 import 'dart:convert';
 
 import 'package:injectable/injectable.dart';
-import 'package:media_downloader/core/errors/extractor_errors.dart';
-import 'package:media_downloader/core/types/types.dart';
-import 'package:media_downloader/data/models/responses/extracted_post_dto.dart';
-import 'package:media_downloader/data/services/remote/extractors/extractor_html.dart';
-import 'package:media_downloader/data/services/remote/extractors/photo_extractor.dart';
-import 'package:media_downloader/data/services/remote/site_http_client.dart';
-import 'package:media_downloader/domain/models/site.dart';
+import 'package:media_tool/core/errors/extractor_errors.dart';
+import 'package:media_tool/core/types/types.dart';
+import 'package:media_tool/data/models/responses/extracted_post_dto.dart';
+import 'package:media_tool/data/services/remote/extractors/extractor_html.dart';
+import 'package:media_tool/data/services/remote/extractors/photo_extractor.dart';
+import 'package:media_tool/data/services/remote/site_http_client.dart';
+import 'package:media_tool/domain/models/site.dart';
 
 /// Instagram photos and carousels from the post's public embed page, which
 /// works without a login. See docs/extractors/photo_extractors.md#instagram.

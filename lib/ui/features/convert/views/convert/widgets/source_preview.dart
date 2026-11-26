@@ -1,13 +1,13 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/core/messages/app_messages.dart';
-import 'package:media_downloader/core/utils/format_utils.dart';
-import 'package:media_downloader/domain/models/local_media_info.dart';
-import 'package:media_downloader/ui/core/themes/app_spacing.dart';
-import 'package:media_downloader/ui/core/themes/theme.dart';
-import 'package:media_downloader/ui/core/ui/base/buttons/ghost_button.dart';
-import 'package:media_downloader/ui/core/ui/base/cards/app_card.dart';
-import 'package:media_downloader/ui/core/ui/base/media/media_thumbnail.dart';
-import 'package:media_downloader/ui/core/utils/local_media.dart';
+import 'package:media_tool/core/messages/app_messages.dart';
+import 'package:media_tool/core/utils/format_utils.dart';
+import 'package:media_tool/domain/models/local_media_info.dart';
+import 'package:media_tool/ui/core/themes/app_spacing.dart';
+import 'package:media_tool/ui/core/themes/theme.dart';
+import 'package:media_tool/ui/core/ui/base/buttons/ghost_button.dart';
+import 'package:media_tool/ui/core/ui/base/cards/app_card.dart';
+import 'package:media_tool/ui/core/ui/base/media/media_thumbnail.dart';
+import 'package:media_tool/ui/core/utils/local_media.dart';
 
 /// The picked file: thumbnail, name and what it is, with Change.
 class const SourcePreview({super.key, required final LocalMediaInfo source, final VoidCallback? onChange})

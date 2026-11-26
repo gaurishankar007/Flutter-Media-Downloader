@@ -1,4 +1,4 @@
-import 'package:media_downloader/data/models/responses/local_media_info_dto.dart';
+import 'package:media_tool/data/models/responses/local_media_info_dto.dart';
 
 /// Reads the input summary ffmpeg prints to stderr for `ffmpeg -i <file>`:
 ///

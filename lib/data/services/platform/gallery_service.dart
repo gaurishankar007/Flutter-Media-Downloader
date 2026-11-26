@@ -1,6 +1,6 @@
 import 'package:gal/gal.dart';
 import 'package:injectable/injectable.dart';
-import 'package:media_downloader/domain/models/media_kind.dart';
+import 'package:media_tool/domain/models/media_kind.dart';
 
 /// Save to Photos (iOS / macOS) or the gallery (Android). Methods throw
 /// (`GalException`); repositories call them inside `ErrorHandler.execute`.
@@ -13,7 +13,7 @@ abstract interface class GalleryService {
 
 @LazySingleton(as: GalleryService)
 final class GalleryServiceImpl implements GalleryService {
-  static const _album = 'MediaDownloader';
+  static const _album = 'MediaTool';
 
   @override
   bool supports(MediaKind kind) => kind != .audio;

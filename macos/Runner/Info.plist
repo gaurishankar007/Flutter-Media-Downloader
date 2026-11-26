@@ -31,6 +31,6 @@
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Save downloaded videos and photos to your library.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Save downloaded videos and photos to the Media Downloader album.</string>
+	<string>Save downloaded videos and photos to the Media Tool album.</string>
 </dict>
 </plist>

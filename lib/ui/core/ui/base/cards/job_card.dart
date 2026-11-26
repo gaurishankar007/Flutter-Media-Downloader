@@ -1,17 +1,17 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:media_downloader/domain/models/job_stage.dart';
-import 'package:media_downloader/domain/models/media_kind.dart';
-import 'package:media_downloader/domain/models/site.dart';
-import 'package:media_downloader/ui/core/themes/app_spacing.dart';
-import 'package:media_downloader/ui/core/themes/theme.dart';
-import 'package:media_downloader/ui/core/ui/base/buttons/app_icon_button.dart';
-import 'package:media_downloader/ui/core/ui/base/cards/app_card.dart';
-import 'package:media_downloader/ui/core/ui/base/media/media_thumbnail.dart';
-import 'package:media_downloader/ui/core/ui/base/media/site_badge.dart';
-import 'package:media_downloader/ui/core/ui/base/progress/gradient_progress_bar.dart';
-import 'package:media_downloader/ui/core/ui/base/progress/stage_label.dart';
+import 'package:media_tool/domain/models/job_stage.dart';
+import 'package:media_tool/domain/models/media_kind.dart';
+import 'package:media_tool/domain/models/site.dart';
+import 'package:media_tool/ui/core/themes/app_spacing.dart';
+import 'package:media_tool/ui/core/themes/theme.dart';
+import 'package:media_tool/ui/core/ui/base/buttons/app_icon_button.dart';
+import 'package:media_tool/ui/core/ui/base/cards/app_card.dart';
+import 'package:media_tool/ui/core/ui/base/media/media_thumbnail.dart';
+import 'package:media_tool/ui/core/ui/base/media/site_badge.dart';
+import 'package:media_tool/ui/core/ui/base/progress/gradient_progress_bar.dart';
+import 'package:media_tool/ui/core/ui/base/progress/stage_label.dart';
 
 /// A download or conversion job: thumbnail, title, stage, progress while
 /// active, and [actions] (Cancel while active; Share / Remove when done).
