@@ -8,7 +8,7 @@ Everything runs **on your device**. There is no server, account, analytics or cr
 
 ## ⬇️ Download the app
 
-Get the latest version from the **[Releases page](https://github.com/gaurishankar007/Flutter-Media-Downloader/releases/latest)**. No developer tools needed.
+Get the latest version from the **[Releases page](https://github.com/gaurishankar007/Flutter-Media-Downloader/releases)** (pre-releases like `1.0.0-beta.1` are listed there too). No developer tools needed.
 
 | Platform | File | How to install |
 |---|---|---|

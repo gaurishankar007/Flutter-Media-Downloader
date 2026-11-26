@@ -2,7 +2,7 @@ name: media_downloader
 description: "Download and convert videos, audio and photos from YouTube, Facebook, Instagram, Threads, X and TikTok"
 publish_to: 'none'
 
-version: 1.0.0+1
+version: 1.0.0+2
 
 environment:
   sdk: ^3.14.0

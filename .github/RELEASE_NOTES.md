@@ -1,4 +1,8 @@
-- First release: download videos, audio and photos from YouTube, Facebook, Instagram, Threads, X and TikTok.
-- Library with Save to Photos / Files, Share and Delete.
-- Convert and compress videos and images.
-- System tab with live RAM, CPU, GPU and network stats (whatever your device supports).
+- Download videos (MP4, up to 4K) and audio (MP3) from YouTube, Facebook, Instagram, Threads, X and TikTok, with a preview and quality choice before downloading.
+- Save photos from Instagram carousels, TikTok slideshows, Facebook, Threads and X posts, picking which ones to keep.
+- iPhone-compatible video by default, so files play in the Photos app.
+- Downloads keep running in the background on Android, with a progress notification.
+- Library: search, filter and sort everything you download, and view, play, Save to Photos/Files, share or delete it.
+- Convert videos and images between formats, extract MP3/M4A audio, and compress videos and images.
+- System tab with live RAM, CPU, GPU and network speed (whatever your device supports).
+- Settings: default qualities, per-site cookies for private posts, and one-tap engine updates when a site changes.
