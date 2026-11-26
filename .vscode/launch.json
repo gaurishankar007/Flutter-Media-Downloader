@@ -2,48 +2,25 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Android (Debug)",
+      "name": "Debug",
       "request": "launch",
       "type": "dart",
       "program": "lib/main.dart",
       "flutterMode": "debug"
     },
     {
-      "name": "iOS (Debug)",
+      "name": "Profile",
       "request": "launch",
       "type": "dart",
       "program": "lib/main.dart",
-      "flutterMode": "debug"
+      "flutterMode": "profile"
     },
     {
-      "name": "macOS (Debug)",
-      "request": "launch",
-      "type": "dart",
-      "program": "lib/main.dart",
-      "flutterMode": "debug",
-      "deviceId": "macos"
-    },
-    {
-      "name": "Android (Release)",
+      "name": "Release",
       "request": "launch",
       "type": "dart",
       "program": "lib/main.dart",
       "flutterMode": "release"
-    },
-    {
-      "name": "iOS (Release)",
-      "request": "launch",
-      "type": "dart",
-      "program": "lib/main.dart",
-      "flutterMode": "release"
-    },
-    {
-      "name": "macOS (Release)",
-      "request": "launch",
-      "type": "dart",
-      "program": "lib/main.dart",
-      "flutterMode": "release",
-      "deviceId": "macos"
     }
   ]
 }
