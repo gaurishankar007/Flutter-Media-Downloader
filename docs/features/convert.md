@@ -68,6 +68,8 @@ The source's own format is left out. MP4 / MOV remux (`-c copy`) when the video 
 | `convertOptionsProvider` (`ConvertOptionsNotifier`) | `ConvertOptions` and the resulting `ConvertRequest` (with `estimatedBytes`); rebuilt for each new source | `setMode()`, `setFormat()`, `setPreset()`, `setHeight()`, `setTargetMb()`, `toggleTargetMb()`, `setImageSize()`, `setImageQuality()`, `setStripMetadata()`, `setIphoneCompatible()` |
 | `convertJobProvider` (`ConvertJobNotifier`, keep-alive) | The running job's `JobProgress`, the result `LibraryItem` and its thumbnail | `start(request)`, `cancel()`, `reset()`, `saveToPhotos()`, `saveToFiles()`, `share()` |
 
+- **Follows the Library and Settings.** `ConvertSourceNotifier` and `ConvertJobNotifier` watch `LibraryRepository.watchItems()`: deleting a Library-picked source in the Library clears the pick, and deleting the result's Library item resets the result card, so Convert never offers a missing file. Both react only to real removals (an id in the previous emission but not the current one). `ConvertOptionsNotifier` listens to the global **iPhone-compatible** setting and applies a change to the file already picked; the per-file switch still overrides it afterwards.
+
 `ConvertMediaUseCase` runs the job: `ConvertRepository.run` (ffmpeg or image encoder) → `save` (move into `downloads/`, thumbnail, Library row) → `done`, clearing `work/<jobId>/` at the end. Video/audio jobs wait for the shared `FfmpegSlot`, so a download's iPhone re-encode and a conversion never run together. The result's Save to Photos / Files show a toast but no "remove from app?" prompt.
 
 ## Deferred (later stage)

@@ -88,7 +88,7 @@ flowchart TD
 
 - **Video:** `video_player` on the local file, tap to play/pause, `PlayerControls` (scrubber, play/pause); pauses when swiped away.
 - **Audio:** cover art (or the Aurora gradient with a note), title, `PlayerControls`.
-- **Photo:** zoomable (`InteractiveViewer`), Hero from the grid card.
+- **Photo:** zoomable (`InteractiveViewer`), Hero from the grid card; a broken-image icon when the file is missing (removed outside the app).
 - `ViewerActionBar`: Save to Photos (not for audio), Save to Files, Share, **Info** (`ItemInfoSheet`: file name, size, format, duration, date added, source URL as selectable text), Delete.
 
 Not built yet: Convert from the viewer, Show in Finder, and an "Open link" button.

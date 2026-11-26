@@ -35,7 +35,7 @@ Areas, in file order:
 | `SettingsMessages` | Settings screen |
 | `CookiesMessages` | Cookies screen |
 | `AboutMessages` | About screen |
-| `SystemMessages` | System tab (metric names, idle speed, unavailable state) |
+| `SystemMessages` | System tab (metric names, storage and battery rows, idle speed, unavailable state) |
 | `DesignGalleryMessages` | Debug-only design gallery, incl. the toast demo strings |
 
 ## Writing Style
@@ -56,6 +56,8 @@ Areas, in file order:
 | 5 | Removed `EngineMessages.notOnThisPlatform` (every platform has an engine), the duplicates `DownloadMessages.retry` (use `CommonMessages.retry`) and `ExtractorMessages.network` (use `EngineMessages.network`), and `CommonMessages.comingSoon` (every feature is built). |
 | 6 | Added `NavMessages.system` (System is a tab); removed `SystemMessages.openSystem`. |
 | 7 | Added `DesignGalleryMessages` toast demo strings, `ConvertMessages.savePhotosShort` / `saveFilesShort`, `LibraryMessages.loadFailed`, `SystemMessages.unavailableTitle` / `unavailableBody`. |
+| 8 | Added `SystemMessages` storage and battery strings. |
+| 9 | Added `SystemMessages.batteryCycles` and `batteryHealthWithPercent`. |
 
 ## Localisation
 

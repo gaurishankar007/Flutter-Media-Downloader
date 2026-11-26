@@ -14,7 +14,7 @@ Get the latest version from the **[Releases page](https://github.com/gaurishanka
 |---|---|---|
 | **Android** | `MediaTool-<version>-android-arm64-v8a.apk` (most phones). Use `armeabi-v7a` for very old phones and `x86_64` for emulators or Chromebooks. | Open the APK on your phone and allow *Install unknown apps* when asked. Updates install over the old version. |
 | **macOS** | `MediaTool-<version>-macos.dmg` (Apple silicon and Intel) | Open the DMG and drag **Media Tool** to **Applications**. The app isn't notarized, so on first launch macOS blocks it. Click **Done**, then go to **System Settings → Privacy & Security → Open Anyway**. |
-| **iPhone** | Not available as a download | Apple only allows installs from the App Store or a developer's Mac, so build it from source (see [Getting started](#getting-started)). |
+| **iPhone** | Not available as a download | Apple only allows installs from the App Store or a developer's Mac, so install it from source with your own Apple ID (see [Install on an iPhone](#install-on-an-iphone)). |
 
 > **Status:** all v1 features are implemented and compile on all three platforms. On-device testing is in progress, so expect rough edges, especially with site extractors, which break whenever a site changes its pages.
 
@@ -74,7 +74,7 @@ Get the latest version from the **[Releases page](https://github.com/gaurishanka
 | Shrink a file | Video: quality presets, a max resolution or "aim for about N MB". Image: resize, set quality, strip metadata |
 | Download private or login-only posts | Import a `cookies.txt` for that site. It's used only for that site. |
 | Keep it working when sites change | One-tap yt-dlp engine update, plus a daily check for new versions |
-| Watch your device | The **System** tab shows live RAM, CPU, GPU and network speed (whatever the platform supports) |
+| Watch your device | The **System** tab shows live network speed, battery, RAM, CPU, GPU and storage, including how much space Media Tool's files take (whatever the platform supports) |
 
 ## Supported sites
 
@@ -134,15 +134,15 @@ The bottom bar shows on phones and a sidebar shows on tablets and macOS.
 | Image | Longest side or %, quality, strip metadata |
 
 ### 📊 System
-Live device stats that update every second, each with a 60-second graph. It only shows what your platform can measure. There are no "not available" placeholders.
+Live device stats. Network, RAM, CPU and GPU update every second with a 60-second graph; battery and storage update every few seconds. It only shows what your platform can measure. There are no "not available" placeholders.
 
-| Platform | RAM | CPU | GPU | Network ↓ / ↑ |
-|---|---|---|---|---|
-| Android | ✅ | — | — | ✅ whole device |
-| iOS | ✅ | ✅ | — | ✅ whole device |
-| macOS | ✅ | ✅ | ✅ | ✅ whole device |
+| Platform | Network ↓ / ↑ | Battery | RAM | CPU | GPU | Storage |
+|---|---|---|---|---|---|---|
+| Android | ✅ whole device | ✅ level, status, temperature, health, cycles (Android 14+, if the phone reports them) | ✅ | — | — | ✅ |
+| iOS | ✅ whole device | ✅ level and status | ✅ | ✅ | — | ✅ |
+| macOS | ✅ whole device | ✅ laptops: level, status, time left, health %, cycles | ✅ | ✅ | ✅ | ✅ |
 
-It polls only while the tab is on screen.
+**Storage** shows used, free and total space, plus how much Media Tool's own files take. It polls only while the tab is on screen.
 
 ### ⚙️ Settings
 - **Downloads:** default video and audio quality, the iPhone-compatible output toggle, and "convert photos to JPG".
@@ -192,8 +192,34 @@ flutter run -d ios        # set your signing team in ios/Runner.xcworkspace firs
 
 **Platform notes:**
 - **macOS:** YouTube needs a JavaScript runtime. Install `deno` (`brew install deno`), or bundle it with the fetch script's `--with-deno` flag. The macOS app is **not sandboxed**, because it runs the bundled binaries.
-- **iOS:** set your team and a unique bundle ID under *Signing & Capabilities*. A free Apple ID install lasts 7 days, and a paid account about a year. iOS can't run yt-dlp's JavaScript runtime, so some YouTube formats may be missing on iPhone. The iOS app is about 285 MB because it embeds Python and ffmpeg.
+- **iOS:** to keep the app on your phone, follow [Install on an iPhone](#install-on-an-iphone). iOS can't run yt-dlp's JavaScript runtime, so some YouTube formats may be missing on iPhone. The iOS app is about 285 MB because it embeds Python and ffmpeg.
 - **Android:** reinstall or clear the app's data after pulling changes that alter the database (it's still on schema 1 during development).
+
+### Install on an iPhone
+The iOS app isn't distributed, so you install it from your Mac with your own Apple ID. A free Apple ID works; the install then lasts **7 days**, and you reinstall to renew it.
+
+**You need:** a Mac with Xcode, the iPhone, a USB cable (Wi-Fi works after the first install), and an Apple ID. Do the [Clone and set up](#clone-and-set-up) steps first, including `ios/scripts/fetch_engine.sh`.
+
+**One-time setup**
+1. **Sign in:** Xcode → *Settings → Accounts* → **+** → your Apple ID. This creates a free *Personal Team*.
+2. **Signing:** open `ios/Runner.xcworkspace` → *Runner* target → *Signing & Capabilities* → set **Team** to your Personal Team. If Xcode says the bundle ID isn't available, change it to something unique such as `com.<yourname>.mediatool`. Keep that change local; don't commit it.
+3. **Developer Mode (iOS 16+):** plug in the iPhone, then on the phone go to *Settings → Privacy & Security → Developer Mode* → on, and restart. It only appears after the phone has been connected to Xcode once.
+4. **Wi-Fi installs (optional):** Xcode → *Window → Devices and Simulators* → select the phone → tick **Connect via network**.
+
+**Install**
+```bash
+flutter devices                          # find the iPhone's id
+flutter run --release -d <iphone-id>     # or VS Code: "iOS (Release)"
+```
+Use **release** mode: a debug build only starts from Xcode or `flutter run`, not from the home screen. On the first install with a free account the app won't open until you trust it: *Settings → General → VPN & Device Management* → your Apple ID → **Trust**.
+
+**Renew every 7 days**
+- Run the same `flutter run --release` again before or after it expires. **Install over the app; don't delete it.** Reinstalling keeps the Library, downloads, settings and cookies. Deleting the app deletes them.
+- When it expires the app just won't open. Your files are still there, and reinstalling brings it back.
+
+**Free Apple ID limits:** at most **3** sideloaded apps on the phone at once, and **10** new App IDs per 7 days (reinstalling with the same bundle ID doesn't use a new one). The app is about 285 MB.
+
+**Options to avoid renewing by hand:** a paid Apple Developer account ($99/year) makes installs last about a year. Or SideStore / AltStore can re-sign the app automatically with your Apple ID (build an `.ipa` with `flutter build ipa --no-codesign`); they are third-party tools that need your Apple ID, so use them only if you're comfortable with that.
 
 ### Code generation
 After changing an injectable class, a route, a drift table or a Pigeon input:
@@ -202,6 +228,7 @@ dart run build_runner build
 dart run pigeon --input lib/config/pigeon/media_engine_api.dart     # same for file_export_api, background_work_api, system_monitor_api
 flutter analyze                                                      # must be clean
 ```
+After changing the app icon or splash images in `assets/icon/`: `dart run flutter_launcher_icons` and `dart run flutter_native_splash:create`.
 
 ## How it works
 

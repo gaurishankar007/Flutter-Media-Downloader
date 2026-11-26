@@ -36,6 +36,7 @@ Native, not Dart packages: `youtubedl-android` `library` + `ffmpeg` and `kotlinx
 | --- | --- |
 | `build_runner`, `injectable_generator`, `auto_route_generator`, `drift_dev` | Code generation |
 | `pigeon` | Native bridges: engine, file export, background work, system monitor |
+| `flutter_launcher_icons`, `flutter_native_splash` | App icon and native splash from `assets/icon/` (see [Development](../architecture/development.md#app-icon-and-splash)) |
 | `leancode_lint` | Lints |
 
 There are no test packages: the project has no automated tests.

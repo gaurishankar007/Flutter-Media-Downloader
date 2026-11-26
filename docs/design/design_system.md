@@ -11,6 +11,7 @@ The look is a **dark-first media app**, in the style of Spotify, Linear and Arc:
 - [Typography](#typography)
 - [Spacing, Radius and Elevation](#spacing-radius-and-elevation)
 - [Iconography](#iconography)
+- [App Icon and Splash](#app-icon-and-splash)
 - [Motion](#motion)
 - [Layout and Navigation](#layout-and-navigation)
 - [Components](#components)
@@ -106,6 +107,14 @@ Titles from sites can be long or non-Latin (Hindi, Arabic, emoji). Always set `m
 
 Material Symbols **Rounded**, weight 400, filled for the selected state, outlined otherwise. Sizes 20 (inline), 24 (default), 28 (nav). The icon set is the only one used; don't mix in another set.
 
+**Icon beside wrapping text:** in a row with an icon and text that can wrap (large text sizes), align the icon to the first line (`crossAxisAlignment: .start`), not the middle of the block. Examples: the engine update banner, `LinkStatusPanel`, the Convert format rows.
+
+## App Icon and Splash
+
+- **App icon:** a clay-style icon. Sources in `assets/icon/`: `app_icon.png` (iOS, Android legacy), `app_icon_background.png` + `app_icon_foreground.png` (Android adaptive, `adaptive_icon_foreground_inset: 0`), `app_icon_monochrome.png` (Android 13 themed icon), `app_icon_macos.png` (macOS, its own rounded image). Generated with `flutter_launcher_icons` (config in `pubspec.yaml`; iOS with `remove_alpha_ios`).
+- **Splash:** `flutter_native_splash` shows `assets/icon/splash.png` (Android 12+: `splash_android12.png`) on the `background` colour, `#F7F7FB` light / `#0B0B12` dark. Configured in `pubspec.yaml`, not generated yet.
+- Regenerate after changing anything in `assets/icon/`: see [Development](../architecture/development.md#app-icon-and-splash).
+
 ## Motion
 
 | Token | Duration | Curve | Use |
@@ -139,12 +148,12 @@ All under `lib/ui/core/ui/base/<category>/`, plain props only (no providers), on
 
 | Category | Widgets |
 | --- | --- |
-| `buttons/` | `GradientButton` (primary), `TonalButton` (secondary), `GhostButton` (tertiary), `AppIconButton` (circle, 40px) |
+| `buttons/` | `GradientButton` (primary), `TonalButton` (secondary), `GhostButton` (tertiary), `AppIconButton` (circle, 40px; the whole 48px box around it is tappable) |
 | `cards/` | `AppCard`, `MediaCard` (thumbnail + title + metadata + badge; long-press / right-click for actions), `JobCard` (thumbnail + stage + progress + actions; pulses with a light haptic when done) |
 | `media/` | `MediaThumbnail` (local or remote, rounded, duration pill, saved check, kind icon fallback, optional Hero tag), `SiteBadge`, `PhotoGrid` (selectable, numbered checks) |
 | `progress/` | `GradientProgressBar`, `StageLabel` (Queued / Downloading / Processing / Saving / Done / Failed) |
 | `chips/` | `SelectChip` (quality, format, filter), `ChipRow` (horizontal scroll) |
-| `form/` | `LinkField` (big rounded field with Paste button and site icon that appears when the URL is recognised), `AppSlider`, `AppSwitchTile`, `SegmentedPicker` (Video / Audio / Photos) |
+| `form/` | `LinkField` (big rounded field with Paste button and site icon that appears when the URL is recognised), `AppSlider`, `AppSwitchTile`, `SegmentedPicker` (Video / Audio / Photos; labels fill the track and centre against the sliding pill, and the whole segment is tappable) |
 | `sheets/` | `AppBottomSheet` (drag handle, `xl` radius, scrim, keyboard-aware; optional `bottomAction` pinned under the scrolling body), `ActionSheet` (list of icon + label actions) |
 | `dialog/` | `ConfirmDialog` (title, body, destructive variant), `SavedRemovePrompt` (the "Saved. Remove from app?" dialog with "Don't ask again") |
 | `states/` | `EmptyState` (icon + title + body + action), `ErrorState` (message + Retry), `ShimmerBox` (loading placeholder matching the final layout) |
@@ -219,7 +228,7 @@ A three-step flow in one screen: **1. Pick** (three big tiles: From Library · F
 
 ### System
 
-Cards for the metrics this device can report (RAM, CPU, GPU, network), each with its current value and a 60-second sparkline. See [System](../features/system.md).
+Cards for the metrics this device can report, in this order: network, battery, RAM, CPU, GPU, storage. Network, RAM, CPU and GPU show their current value and a 60-second sparkline; battery and storage show a bar with detail rows. See [System](../features/system.md).
 
 ## Accessibility
 

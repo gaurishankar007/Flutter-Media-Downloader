@@ -47,13 +47,13 @@ lib/
 │   │   └── responses/       # DTOs: yt-dlp JSON, extracted posts, local media info
 │   ├── repositories/        # Media, Post, Library, Job, Convert, Settings, Cookies, AppInfo, BackgroundWork, SystemMonitor
 │   └── services/
-│       ├── local/           # LibraryLocalService, JobLocalService, SettingsLocalService, CookiesLocalService, ErrorLogLocalService
+│       ├── local/           # LibraryLocalService, JobLocalService, SettingsLocalService, CookiesLocalService, ErrorLogLocalService, AppFilesLocalService
 │       ├── platform/        # media_engine/ (Android + macOS engines, builders, parsers, FfmpegSlot), file_export/, background_work/,
 │       │                    # system_monitor/, GalleryService, ShareService, FilePickerService, MediaPickerService,
 │       │                    # ImageService, ImageConvertService, AppInfoService
 │       └── remote/          # SiteHttpClient, extractors/ (Instagram, TikTok, Facebook, Threads, X), MediaFileDownloader, EngineReleaseService
 ├── domain/
-│   ├── models/              # Site, MediaInfo, VideoOption, DownloadRequest, DownloadJob, JobProgress, LibraryItem, ConvertRequest, AppSettings, SystemSample, ...
+│   ├── models/              # Site, MediaInfo, VideoOption, DownloadRequest, DownloadJob, JobProgress, LibraryItem, ConvertRequest, AppSettings, SystemSample, DeviceStorage, BatteryStatus, ...
 │   ├── repositories/        # abstract contracts
 │   └── use_cases/           # ResolveLinkUseCase, DownloadMediaUseCase, ConvertMediaUseCase
 ├── routing/
@@ -69,7 +69,7 @@ lib/
 │   │   ├── download/        # paste -> preview -> queue (Share / Remove on finished jobs), engine status
 │   │   ├── library/         # all items, media viewer, Save to Photos / Files, Share, Delete
 │   │   ├── convert/         # pick -> convert or compress -> result
-│   │   ├── system/          # system monitor (RAM / CPU / GPU / network)
+│   │   ├── system/          # system monitor (network / battery / RAM / CPU / GPU / storage)
 │   │   └── settings/        # defaults, cookies, storage, engine update, about, design gallery
 │   ├── startup/             # runMediaToolApp, StartupErrorApp, one-time rights notice
 │   └── application.dart     # MediaToolApp (MaterialApp.router)

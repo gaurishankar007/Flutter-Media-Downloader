@@ -101,6 +101,10 @@ Sections (`DownloadJobsSection`): **In progress** (queued, downloading, processi
 - **Share** opens the system share sheet with the job's Library file(s) (all items of a post together). It never deletes anything and isn't followed by a "remove?" prompt, because the share sheet can't reliably tell the app whether the file was saved.
 - **Remove** asks first (`ConfirmDialog`, destructive). On confirm, `LibraryRepository.remove` deletes the files, thumbnails and Library rows, then the card goes.
 
+### Following the Library
+
+`DownloadQueueNotifier` also watches `LibraryRepository.watchItems()`, so finished cards never point at deleted files. Deleting a download's items in the Library removes its `done` card (and its job row); deleting only some items of a photo post trims the card to the items left. After the first emission it only reacts to real removals (ids in the previous emission but not the current one), so a stale emission can't drop a job that has just finished saving. When the jobs load, cards whose items were deleted while the app was closed are dropped too.
+
 The Library's **Save to Photos / Save to Files** with the "remove from app?" prompt is described in [Library](library.md#save-and-the-remove-prompt).
 
 ## Queue and Concurrency

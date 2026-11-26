@@ -49,6 +49,17 @@ dart run pigeon --input lib/config/pigeon/system_monitor_api.dart   # System tab
 
 Run `build_runner` after adding or changing any route, injectable class or drift table. Generated Dart clients land in `lib/core/clients/platform/`. `system_monitor_api.dart` writes the same Swift file to both `ios/Runner/SystemMonitor/` and `macos/Runner/SystemMonitor/`; the hand-written `SystemMonitor.swift` next to it is kept in sync by hand.
 
+## App Icon and Splash
+
+Sources live in `assets/icon/`; the `flutter_launcher_icons` and `flutter_native_splash` configs are in `pubspec.yaml` (both are dev dependencies). See [Design System](../design/design_system.md#app-icon-and-splash).
+
+```bash
+dart run flutter_launcher_icons          # Android (adaptive + monochrome), iOS, macOS icons
+dart run flutter_native_splash:create    # native splash (Android incl. 12+, iOS); not generated yet
+```
+
+Run the first after changing any icon image, the second after changing the splash images or colours. Both overwrite generated platform files (mipmaps / drawables, `AppIcon.appiconset`, launch screens), so commit their output.
+
 ## Running
 
 After cloning, fetch the native engine files once (they're not committed):
@@ -72,7 +83,7 @@ VS Code: `.vscode/launch.json` has **Android (debug)**, **iOS (debug)** and **ma
 - **Trigger:** push a tag (`git tag v1.2.0 && git push origin v1.2.0`), or run the *Release* workflow by hand with a version. The tag sets the version name (`--build-name`). The build number is the workflow run number, so it always goes up.
 - **Android job (Ubuntu):** `flutter build apk --release --split-per-abi`, giving `MediaTool-<ver>-android-{arm64-v8a,armeabi-v7a,x86_64}.apk`. Releases are signed with the release keystore, which is decoded from the secrets `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD` and `ANDROID_KEY_ALIAS` into `android/key.properties`. R8 minify is off (youtubedl-android isn't R8-proofed).
 - **macOS job:** `fetch_engine_binaries.sh --universal --with-deno`, then `flutter build macos --release`, then `MediaTool-<ver>-macos.dmg` with an Applications link. The DMG is **ad-hoc signed and not notarized**, so users allow it once under System Settings → Privacy & Security → *Open Anyway*. The release notes explain this.
-- **iOS:** no release build (installs need the App Store, TestFlight or a developer's Mac).
+- **iOS:** no release build (installs need the App Store, TestFlight or a developer's Mac). Users install from source with their own Apple ID: see [Install on an iPhone](../../README.md#install-on-an-iphone) (free account: 7-day installs, renewed by reinstalling over the app, which keeps its data).
 - **Local release builds:** `android/key.properties` (gitignored) points to the keystore outside the repo. Without it, `flutter build apk --release` falls back to debug keys. **Back up the keystore and its password:** losing it means users can't update without uninstalling first.
 - **App ID:** `com.gss.mediatool` on all platforms. Never change it after a release, or updates break.
 
