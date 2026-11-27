@@ -1,6 +1,6 @@
 # Media Tool
 
-**Paste a link, pick a quality, and keep the video, audio or photos.** Media Tool is a Flutter app for **Android, iOS and macOS**. It downloads from YouTube, Facebook, Instagram, Threads, X/Twitter and TikTok, keeps everything in its own Library, and converts or compresses media files. It also shows live device stats.
+**Paste a link, pick a quality, and keep the video, audio or photos.** Media Tool is a Flutter app for **Android, iOS, macOS, Windows and Linux**. It downloads from YouTube, Facebook, Instagram, Threads, X/Twitter and TikTok, keeps everything in its own Library, and converts or compresses media files. It also shows live device stats.
 
 Everything runs **on your device**. There is no server, account, analytics or crash reporting. Your cookies, history and errors never leave the device.
 
@@ -14,9 +14,11 @@ Get the latest version from the **[Releases page](https://github.com/gaurishanka
 |---|---|---|
 | **Android** | `MediaTool-<version>-android.apk` (one file for every phone, tablet, emulator and Chromebook) | Open the APK on your phone and allow *Install unknown apps* when asked. Updates install over the old version. |
 | **macOS** | `MediaTool-<version>-macos.dmg` (Apple silicon and Intel) | Open the DMG and drag **Media Tool** to **Applications**. The app isn't notarized, so on first launch macOS blocks it. Click **Done**, then go to **System Settings → Privacy & Security → Open Anyway**. |
+| **Windows** | `MediaTool-<version>-windows-x64.zip` (64-bit Intel/AMD) | Extract the zip anywhere (for example your user folder) and run `Media Tool\media_tool.exe`. The app isn't signed, so SmartScreen may warn on first launch: click **More info → Run anyway**. Keep the folder together; the app needs the `data` and `bin` folders next to it. |
+| **Linux** | `MediaTool-<version>-linux-x64.tar.gz` (64-bit Intel/AMD, GTK 3) | `tar -xzf MediaTool-<version>-linux-x64.tar.gz`, then run `MediaTool/media_tool`. Save to Files needs a file dialog (the desktop portal, `zenity` or `kdialog`). Videos can't be played inside the app on Linux. |
 | **iPhone** | Not available as a download | Apple only allows installs from the App Store or a developer's Mac, so install it from source with your own Apple ID (see [Install on an iPhone](#install-on-an-iphone)). |
 
-> **Status:** all v1 features are implemented and compile on all three platforms. On-device testing is in progress, so expect rough edges, especially with site extractors, which break whenever a site changes its pages.
+> **Status:** all v1 features are implemented and compile on every platform. Windows and Linux are new and built only in CI so far; on-device testing is in progress, so expect rough edges, especially with site extractors, which break whenever a site changes its pages.
 
 ## Screenshots
 
@@ -93,7 +95,7 @@ Private posts, or posts that need you to be logged in, need that site's cookies 
 
 ## The five tabs
 
-The bottom bar shows on phones and a sidebar shows on tablets and macOS.
+The bottom bar shows on phones and a sidebar shows on tablets and desktops.
 
 ### ⬇️ Download
 - Paste a link, or use the paste button. The app recognises the site and shows a preview.
@@ -126,7 +128,7 @@ The bottom bar shows on phones and a sidebar shows on tablets and macOS.
 |---|---|
 | Video → video | MP4, MKV, WebM, MOV (an iPhone-compatible option is available) |
 | Video → audio | MP3, M4A |
-| Image → image | JPG, PNG, WebP, HEIC (HEIC is hidden on Android and WebP on macOS, where they aren't reliable) |
+| Image → image | JPG, PNG, WebP, HEIC (HEIC is hidden on Android, Windows and Linux, and WebP on macOS, where they aren't reliable) |
 
 | Compress | Options |
 |---|---|
@@ -141,13 +143,15 @@ Live device stats. Network, RAM, CPU and GPU update every second with a 60-secon
 | Android | ✅ whole device | ✅ level, status, temperature, health, cycles (Android 14+), charge left in mAh (if the phone reports them) | ✅ | chip, cores, layout, max clock (no live load) | — | ✅ |
 | iOS | ✅ whole device | ✅ level and status | ✅ | ✅ load, chip, cores, layout | GPU name (no live load) | ✅ |
 | macOS | ✅ whole device | ✅ laptops: level, status, time left, health %, cycles, design / full / remaining mAh | ✅ type, manufacturer | ✅ load, chip, cores, threads, layout | ✅ load, name, GPU cores | ✅ drive model, NVMe / SSD, interface |
+| Windows | ✅ physical adapters | ✅ level, status, time left | ✅ type, manufacturer, speed | ✅ load, chip, cores, threads, max clock | GPU name (no live load) | ✅ drive model, NVMe / SSD, interface |
+| Linux | ✅ physical adapters | ✅ level, status, health %, cycles, design / full / remaining mAh | ✅ | ✅ load, chip, cores, threads, max clock | name; load on AMD (and some Intel) | ✅ drive model, NVMe / SSD, interface |
 
 **Storage** shows used, free and total space, plus how much Media Tool's own files take. **RAM** and **Storage** have a **Test speed** button that measures real read and write speed (and RAM copy speed) in a few seconds; the storage test writes a temporary file and deletes it. It polls only while the tab is on screen.
 
 ### ⚙️ Settings
 - **Downloads:** default video and audio quality, the iPhone-compatible output toggle, and "convert photos to JPG".
 - **Library and storage:** "ask to remove after saving", storage used by Videos, Audio and Photos, and **Clear saved items**.
-- **Cookies:** import a `cookies.txt` for each site, with step-by-step help. See which sites have cookies, and replace or remove them. On macOS you can also use a browser's cookies directly.
+- **Cookies:** import a `cookies.txt` for each site, with step-by-step help. See which sites have cookies, and replace or remove them. On desktops you can also use a browser's cookies directly (macOS: Safari, Chrome, Firefox; Linux: Chrome, Firefox; Windows: Firefox).
 - **Engine:** the yt-dlp version, **Update**, and the daily check when the app opens. A dot on the Settings tab means an update is available.
 - **Appearance:** light, dark or follow the system.
 - **About:** app and engine versions, licences, the rights notice, and **Copy error log** (to your clipboard only).
@@ -169,6 +173,8 @@ Live device stats. Network, RAM, CPU and GPU update every second with a 60-secon
 - Flutter **3.50.1** / Dart **3.14** or newer
 - **Android:** Android SDK (compileSdk 37), a phone with USB debugging, or an emulator. Min Android 7.0 (API 24).
 - **iOS / macOS:** Xcode and CocoaPods. For an iPhone you also need an Apple ID or developer team to sign with.
+- **Windows:** Visual Studio 2022 with the *Desktop development with C++* workload. x64 only.
+- **Linux:** `clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev` (Ubuntu package names). x64 is what releases build; ARM64 works from source.
 
 ### Clone and set up
 ```bash
@@ -179,6 +185,9 @@ flutter pub get
 # The engine binaries are not in git. Fetch them once per machine:
 macos/scripts/fetch_engine_binaries.sh   # macOS: yt-dlp_macos + ffmpeg/ffprobe (add --with-deno to bundle deno)
 ios/scripts/fetch_engine.sh              # iOS: embedded Python + yt-dlp + FFmpegKit frameworks
+linux/scripts/fetch_engine_binaries.sh   # Linux: yt-dlp_linux + ffmpeg/ffprobe (add --with-deno)
+# Windows (PowerShell): yt-dlp.exe + ffmpeg.exe/ffprobe.exe (add -WithDeno)
+powershell -ExecutionPolicy Bypass -File windows\scripts\fetch_engine.ps1
 ```
 Android needs no setup step, because Gradle downloads the engine (youtubedl-android) on the first build.
 
@@ -186,12 +195,15 @@ Android needs no setup step, because Gradle downloads the engine (youtubedl-andr
 ```bash
 flutter run -d android
 flutter run -d macos
+flutter run -d windows   # on a Windows PC
+flutter run -d linux     # on a Linux PC
 flutter run -d ios        # set your signing team in ios/Runner.xcworkspace first
 ```
-**VS Code:** `.vscode/launch.json` has **Android (debug)**, **iOS (debug)** and **macOS (debug)**. Open *Run and Debug* (⇧⌘D), pick one and press F5.
+**VS Code:** `.vscode/launch.json` has **Debug**, **Profile** and **Release**. Pick the device in the status bar, then open *Run and Debug* (⇧⌘D), pick a configuration and press F5.
 
 **Platform notes:**
 - **macOS:** YouTube needs a JavaScript runtime. Install `deno` (`brew install deno`), or bundle it with the fetch script's `--with-deno` flag. The macOS app is **not sandboxed**, because it runs the bundled binaries.
+- **Windows / Linux:** same engine as macOS (bundled yt-dlp and ffmpeg run from Dart). YouTube wants `deno`: use `-WithDeno` / `--with-deno`. Video re-encoding uses the CPU (libx264), so it's slower than on a Mac. Linux has no in-app video player. See [docs/engine/desktop_engine.md](docs/engine/desktop_engine.md).
 - **iOS:** to keep the app on your phone, follow [Install on an iPhone](#install-on-an-iphone). iOS can't run yt-dlp's JavaScript runtime, so some YouTube formats may be missing on iPhone. The iOS app is about 285 MB because it embeds Python and ffmpeg.
 - **Android:** reinstall or clear the app's data after pulling changes that alter the database (it's still on schema 1 during development).
 
@@ -236,7 +248,7 @@ After changing the app icon or splash images in `assets/icon/`: `dart run flutte
 Flutter UI (Views + Riverpod Notifiers)
         │
   use cases ─► repositories ─► services
-                                ├─ platform: MediaEngine (Android / iOS / macOS), gallery, file export, share, system monitor
+                                ├─ platform: MediaEngine (Android / iOS / desktop), gallery, file export, share, system monitor
                                 ├─ local:    drift database, settings, cookies files
                                 └─ remote:   photo extractors, file downloader
 ```
@@ -247,12 +259,12 @@ Flutter UI (Views + Riverpod Notifiers)
 |---|---|
 | Android | [youtubedl-android](https://github.com/JunkFood02/youtubedl-android) (Python + yt-dlp + ffmpeg inside the app) over a Pigeon bridge, plus a foreground download service |
 | iOS | Embedded CPython 3.13 running yt-dlp in-process, with FFmpegKit for ffmpeg, over the same Pigeon bridge |
-| macOS | Bundled `yt-dlp_macos`, `ffmpeg` and `ffprobe` run as processes from Dart |
+| macOS, Windows, Linux | One desktop engine: the bundled yt-dlp, `ffmpeg` and `ffprobe` run as processes from Dart |
 
 - **Photo posts** (which yt-dlp doesn't handle) go through small Dart extractors for Instagram, TikTok, Facebook, Threads and X. They use an HTTP client that sends each site's cookies only to that site.
 - **Converter and compressor** use the same ffmpeg each engine already ships, and run one ffmpeg job at a time.
 - **Storage:** files live in the app's own folder. A local drift database indexes them for the Library, storing paths relative to the app folder.
-- **System monitor** uses a small Pigeon API per platform that returns raw counters and hardware facts. Dart turns the counters into rates. Speed tests call the C library through `dart:ffi` in a background isolate.
+- **System monitor** uses a small Pigeon API on Android, iOS and macOS that returns raw counters and hardware facts; Windows (Win32 through `dart:ffi`) and Linux (`/proc`, `/sys`) read them in Dart. Dart turns the counters into rates. Speed tests call the C library (Win32 on Windows) through `dart:ffi` in a background isolate.
 
 **Stack:**
 - Flutter 3.50 / Dart 3.14
@@ -262,9 +274,9 @@ Flutter UI (Views + Riverpod Notifiers)
 - Database: drift
 - Native bridges: Pigeon
 - HTTP: dio
-- Playback: video_player
+- Playback: video_player (video_player_win on Windows)
 - Saving and sharing: gal, file_picker, share_plus
-- Images: flutter_image_compress
+- Images: flutter_image_compress (ffmpeg on Windows and Linux)
 - Toasts: flutter_sliding_toast
 - Lints: leancode_lint
 
@@ -293,6 +305,8 @@ lib/
 android/…/engine, background, export, system   # Kotlin: engine, download service, Save to Files, system monitor
 ios/Runner/Engine, Export, Storage, SystemMonitor   # Swift: embedded Python engine, Save to Files, backup exclusion, system monitor
 macos/Runner/SystemMonitor, macos/scripts      # Swift system monitor; binary fetch and bundle scripts
+windows/runner, windows/scripts                # C++ runner (window, hidden console); binary fetch script
+linux/runner, linux/scripts                    # GTK runner; binary fetch script
 ```
 
 Architecture: feature-first **MVVM** with Riverpod. Views → Notifiers → (use cases) → repositories → services. Results come back as a sealed `DataState`, with one `ErrorHandler` for errors.
@@ -306,7 +320,7 @@ All modules are documented in [`docs/`](docs/). Start with [docs/architecture/ar
 | `architecture/` | Layers and structure, app startup, development (SDK, lints, codegen) |
 | `design/` | Design system: colours, type, spacing, motion, components, screen layouts |
 | `core/` | Routing, error handling, app messages, local database, core services |
-| `engine/` | The MediaEngine interface; the Android, iOS and macOS engines; yt-dlp/ffmpeg recipes; site support |
+| `engine/` | The MediaEngine interface; the Android, iOS and desktop (macOS, Windows, Linux) engines; yt-dlp/ffmpeg recipes; site support |
 | `extractors/` | Instagram, TikTok, Facebook, Threads and X photo extractors |
 | `features/` | Download, Library, Convert, System, Settings |
 | `utils/` | Packages, troubleshooting |
@@ -321,6 +335,8 @@ Contributor rules and the product brief are in [CLAUDE.md](CLAUDE.md).
 | "Login required" or a private post | Import that site's cookies in Settings → Cookies |
 | YouTube shows few formats on macOS | Install `deno` (`brew install deno`) |
 | macOS build has no engine | Run `macos/scripts/fetch_engine_binaries.sh` |
+| Windows or Linux build has no engine | Run `windows/scripts/fetch_engine.ps1` or `linux/scripts/fetch_engine_binaries.sh`, then build again |
+| Windows blocks the app ("Windows protected your PC") | Click **More info → Run anyway**; the app isn't signed |
 | iOS build fails on missing frameworks | Run `ios/scripts/fetch_engine.sh` |
 | The app crashes on start after an update | Clear the app's data or reinstall (dev database schema changed) |
 

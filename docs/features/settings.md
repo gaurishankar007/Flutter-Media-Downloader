@@ -7,7 +7,7 @@
 | Screen | Route | What |
 | --- | --- | --- |
 | `SettingsScreen` | Settings tab (`settings`) | All sections below |
-| `CookiesScreen` | `CookiesRoute` (`/settings/cookies`), full screen above the tabs | Per-site cookies, macOS browser cookies, how-to |
+| `CookiesScreen` | `CookiesRoute` (`/settings/cookies`), full screen above the tabs | Per-site cookies, desktop browser cookies, how-to |
 | `AboutScreen` | `AboutRoute` (`/settings/about`), full screen above the tabs | Versions, rights notice, licences, error log |
 | `DesignGalleryScreen` | `DesignGalleryRoute` (`/design-gallery`) | Debug builds only (Developer section): every base widget, see [Design System](../design/design_system.md) |
 
@@ -40,15 +40,15 @@ Settings and engine messages (toasts) are shown by the home shell, not the Setti
 | --- | --- | --- |
 | `settingsProvider` (`SettingsNotifier`, keep-alive) | `AppSettings` | `setThemeMode()`, `acceptRightsNotice()`, `setDefaultVideoQuality()`, `setDefaultAudioQuality()`, `setIphoneCompatible()`, `setPhotosToJpg()`, `setAskRemoveAfterSave()`, `setCookieBrowser()`, `setCheckEngineOnLaunch()`, `markEngineChecked()`, `update(change)` |
 | `engineStatusProvider` (`EngineStatusNotifier`, keep-alive, in `download/providers/`) | Engine init status, `EngineInfo`, update status, `availableVersion` | `retry()`, `checkForUpdate({silent})`, `update()` |
-| `cookiesProvider` (`CookiesNotifier`, `.autoDispose`) | Per-site `SiteCookies` (count, imported date), the busy site, `supportsBrowserCookies` | `refresh()`, `import(site)`, `remove(site)`, `setBrowser(browser)` |
+| `cookiesProvider` (`CookiesNotifier`, `.autoDispose`) | Per-site `SiteCookies` (count, imported date), the busy site, `cookieBrowsers` (this platform's choices; `supportsBrowserCookies` when there are any) | `refresh()`, `import(site)`, `remove(site)`, `setBrowser(browser)` |
 | `storageProvider` (`StorageNotifier`, `.autoDispose`) | `StorageUsage` (bytes by kind, saved count/bytes) | `refresh()`, `clearSaved()` |
 | `aboutProvider` (`AboutNotifier`, `.autoDispose`) | App version (`package_info_plus`) | `copyErrorLog()` |
 
 ## Cookies
 
-- **Import:** pick a file (`file_picker`). It's validated (at most 5 MB, readable text, a Netscape "HTTP Cookie File" header, at least one cookie for that site's domains), only that site's cookies are kept, and the result is written as `cookies/<site>.txt` in the app's private folder (`chmod 600` on macOS).
+- **Import:** pick a file (`file_picker`). It's validated (at most 5 MB, readable text, a Netscape "HTTP Cookie File" header, at least one cookie for that site's domains), only that site's cookies are kept, and the result is written as `cookies/<site>.txt` in the app's private folder (`chmod 600` on macOS and Linux).
 - **Use:** yt-dlp gets `--cookies cookies/<site>.txt`. Dart extractors get a `Cookie` header from `CookiesLocalService.cookieHeader(site, url)`, which returns nothing unless the URL is on that site's own domains (and respects secure / expiry).
-- **macOS:** "Browser cookies" (Safari / Chrome / Firefox, default none) → `--cookies-from-browser <name>` when a site has no cookies.txt. The section only appears on macOS (`supportsBrowserCookies`).
+- **Desktops:** "Browser cookies" (default none) → `--cookies-from-browser <name>` when a site has no cookies.txt. The choices come from `CookiesRepository.cookieBrowsers` (`CookieBrowser.availableOn`): Safari, Chrome and Firefox on macOS; Chrome and Firefox on Linux; Firefox on Windows (Chrome 127+ encrypts its cookies so only Chrome can read them). The section is hidden where the list is empty (Android, iOS). A saved choice that isn't offered on this platform is ignored.
 - **Never** uploaded or logged (failures carry only a user message). **Remove** asks first, then deletes the file. On iOS the `cookies/` folder is excluded from backups.
 - The Cookies screen ends with `CookiesHowToCard`: how to export cookies.txt with a browser extension, in plain steps.
 

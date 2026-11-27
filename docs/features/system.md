@@ -11,40 +11,42 @@ The **System** tab (4th of the 5 tabs: Download, Library, Convert, System, Setti
 | Android | ✅ | — (info card: chip, cores, clusters, max clock) | — | ✅ (when `TrafficStats` is supported) | ✅ | ✅ level, state, temperature, health, cycles (Android 14+, when the device reports them), charge left in mAh (when the fuel gauge reports it) | `ActivityManager.MemoryInfo` (total − available), `TrafficStats.getTotalRx/TxBytes`, `StatFs(filesDir)`, the sticky `ACTION_BATTERY_CHANGED` intent (no permission; `EXTRA_CYCLE_COUNT` on API 34+). `BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER` (µAh, or mAh on some gauges). Android hides `/proc/stat` and GPU load from apps. |
 | iOS | ✅ | ✅ | — (info card: GPU name) | ✅ | ✅ | ✅ level and state only | Mach `host_statistics64(HOST_VM_INFO64)` + `physicalMemory`, `host_statistics(HOST_CPU_LOAD_INFO)`, `getifaddrs` (interfaces that are up, loopback excluded), volume resource values of `NSHomeDirectory()`, `UIDevice` battery monitoring. No public API for battery health or cycles. |
 | macOS | ✅ | ✅ | ✅ (when a GPU driver reports it) | ✅ | ✅ | ✅ (laptops) level, state, time remaining, health %, cycles, design / full-charge / remaining mAh | Same as iOS, plus IOKit `IOAccelerator` → `PerformanceStatistics` "Device Utilization %" (highest across GPUs), IOKit power sources (`IOPSCopyPowerSourcesInfo`, internal battery) and the `AppleSmartBattery` IORegistry entry |
+| Windows | ✅ | ✅ | — (info card: GPU name) | ✅ physical adapters | ✅ | ✅ (laptops) level, state, time remaining | Win32 through `dart:ffi`, no native code: `GlobalMemoryStatusEx`, `GetSystemTimes` (kernel time includes idle), `GetIfTable2` (hardware interfaces only: no loopback or the filter layers stacked on each adapter), `GetDiskFreeSpaceExW`, `GetSystemPowerStatus`. Windows has no public battery-capacity or cycle API without a driver query. |
+| Linux | ✅ | ✅ | ✅ (AMD and some Intel drivers) | ✅ physical interfaces | ✅ | ✅ (laptops) level, state, health %, cycles, design / full-charge / remaining mAh | Plain files, no native code: `/proc/meminfo` (total − `MemAvailable`), `/proc/stat`, `/proc/net/dev` (interfaces with a `/sys/class/net/<if>/device` link, so no loopback, bridges, VPNs or container veths), `/sys/class/drm/card*/device/gpu_busy_percent` (highest), `df -B1` for the app's file system, `/sys/class/power_supply` (the first `Battery` whose scope isn't `Device`, so not a mouse). |
 
 - RAM "used" on iOS/macOS is counted like Activity Monitor: app memory + wired + compressed.
 - CPU and network are whole-device, not just this app.
 - **Storage** is the volume holding the app's files: used / free / total, and **Media Tool files** (size and share of the volume). iOS/macOS free space is `volumeAvailableCapacityForImportantUsage` (falling back to `volumeAvailableCapacity`, then `attributesOfFileSystem`). The app's size is the whole `AppDirectories.base` folder (downloads, thumbnails, cookies, the database), walked in Dart by `AppFilesLocalService` inside `Isolate.run` so thousands of files never block the UI; the cache `work/` folder isn't counted. Sizes use 1024-based units (`FormatUtils.bytes`, up to TB).
-- **Battery** is hidden on devices without battery data (desktop Macs, simulators). macOS health is full-charge ÷ design capacity (`AppleRawMaxCapacity`, else `NominalChargeCapacity`, over `DesignCapacity`, read at the top level or inside `BatteryData`; capped at 100 %), cached for 60 s because it changes over weeks. Time remaining shows only once macOS has an estimate ("Time left" on battery, "Until full" while charging). At or below 20 % on battery the bar turns `warning` (amber).
-- **Battery capacity** (macOS): design (`DesignCapacity`) and full charge (`AppleRawMaxCapacity`, else `NominalChargeCapacity`) come from the same 60 s cache as health; charge left (`AppleRawCurrentCapacity`) is read on every poll. Android reports only charge left (the charge counter, documented as µAh; some gauges such as Xiaomi's report mAh, detected when the µAh reading would imply a whole battery under 500 mAh at the current level; values outside 1–30,000 mAh are dropped). There's no public design-capacity API on Android or iOS.
+- **Battery** is hidden on devices without battery data (desktop Macs and PCs, simulators). macOS health is full-charge ÷ design capacity (`AppleRawMaxCapacity`, else `NominalChargeCapacity`, over `DesignCapacity`, read at the top level or inside `BatteryData`; capped at 100 %), cached for 60 s because it changes over weeks. Time remaining shows only once macOS has an estimate ("Time left" on battery, "Until full" while charging). At or below 20 % on battery the bar turns `warning` (amber).
+- **Battery capacity** (macOS): design (`DesignCapacity`) and full charge (`AppleRawMaxCapacity`, else `NominalChargeCapacity`) come from the same 60 s cache as health; charge left (`AppleRawCurrentCapacity`) is read on every poll. Android reports only charge left (the charge counter, documented as µAh; some gauges such as Xiaomi's report mAh, detected when the µAh reading would imply a whole battery under 500 mAh at the current level; values outside 1–30,000 mAh are dropped). There's no public design-capacity API on Android or iOS. Linux reads `charge_full_design` / `charge_full` / `charge_now` (µAh), or `energy_*` (µWh) divided by `voltage_min_design` on batteries that report energy; health is full ÷ design, capped at 100 %.
 - Each native side decides its capabilities at runtime (e.g. macOS reports GPU only if a reading succeeds, battery only if a level is read). A platform that reports nothing shows an empty state; since every platform reports storage, that practically never happens.
 
 ## Hardware Facts
 
 Read once per app session by `hardware()` (async, off the main thread) and cached in the repository. Every field is null where the platform doesn't tell apps.
 
-| Fact | Android | iOS | macOS |
-| --- | --- | --- | --- |
-| Processor name | `Build.SOC_MANUFACTURER` + `SOC_MODEL` (Android 12+, e.g. "QTI SM8550"), else `Build.HARDWARE` | Metal GPU name without " GPU" ("Apple A16") | `machdep.cpu.brand_string` ("Apple M4 Pro") |
-| Cores / threads | `/sys/devices/system/cpu/possible` (threads = cores; phone cores run one thread) | `hw.physicalcpu` / `hw.logicalcpu` | same (threads differ on Intel with hyper-threading) |
-| Core layout | cores grouped by `cpufreq/cpuinfo_max_freq`, fastest first | `hw.perflevelN.physicalcpu` | same |
-| Max clock | fastest `cpuinfo_max_freq` | — | — |
-| GPU | — | Metal device name | IOKit `AGXAccelerator` `model` + `gpu-core-count` (Apple silicon), else Metal name |
-| RAM type / manufacturer / clock | — | — | `system_profiler -json SPMemoryDataType` (Apple silicon: one entry; Intel: DIMM slots with `dimm_speed`) |
-| Drive model / type / interface | — | — | `system_profiler -json SPStorageDataType SPNVMeDataType`: the volume holding the home folder (the Data volume when that matches `/`), its `physical_drive` (`device_name`, `medium_type`, `protocol`); NVMe when the model is listed under SPNVMeDataType |
+| Fact | Android | iOS | macOS | Windows | Linux |
+| --- | --- | --- | --- | --- | --- |
+| Processor name | `Build.SOC_MANUFACTURER` + `SOC_MODEL` (Android 12+, e.g. "QTI SM8550"), else `Build.HARDWARE` | Metal GPU name without " GPU" ("Apple A16") | `machdep.cpu.brand_string` ("Apple M4 Pro") | `Win32_Processor.Name` | `/proc/cpuinfo` `model name` (ARM: `Hardware`) |
+| Cores / threads | `/sys/devices/system/cpu/possible` (threads = cores; phone cores run one thread) | `hw.physicalcpu` / `hw.logicalcpu` | same (threads differ on Intel with hyper-threading) | `NumberOfCores` / `NumberOfLogicalProcessors` | distinct `physical id` + `core id` pairs (x86 only) / `Platform.numberOfProcessors` |
+| Core layout | cores grouped by `cpufreq/cpuinfo_max_freq`, fastest first | `hw.perflevelN.physicalcpu` | same | — | — |
+| Max clock | fastest `cpuinfo_max_freq` | — | — | `MaxClockSpeed` | fastest `cpuinfo_max_freq` |
+| GPU | — | Metal device name | IOKit `AGXAccelerator` `model` + `gpu-core-count` (Apple silicon), else Metal name | first `Win32_VideoController` that isn't the Basic or Remote display adapter | first VGA / 3D / Display row of `lspci -mm` (vendor + device) |
+| RAM type / manufacturer / clock | — | — | `system_profiler -json SPMemoryDataType` (Apple silicon: one entry; Intel: DIMM slots with `dimm_speed`) | `Win32_PhysicalMemory`: `SMBIOSMemoryType` (DDR3–DDR5, LPDDR), `Manufacturer`, `ConfiguredClockSpeed` | — (needs root) |
+| Drive model / type / interface | — | — | `system_profiler -json SPStorageDataType SPNVMeDataType`: the volume holding the home folder (the Data volume when that matches `/`), its `physical_drive` (`device_name`, `medium_type`, `protocol`); NVMe when the model is listed under SPNVMeDataType | `Get-Partition` of the app's drive letter → `Get-PhysicalDisk` (`FriendlyName`, `MediaType`, `BusType`) | `df --output=source` → `lsblk -no PKNAME` → `/sys/block/<disk>/device/model`, `queue/rotational`, `lsblk -dno TRAN` |
 
-`system_profiler` runs once with `-detailLevel mini` (about 0.2 s). The macOS app isn't sandboxed, so it can start it; iOS can't, and neither platform exposes the rest of this to apps. UFS version, RAM type and GPU cores aren't readable on phones.
+Windows gets all of it from one PowerShell `Get-CimInstance` script that returns JSON (about a second, once per session). `system_profiler` runs once with `-detailLevel mini` (about 0.2 s). The macOS app isn't sandboxed, so it can start it; iOS can't, and neither platform exposes the rest of this to apps. UFS version, RAM type and GPU cores aren't readable on phones.
 
 The **layout** row reads "8 performance + 4 efficiency" for two clusters, "1 prime + 3 performance + 4 efficiency" for three, and joins other counts with " + ".
 
 ## Speed Tests
 
-User-started, one at a time, from a **Test speed** button on the RAM and Storage cards. `SpeedTestService` (`lib/data/services/platform/speed_test/`) calls libc through `dart:ffi` (`DynamicLibrary.open('libc.so')` on Android, `DynamicLibrary.process()` on iOS/macOS), so the loops run at native speed even in debug builds, each inside `Isolate.run`.
+User-started, one at a time, from a **Test speed** button on the RAM and Storage cards. `SpeedTestService` (`lib/data/services/platform/speed_test/`) calls libc through `dart:ffi` (`DynamicLibrary.open('libc.so')` on Android, `libc.so.6` on Linux, `DynamicLibrary.process()` on iOS/macOS; on Windows `kernel32` for files and memory and `ntdll` for `memset` / `memchr` / `memcpy`), so the loops run at native speed even in debug builds, each inside `Isolate.run`.
 
 | Test | Size | What it measures |
 | --- | --- | --- |
-| RAM | 256 MB (macOS), 128 MB (phones), page-aligned (`posix_memalign`) | Pages are touched first. **Write** = `memset`, **Read** = `memchr` for a byte that isn't there (scans the whole block), **Copy** = `memcpy` into a second block. Each repeats for at least 250 ms; bytes per second over all passes. |
-| Storage | 1 GB (macOS), 512 MB (phones), in 4 MB chunks of random data | Writes `work/speed_test.tmp`, flushes it (`F_FULLFSYNC` on Darwin, else `fsync`), then reads it back. Cache is bypassed: `F_NOCACHE` on iOS/macOS, `posix_fadvise(POSIX_FADV_DONTNEED)` after the flush and before the read on Android. The file is always deleted. |
+| RAM | 256 MB (desktops), 128 MB (phones), page-aligned (`posix_memalign`; `VirtualAlloc` on Windows) | Pages are touched first. **Write** = `memset`, **Read** = `memchr` for a byte that isn't there (scans the whole block), **Copy** = `memcpy` into a second block. Each repeats for at least 250 ms; bytes per second over all passes. |
+| Storage | 1 GB (desktops), 512 MB (phones), in 4 MB chunks of random data | Writes `work/speed_test.tmp`, flushes it (`F_FULLFSYNC` on Darwin, else `fsync`), then reads it back. Cache is bypassed: `F_NOCACHE` on iOS/macOS, `posix_fadvise(POSIX_FADV_DONTNEED)` after the flush and before the read on Android and Linux, and on Windows a `CreateFileW` handle with `FILE_FLAG_NO_BUFFERING | FILE_FLAG_WRITE_THROUGH` (page-aligned buffers, `FlushFileBuffers`). The file is always deleted. |
 
 - The storage test needs twice its file size free, else it fails with `CommonMessages.noSpace`.
 - Results are measured throughput right now, not the rated speed of the part. Sizes use 1024-based units (`FormatUtils.speed`).
@@ -52,6 +54,8 @@ User-started, one at a time, from a **Test speed** button on the RAM and Storage
 - Flag values differ between Linux and Darwin (`O_CREAT`, `O_TRUNC`); `open` and `fcntl` are called as variadic (`VarArgs`).
 
 ## Bridge
+
+Windows and Linux don't use the bridge: `WindowsSystemMonitorService` and `LinuxSystemMonitorService` implement `SystemMonitorService` in Dart and return the same generated `*Msg` classes, so the repository and UI are unchanged.
 
 Pigeon input: `lib/config/pigeon/system_monitor_api.dart` (regenerate with `dart run pigeon --input lib/config/pigeon/system_monitor_api.dart`).
 
@@ -68,7 +72,7 @@ abstract class SystemMonitorHostApi {
 
 `SystemSampleMsg` carries **raw counters only**: `uptimeMillis` (monotonic), memory used/total, cumulative CPU busy/total ticks, instant `gpuPercent`, cumulative network rx/tx bytes. Native code keeps no state (except the macOS battery-health cache).
 
-`SystemBatteryMsg`: `levelPercent`, `state` (`BatteryStateMsg`: charging, full, discharging, notCharging, unknown), and extras that are null elsewhere: `temperatureCelsius` and `health` (`BatteryHealthMsg`, Android), `minutesRemaining` and `healthPercent` (macOS), `cycleCount` (macOS; Android 14+), `designCapacityMah` and `fullChargeCapacityMah` (macOS), `remainingCapacityMah` (macOS, Android).
+`SystemBatteryMsg`: `levelPercent`, `state` (`BatteryStateMsg`: charging, full, discharging, notCharging, unknown), and extras that are null elsewhere: `temperatureCelsius` and `health` (`BatteryHealthMsg`, Android), `minutesRemaining` (macOS, Windows), `healthPercent` (macOS, Linux), `cycleCount` (macOS, Linux; Android 14+), `designCapacityMah` and `fullChargeCapacityMah` (macOS, Linux), `remainingCapacityMah` (macOS, Linux, Android).
 
 `SystemHardwareMsg`: `cpuName`, `cpuCores`, `cpuThreads`, `cpuClusterCores` (fastest first), `cpuMaxFrequencyMhz`, `gpuName`, `gpuCores`, `memoryType`, `memoryManufacturer`, `memorySpeedMhz`, `storageModel`, `storageSolidState`, `storageNvme`, `storageInterface`. Swift runs it on a global queue; Kotlin as a `suspend` function on `Dispatchers.IO`.
 
@@ -83,7 +87,7 @@ The iOS and macOS `SystemMonitor.swift` files are identical copies (GPU and powe
 
 ## Data Layer
 
-- `SystemMonitorService` (`lib/data/services/platform/system_monitor/`): thin Pigeon wrapper; throws.
+- `SystemMonitorService` (`lib/data/services/platform/system_monitor/`): `PigeonSystemMonitorService` (Android, iOS, macOS; thin wrapper), `WindowsSystemMonitorService`, `LinuxSystemMonitorService`; all throw.
 - `SpeedTestService` (`lib/data/services/platform/speed_test/`): the FFI RAM and storage tests (see Speed Tests); returns raw bytes per second; throws.
 - `AppFilesLocalService` (`lib/data/services/local/app_files_local_service.dart`): `sizeInBytes()` of `AppDirectories.base`, walked off the UI isolate; unreadable folders and files deleted mid-walk are skipped. Throws.
 - `SystemMonitorRepositoryImpl`: wraps calls in `ErrorHandler` (`systemMonitor.profile`, `systemMonitor.hardware`, `systemMonitor.sample`, `systemMonitor.storage`, `systemMonitor.battery`, `systemMonitor.speedTest.<memory|storage>`), caches the `SystemProfile` (`knownProfile`), keeps the previous raw sample, the last app-folder size and the last speed test results (`lastSpeedTest`). A failed hardware read is logged and the profile is built without it, so the live cards still show. `storage(measureAppFiles:)` walks the app folder again only when asked (or never measured) and reuses the last size otherwise.

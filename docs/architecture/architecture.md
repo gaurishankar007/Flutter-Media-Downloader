@@ -27,7 +27,7 @@ There is **no backend**. "Remote" here means the social sites themselves (fetche
 ```text
 lib/
 ├── config/
-│   ├── injector/            # get_it + injectable setup, PlatformEnv (android / ios / macos)
+│   ├── injector/            # get_it + injectable setup, PlatformEnv (android / ios / macos / windows / linux)
 │   └── pigeon/              # Pigeon inputs: media_engine_api, file_export_api, background_work_api, system_monitor_api
 ├── core/
 │   ├── clients/
@@ -48,7 +48,7 @@ lib/
 │   ├── repositories/        # Media, Post, Library, Job, Convert, Settings, Cookies, AppInfo, BackgroundWork, SystemMonitor
 │   └── services/
 │       ├── local/           # LibraryLocalService, JobLocalService, SettingsLocalService, CookiesLocalService, ErrorLogLocalService, AppFilesLocalService
-│       ├── platform/        # media_engine/ (Android + macOS engines, builders, parsers, FfmpegSlot), file_export/, background_work/,
+│       ├── platform/        # media_engine/ (Android + desktop engines, builders, parsers, FfmpegSlot), file_export/, background_work/,
 │       │                    # system_monitor/, speed_test/, GalleryService, ShareService, FilePickerService, MediaPickerService,
 │       │                    # ImageService, ImageConvertService, AppInfoService
 │       └── remote/          # SiteHttpClient, extractors/ (Instagram, TikTok, Facebook, Threads, X), MediaFileDownloader, EngineReleaseService
@@ -136,21 +136,22 @@ Long-running work (downloads, conversions) is owned by **keep-alive** notifiers 
 ## Dependency Injection
 
 - `get_it` + `injectable`; annotate with `@injectable`, `@lazySingleton` or `@singleton` and run `dart run build_runner build`.
-- Platform-specific implementations use injectable **environments**, one per platform (`android`, `ios`, `macos`, in `lib/config/injector/platform_env.dart`). `configureDependencies()` passes the running platform's environment, so only that platform's classes are registered:
+- Platform-specific implementations use injectable **environments**, one per platform (`android`, `ios`, `macos`, `windows`, `linux`, in `lib/config/injector/platform_env.dart`; `PlatformEnv.desktop` is the list of the three desktops). `configureDependencies()` passes the running platform's environment, so only that platform's classes are registered:
 
 ```dart
 // iOS reuses the same Dart engine: its Swift side implements the same Pigeon API.
 @LazySingleton(as: MediaEngine, env: [PlatformEnv.android, PlatformEnv.ios])
 final class AndroidMediaEngine implements MediaEngine { ... }
 
-@LazySingleton(as: MediaEngine, env: [PlatformEnv.macos])
-final class MacosMediaEngine implements MediaEngine { ... }
+// One engine for macOS, Windows and Linux: bundled binaries run with dart:io.
+@LazySingleton(as: MediaEngine, env: PlatformEnv.desktop)
+final class DesktopMediaEngine implements MediaEngine { ... }
 
 // app_initializer.dart
-await configureDependencies(environment: PlatformEnv.current); // 'android' | 'ios' | 'macos'
+await configureDependencies(environment: PlatformEnv.current); // 'android' | 'ios' | 'macos' | 'windows' | 'linux'
 ```
 
-The same applies to `FileExportService` (one implementation per platform) and `BackgroundWorkService` (Android foreground service; a no-op on iOS and macOS).
+The same applies to `FileExportService` (Android, iOS, one shared desktop implementation), `BackgroundWorkService` (Android foreground service; a no-op elsewhere), `SystemMonitorService` (Pigeon on Android / iOS / macOS, Dart on Windows and Linux), `GalleryService`, `ImageService` and `ImageConvertService`.
 
 `configureDependencies` registers the database, the error log and `ErrorHandler` by hand before calling the generated initializer, because everything else depends on them.
 
@@ -191,7 +192,7 @@ Details: [Download](../features/download.md), [Library](../features/library.md),
 | --- | --- | --- |
 | Android | `AndroidMediaEngine` | Pigeon `@HostApi` + `@EventChannelApi` → Kotlin (youtubedl-android) |
 | iOS | `AndroidMediaEngine` (same Dart class) | The same Pigeon API → Swift → embedded CPython running the yt-dlp CLI; ffmpeg from FFmpegKit |
-| macOS | `MacosMediaEngine` | `dart:io` `Process` running bundled `yt-dlp_macos`, `ffmpeg`, `ffprobe` |
+| macOS, Windows, Linux | `DesktopMediaEngine` | `dart:io` `Process` running the bundled yt-dlp, `ffmpeg`, `ffprobe` (paths per OS in `DesktopEngineBinaries`) |
 
 See [Media Engine](../engine/media_engine.md).
 
@@ -211,7 +212,7 @@ See [Media Engine](../engine/media_engine.md).
 | Strings | [App Messages](../core/app_messages.md) |
 | Database | [Local Database](../core/local_database.md) |
 | Files, permissions, thumbnails | [Core Services](../core/core_services.md) |
-| Engine | [Media Engine](../engine/media_engine.md), [Android](../engine/android_engine.md), [iOS](../engine/ios_engine.md), [macOS](../engine/macos_engine.md), [ffmpeg Recipes](../engine/ffmpeg_recipes.md), [Site Support](../engine/site_support.md) |
+| Engine | [Media Engine](../engine/media_engine.md), [Android](../engine/android_engine.md), [iOS](../engine/ios_engine.md), [Desktop](../engine/desktop_engine.md), [macOS](../engine/macos_engine.md), [ffmpeg Recipes](../engine/ffmpeg_recipes.md), [Site Support](../engine/site_support.md) |
 | Photo posts | [Photo Extractors](../extractors/photo_extractors.md) |
 | Features | [Download](../features/download.md), [Library](../features/library.md), [Convert](../features/convert.md), [System](../features/system.md), [Settings](../features/settings.md) |
 | Packages, problems | [Packages](../utils/packages.md), [Troubleshooting](../utils/troubleshooting.md) |

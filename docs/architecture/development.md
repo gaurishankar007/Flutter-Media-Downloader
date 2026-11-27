@@ -44,7 +44,7 @@ dart run build_runner build
 dart run pigeon --input lib/config/pigeon/media_engine_api.dart     # engine (Android Kotlin, iOS Swift)
 dart run pigeon --input lib/config/pigeon/file_export_api.dart      # Save to Files (Android, iOS)
 dart run pigeon --input lib/config/pigeon/background_work_api.dart  # Android foreground service
-dart run pigeon --input lib/config/pigeon/system_monitor_api.dart   # System tab (Android, iOS, macOS)
+dart run pigeon --input lib/config/pigeon/system_monitor_api.dart   # System tab (Android, iOS, macOS; Windows and Linux read it in Dart)
 ```
 
 Run `build_runner` after adding or changing any route, injectable class or drift table. Generated Dart clients land in `lib/core/clients/platform/`. `system_monitor_api.dart` writes the same Swift file to both `ios/Runner/SystemMonitor/` and `macos/Runner/SystemMonitor/`; the hand-written `SystemMonitor.swift` next to it is kept in sync by hand.
@@ -54,7 +54,7 @@ Run `build_runner` after adding or changing any route, injectable class or drift
 Sources live in `assets/icon/`; the `flutter_launcher_icons` and `flutter_native_splash` configs are in `pubspec.yaml` (both are dev dependencies). See [Design System](../design/design_system.md#app-icon-and-splash).
 
 ```bash
-dart run flutter_launcher_icons          # Android (adaptive + monochrome), iOS, macOS icons
+dart run flutter_launcher_icons          # Android (adaptive + monochrome), iOS, macOS, Windows (app_icon.ico) icons
 dart run flutter_native_splash:create    # native splash (Android incl. 12+, iOS); not generated yet
 ```
 
@@ -68,12 +68,15 @@ After cloning, fetch the native engine files once (they're not committed):
 flutter pub get
 macos/scripts/fetch_engine_binaries.sh   # macOS: yt-dlp_macos, ffmpeg, ffprobe into macos/Runner/Resources/bin/ (--with-deno, --universal)
 ios/scripts/fetch_engine.sh              # iOS: Python.xcframework, FFmpegKit, yt-dlp + certifi into ios/Frameworks/
-flutter run -d android                   # or: -d ios, -d macos
+linux/scripts/fetch_engine_binaries.sh   # Linux: yt-dlp_linux, ffmpeg, ffprobe into linux/engine/bin/ (--with-deno)
+flutter run -d android                   # or: -d ios, -d macos, -d windows, -d linux
 ```
 
-Android needs no fetch step: youtubedl-android comes from Gradle. Xcode build phases copy the fetched files into the app (`macos/scripts/bundle_engine_binaries.sh`, `ios/scripts/install_engine.sh`). Details: [macOS Engine](../engine/macos_engine.md), [iOS Engine](../engine/ios_engine.md).
+On Windows (PowerShell): `powershell -ExecutionPolicy Bypass -File windows\scripts\fetch_engine.ps1 [-WithDeno]` (yt-dlp.exe, ffmpeg.exe, ffprobe.exe into `windows\engine\bin\`). Flutter only builds Windows apps on Windows and Linux apps on Linux, so the Mac can't build either; CI does.
 
-VS Code: `.vscode/launch.json` has **Android (debug)**, **iOS (debug)** and **macOS (debug)** launch configurations.
+Android needs no fetch step: youtubedl-android comes from Gradle. Xcode build phases copy the fetched files into the app (`macos/scripts/bundle_engine_binaries.sh`, `ios/scripts/install_engine.sh`); on Windows and Linux an `install()` rule in the runner's `CMakeLists.txt` copies `engine/bin/` next to the executable. Details: [Desktop Engine](../engine/desktop_engine.md), [macOS Engine](../engine/macos_engine.md), [iOS Engine](../engine/ios_engine.md).
+
+VS Code: `.vscode/launch.json` has **Debug**, **Profile** and **Release** configurations; pick the device in the status bar.
 
 ## Releases
 
@@ -83,6 +86,9 @@ VS Code: `.vscode/launch.json` has **Android (debug)**, **iOS (debug)** and **ma
 - **Trigger:** push a tag (`git tag v1.2.0 && git push origin v1.2.0`), or run the *Release* workflow by hand with a version. The tag sets the version name (`--build-name`). The build number is the workflow run number, so it always goes up.
 - **Android job (Ubuntu):** `flutter build apk --release`, giving one universal `MediaTool-<ver>-android.apk` (all ABIs, so users never pick a file; it's larger than a per-ABI split). Releases are signed with the release keystore, which is decoded from the secrets `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD` and `ANDROID_KEY_ALIAS` into `android/key.properties`. R8 minify is off (youtubedl-android isn't R8-proofed).
 - **macOS job:** `fetch_engine_binaries.sh --universal --with-deno`, then `flutter build macos --release`, then `MediaTool-<ver>-macos.dmg` with an Applications link. The DMG is **ad-hoc signed and not notarized**, so users allow it once under System Settings → Privacy & Security → *Open Anyway*. The release notes explain this.
+- **Windows job (`windows-latest`):** `fetch_engine.ps1 -WithDeno`, `flutter build windows --release`, then the `Release` folder zipped as `Media Tool\` into `MediaTool-<ver>-windows-x64.zip`. Not code-signed, so SmartScreen may ask once (*More info → Run anyway*).
+- **Linux job (Ubuntu):** the GTK build packages from apt, `fetch_engine_binaries.sh --with-deno`, `flutter build linux --release`, then the bundle as `MediaTool/` in `MediaTool-<ver>-linux-x64.tar.gz` (tar keeps the executable bits). x64 only.
+- **Windows and Linux are validated only by CI:** neither can be built on the Mac, so the release skill's local checks cover Android and macOS, and the tag's CI run is the first Windows / Linux build.
 - **iOS:** no release build (installs need the App Store, TestFlight or a developer's Mac). Users install from source with their own Apple ID: see [Install on an iPhone](../../README.md#install-on-an-iphone) (free account: 7-day installs, renewed by reinstalling over the app, which keeps its data).
 - **Local release builds:** `android/key.properties` (gitignored) points to the keystore outside the repo. Without it, `flutter build apk --release` falls back to debug keys. **Back up the keystore and its password:** losing it means users can't update without uninstalling first.
 - **App ID:** `com.gss.mediatool` on all platforms. Never change it after a release, or updates break.

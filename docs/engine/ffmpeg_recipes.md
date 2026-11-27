@@ -95,11 +95,24 @@ Above 1080p the bitrate grows with the pixel count.
 
 ## Images
 
-Photos are handled with `flutter_image_compress` (native encoders, fast), not ffmpeg:
+Photos are handled with `flutter_image_compress` (native encoders, fast) on Android, iOS and macOS. Windows and Linux have no plugin, so they use the bundled ffmpeg (below):
 
 - **Download:** with **Convert photos to JPG** on (Settings), photo-post images that aren't JPG (WebP, HEIC, PNG, …) are re-encoded to **JPG quality 92** (`ImageService.toJpg`).
 - **Convert** (`ImageConvertService`): to JPG, PNG, WebP or HEIC. HEIC output is hidden on Android (it depends on the device's hardware encoder; later), WebP output is hidden on macOS (the macOS plugin writes JPEG when asked for WebP).
 - **Compress:** longest side 4096 / 2048 / 1080 px or a percentage, quality slider 40–100 (default 80), **strip metadata** on by default (removes GPS location; EXIF is only ever kept for JPG).
+
+**Windows and Linux** (`FfmpegCommandBuilder.image`, run by `FfmpegImageService` / `FfmpegImageConvertService` outside the `FfmpegSlot`):
+
+```
+ffmpeg -hide_banner -nostats -y -i <in> \
+       [-vf "scale='if(gt(iw,ih),-1,min(S,iw))':'if(gt(iw,ih),min(S,ih),-1)'"] \
+       -c:v mjpeg -q:v <2..31>      # JPG: quality 100 → 2, 0 → 31
+     | -c:v png
+     | -c:v libwebp -quality <q>
+       -frames:v 1 -update 1 <out>
+```
+
+The scale filter sets the short side to `S` and never upscales. Output is JPG, PNG or WebP (no HEIC); metadata is always dropped. The decoded size comes from `dart:ui` on every platform.
 
 ## TikTok Slideshow → Video (optional)
 

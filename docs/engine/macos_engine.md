@@ -1,6 +1,6 @@
 # macOS Engine
 
-> Status: implemented (not yet tested beyond the development Mac). Dart: `macos_media_engine.dart`. No native code for the engine itself.
+> Status: implemented (not yet tested beyond the development Mac). Dart: `desktop_media_engine.dart` (shared with Windows and Linux, see [Desktop Engine](desktop_engine.md)). No native code for the engine itself.
 
 ## Binaries
 
@@ -30,11 +30,11 @@ It downloads into `macos/Runner/Resources/bin/`, makes the files executable, cle
 
 ## Running
 
-- `MacosMediaEngine` runs the binaries with `dart:io` `Process.run` (probe, `--version`, `-encoders`, `-U`) and `Process.start` (downloads, ffmpeg jobs), reading stdout line by line as UTF-8 and keeping the last 4000 characters of stderr for errors.
+- `DesktopMediaEngine` runs the binaries with `dart:io` `Process.run` (probe, `--version`, `-encoders`, `-U`) and `Process.start` (downloads, ffmpeg jobs), reading stdout line by line as UTF-8 and keeping the last 4000 characters of stderr for errors.
 - **Environment:** a GUI app starts with a bare `PATH` and no locale, so every process gets `PATH = <bin>:/opt/homebrew/bin:/usr/local/bin:<inherited PATH>` (the bundled tools first, then Homebrew for a `deno` that isn't bundled) and `LANG` / `LC_ALL = en_US.UTF-8`, `PYTHONUTF8=1`, `PYTHONIOENCODING=utf-8`, so titles and file names survive.
 - **Extra yt-dlp args** the shared builder can't know: `--ffmpeg-location <bin>`, and `--js-runtimes deno:<bin>/deno` when `deno` is bundled.
 - yt-dlp progress comes from `--newline` + the `[MD]` progress template (see [Media Engine: Download Args](media_engine.md#download-args)); ffmpeg progress from `-progress pipe:1`.
-- **Cookies:** the site's imported cookies.txt (`--cookies`), else, macOS only, `--cookies-from-browser safari|chrome|firefox` from Settings → Cookies.
+- **Cookies:** the site's imported cookies.txt (`--cookies`), else `--cookies-from-browser safari|chrome|firefox` from Settings → Cookies (all three on macOS; Windows and Linux offer fewer, see [Site Support](site_support.md#cookies)).
 - **Cancel:** `yt-dlp_macos` is a bootloader with Python (and ffmpeg) below it, so cancel sends SIGTERM to the process and all its descendants (`pgrep -P`), then SIGKILL after 3 s.
 
 ## App Sandbox: off
@@ -48,6 +48,6 @@ The app bundle is read-only after signing (changing a file inside it breaks the 
 ## Saving
 
 - **Save to Photos:** `gal` (Photos add-only permission).
-- **Save to Files:** the `NSSavePanel` from `file_picker` (`FilePicker.saveFile`, defaulting to the item's name), then a streamed copy to the chosen path (`MacosFileExportService`). No Pigeon on macOS.
+- **Save to Files:** the `NSSavePanel` from `file_picker` (`FilePicker.saveFile`, defaulting to the item's name), then a streamed copy to the chosen path (`DesktopFileExportService`, shared with Windows and Linux). No Pigeon on the desktops.
 
 There is no **Show in Finder** action and no drag-and-drop target yet.

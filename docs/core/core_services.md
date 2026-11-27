@@ -10,11 +10,11 @@ Shared services that more than one feature uses.
 
 | Folder | Where | Holds |
 | --- | --- | --- |
-| `base` | Application Support (`path_provider`): iOS/macOS Application Support, Android `filesDir`-based app support dir | Root for everything below |
+| `base` | Application Support (`path_provider`): iOS/macOS Application Support, Android `filesDir`-based app support dir, Windows `%APPDATA%\com.gss\Media Tool` (CompanyName and ProductName in `Runner.rc`), Linux `~/.local/share/com.gss.mediatool` | Root for everything below |
 | `downloads/` | under base | Finished downloads and conversions (the Library) |
 | `thumbnails/` | under base | JPG thumbnails for Library items, named `<item id>.jpg` |
-| `cookies/` | under base | Imported cookies.txt per site (mode 600 on macOS) |
-| `engine/` | under base (macOS only) | Self-updated copy of `yt-dlp_macos` (see [macOS Engine](../engine/macos_engine.md)) |
+| `cookies/` | under base | Imported cookies.txt per site (mode 600 on macOS and Linux) |
+| `engine/` | under base (desktops only) | Self-updated copy of the bundled yt-dlp (see [Desktop Engine](../engine/desktop_engine.md#updating-yt-dlp)) |
 | `work/` | Application cache dir | One `work/<jobId>/` per job: partial downloads, ffmpeg intermediates. **Deleted on every startup.** |
 
 - On iOS, `BackupExclusion` (`ios/Runner/Storage/BackupExclusion.swift`, run from `AppDelegate` at launch) marks `downloads/`, `thumbnails/`, `cookies/` and `engine/` "exclude from backup", so large files and cookies never go to iCloud.
@@ -52,17 +52,17 @@ All in `lib/data/services/platform/`, each behind an interface. Per-platform imp
 | Service | Does | Built on |
 | --- | --- | --- |
 | `MediaEngine` | probe, download, ffmpeg, cancel, update | See [Media Engine](../engine/media_engine.md) |
-| `GalleryService` | Save a video or photo to Photos (iOS/macOS) / the gallery (Android), into a `MediaTool` album. **Audio can't** go to Photos (`supports(kind)` is false), so the Library hides that action for audio. | `gal` |
-| `FileExportService` | Save to Files. Returns `true` when saved, `false` when cancelled. Android: SAF `ACTION_CREATE_DOCUMENT` + streamed copy (Kotlin `export/FileExporter.kt`). iOS: `UIDocumentPickerViewController(forExporting:)` (Swift `Runner/Export/FileExporter.swift`). Both through Pigeon `file_export_api.dart`. macOS: `NSSavePanel` via `file_picker`'s `saveFile`, then a Dart file copy. | Pigeon / `file_picker` |
+| `GalleryService` | Save a video or photo to Photos (iOS/macOS) / the gallery (Android) / the Pictures library (Windows), into a `MediaTool` album. Linux (`LinuxGalleryService`): copies into `MediaTool/` in the Pictures or Videos folder (`xdg-user-dir`), never overwriting. **Audio can't** go to Photos (`supports(kind)` is false), so the Library hides that action for audio. | `gal` / `dart:io` on Linux |
+| `FileExportService` | Save to Files. Returns `true` when saved, `false` when cancelled. Android: SAF `ACTION_CREATE_DOCUMENT` + streamed copy (Kotlin `export/FileExporter.kt`). iOS: `UIDocumentPickerViewController(forExporting:)` (Swift `Runner/Export/FileExporter.swift`). Both through Pigeon `file_export_api.dart`. macOS, Windows, Linux (`DesktopFileExportService`): the system save dialog via `file_picker`'s `saveFile` (Linux needs the desktop portal, `zenity` or `kdialog`), then a Dart file copy. | Pigeon / `file_picker` |
 | `ShareService` | System share sheet for one or more files | `share_plus` |
 | `MediaPickerService` | Converter import: `pickFromPhotos()` (media picker), `pickFromFiles()` (any file), `clearTemporaryFiles()` | `file_picker` |
 | `FilePickerService` | One file read once (cookies.txt import) | `file_picker` |
-| `ImageService` | `toJpg` (full size, quality 92) and `thumbnail` (short side ~480 px) | `flutter_image_compress` |
-| `ImageConvertService` | Converter images: output formats this platform can write, decoded size, convert/resize/strip metadata | `flutter_image_compress`, `dart:ui` |
+| `ImageService` | `toJpg` (full size, quality 92) and `thumbnail` (short side ~480 px) | `flutter_image_compress`; the bundled ffmpeg on Windows and Linux (`FfmpegImageService`) |
+| `ImageConvertService` | Converter images: output formats this platform can write, decoded size, convert/resize/strip metadata | `flutter_image_compress`, `dart:ui`; ffmpeg on Windows and Linux (`FfmpegImageConvertService`: JPG, PNG, WebP) |
 | `AppInfoService` | App version `1.0.0 (1)` for About | `package_info_plus` |
-| `BackgroundWorkService` | Android: the `dataSync` foreground service + notification with Cancel (Pigeon `background_work_api.dart`). iOS/macOS: no-op. | Pigeon / `permission_handler` |
-| `SystemMonitorService` | RAM / CPU / GPU / network samples, storage, battery and hardware facts for the System tab | Pigeon `system_monitor_api.dart`, see [System](../features/system.md) |
-| `SpeedTestService` | RAM and storage speed tests for the System tab, at native speed in a background isolate | `dart:ffi` (libc), see [System](../features/system.md#speed-tests) |
+| `BackgroundWorkService` | Android: the `dataSync` foreground service + notification with Cancel (Pigeon `background_work_api.dart`). iOS and the desktops: no-op. | Pigeon / `permission_handler` |
+| `SystemMonitorService` | RAM / CPU / GPU / network samples, storage, battery and hardware facts for the System tab | Pigeon `system_monitor_api.dart` (Android, iOS, macOS); Win32 through `dart:ffi` plus one PowerShell query (Windows); `/proc`, `/sys`, `df`, `lsblk`, `lspci` (Linux). See [System](../features/system.md) |
+| `SpeedTestService` | RAM and storage speed tests for the System tab, at native speed in a background isolate | `dart:ffi` (libc; kernel32 + ntdll on Windows), see [System](../features/system.md#speed-tests) |
 
 Save to Photos and Save to Files return a **confirmed result** (saved / cancelled / failed), which is what lets the Library show the "remove from app?" prompt safely. The share sheet doesn't give a reliable result on every platform, so no prompt follows Share.
 
@@ -70,11 +70,11 @@ Save to Photos and Save to Files return a **confirmed result** (saved / cancelle
 
 Asked only at the moment they're needed; there's no separate permission service.
 
-| When | iOS | Android | macOS |
-| --- | --- | --- | --- |
-| Save to Photos | Photos (`NSPhotoLibraryAddUsageDescription` / `NSPhotoLibraryUsageDescription`), requested by `GalleryService` through `gal` | None on Android 10+; `WRITE_EXTERNAL_STORAGE` (maxSdk 29) on 9 and lower | Same as iOS |
-| Import from Photos / Files | None (system picker) | None (system picker) | None |
-| Download notifications | — | `POST_NOTIFICATIONS` (Android 13+), requested by `AndroidBackgroundWorkService` via `permission_handler` when a download starts | — |
+| When | iOS | Android | macOS | Windows, Linux |
+| --- | --- | --- | --- | --- |
+| Save to Photos | Photos (`NSPhotoLibraryAddUsageDescription` / `NSPhotoLibraryUsageDescription`), requested by `GalleryService` through `gal` | None on Android 10+; `WRITE_EXTERNAL_STORAGE` (maxSdk 29) on 9 and lower | Same as iOS | None |
+| Import from Photos / Files | None (system picker) | None (system picker) | None | None |
+| Download notifications | — | `POST_NOTIFICATIONS` (Android 13+), requested by `AndroidBackgroundWorkService` via `permission_handler` when a download starts | — | — |
 
 A denied Photos permission comes back as a `GalException` and is shown with `LibraryMessages.photosAccessDenied` (see [Error Handling](error_handling.md#translators)).
 

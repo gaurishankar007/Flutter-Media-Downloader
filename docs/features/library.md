@@ -54,8 +54,8 @@ From the action sheet (`showItemActionSheet`):
 
 | Action | Does |
 | --- | --- |
-| **Save to Photos** | `GalleryService` (`gal`) → Photos / gallery. Sets `savedToPhotosAt`. Not offered for audio. |
-| **Save to Files** | `FileExportService` → Android SAF create-document, iOS document picker (export), macOS save panel (`file_picker` `saveFile`, then a file copy). Sets `savedToFilesAt`. Single items only (not on a grouped card: open the post to save one file). |
+| **Save to Photos** | `GalleryService` (`gal`) → Photos / gallery / the Windows Pictures library; on Linux a copy into `MediaTool/` in the Pictures or Videos folder. Sets `savedToPhotosAt`. Not offered for audio. |
+| **Save to Files** | `FileExportService` → Android SAF create-document, iOS document picker (export), the desktop save dialog on macOS, Windows and Linux (`file_picker` `saveFile`, then a file copy; Linux needs the desktop portal, `zenity` or `kdialog`). Sets `savedToFilesAt`. Single items only (not on a grouped card: open the post to save one file). |
 | **Share** | System share sheet (`share_plus`). No prompt afterwards. |
 | **Convert** | `ConvertSourceNotifier.pickFromLibrary(id)` and switches to the Convert tab. Single items only. |
 | **Delete** | `confirmAndDelete` (`ConfirmDialog`), then delete files + thumbnails + rows. |
@@ -86,7 +86,7 @@ flowchart TD
 
 `MediaViewerRoute(initialId, ids)` opens full screen above the tabs, from the grid or from a finished download's card. It's a `PageView` over `ids`: swipe for the next item; deleted items drop out (`retain`) and the viewer closes when none are left.
 
-- **Video:** `video_player` on the local file, tap to play/pause, `PlayerControls` (scrubber, play/pause); pauses when swiped away.
+- **Video:** `video_player` on the local file (`video_player_win` on Windows), tap to play/pause, `PlayerControls` (scrubber, play/pause); pauses when swiped away. Linux has no `video_player` implementation, so the viewer shows "This file can't be played here" and Share / Save still work.
 - **Audio:** cover art (or the Aurora gradient with a note), title, `PlayerControls`.
 - **Photo:** zoomable (`InteractiveViewer`), Hero from the grid card; a broken-image icon when the file is missing (removed outside the app).
 - `ViewerActionBar`: Save to Photos (not for audio), Save to Files, Share, **Info** (`ItemInfoSheet`: file name, size, format, duration, date added, source URL as selectable text), Delete.

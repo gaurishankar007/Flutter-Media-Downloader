@@ -8,9 +8,9 @@
 
 - **App:** Media Tool. A Flutter app that downloads videos, audio and photos from YouTube, Facebook, Instagram, Threads, X/Twitter and TikTok, keeps them in its own Library, and converts or compresses media files.
 - **Architecture:** Feature-first MVVM with Riverpod, get_it/injectable, auto_route and drift. See `docs/architecture/architecture.md`.
-- **Platforms:** Android, iOS, macOS. No web, no flavors.
+- **Platforms:** Android, iOS, macOS, Windows, Linux. No web, no flavors.
 - **Entry point:** `lib/main.dart`. Package name: `media_tool`.
-- **Personal-use tool, released on GitHub.** No app stores. Tagged versions publish signed Android APKs and an unsigned macOS DMG to GitHub Releases (`.github/workflows/release.yml`; see `docs/architecture/development.md#releases`). iOS is run from source only. **To release, ALWAYS follow the `release` skill** (`.claude/skills/release/SKILL.md`): toolchain parity check → validate → version → approved notes → tag → watch CI.
+- **Personal-use tool, released on GitHub.** No app stores. Tagged versions publish a signed universal Android APK, an unsigned macOS DMG, a Windows zip and a Linux tarball to GitHub Releases (`.github/workflows/release.yml`; see `docs/architecture/development.md#releases`). iOS is run from source only. **To release, ALWAYS follow the `release` skill** (`.claude/skills/release/SKILL.md`): toolchain parity check → validate → version → approved notes → tag → watch CI.
 
 ---
 
@@ -72,7 +72,7 @@ Details in `docs/architecture/development.md`. In short:
 
 ### Dependency Injection
 
-- `@injectable`, `@lazySingleton`, `@singleton`. Per-platform implementations use injectable environments (`PlatformEnv.android | ios | macos`).
+- `@injectable`, `@lazySingleton`, `@singleton`. Per-platform implementations use injectable environments (`PlatformEnv.android | ios | macos | windows | linux`; `PlatformEnv.desktop` lists the three desktops).
 - Run `dart run build_runner build` after changing any injectable class, route or drift table.
 
 ### Data Layer
@@ -101,7 +101,7 @@ lib/data/
     ├── repositories/       # implementations
     └── services/
         ├── local/          # drift, settings, cookies files
-        ├── platform/       # MediaEngine (Android/iOS + macOS), file export, background work, system monitor, gallery, share, pickers, images
+        ├── platform/       # MediaEngine (Android/iOS + desktop), file export, background work, system monitor, gallery, share, pickers, images
         └── remote/         # SiteHttpClient, photo extractors, MediaFileDownloader, EngineReleaseService
 
 lib/domain/
@@ -126,7 +126,7 @@ dart run pigeon --input lib/config/pigeon/background_work_api.dart  # Android fo
 dart run pigeon --input lib/config/pigeon/system_monitor_api.dart   # System tab (Android, iOS, macOS)
 ```
 
-Engine files aren't committed: after cloning run `macos/scripts/fetch_engine_binaries.sh` and `ios/scripts/fetch_engine.sh`. See `docs/architecture/development.md`.
+Engine files aren't committed: after cloning run `macos/scripts/fetch_engine_binaries.sh`, `ios/scripts/fetch_engine.sh`, `windows/scripts/fetch_engine.ps1` or `linux/scripts/fetch_engine_binaries.sh` for the platforms you build. See `docs/architecture/development.md`.
 
 ---
 
@@ -172,13 +172,15 @@ Engine files aren't committed: after cloning run `macos/scripts/fetch_engine_bin
 | Android | `flutter run` on your own phone or emulator. |
 | iOS | `flutter run` / Xcode with your Apple ID team (free: 7-day installs; paid account: ~1 year). |
 | macOS | `flutter run`; the app is **not sandboxed** because it runs bundled binaries. |
+| Windows | `flutter run -d windows` on a Windows PC (x64), after `windows/scripts/fetch_engine.ps1`. |
+| Linux | `flutter run -d linux` on a Linux PC (x64), after `linux/scripts/fetch_engine_binaries.sh`. No video playback. |
 
 ### Where the decisions live
 
 | Topic | Doc |
 | --- | --- |
 | Engine interface, probe, progress, cancel, updates, FfmpegSlot | `docs/engine/media_engine.md` |
-| Android (youtubedl-android), iOS (embedded CPython + FFmpegKit, same Dart engine as Android), macOS (bundled binaries, fetch scripts) | `docs/engine/android_engine.md`, `ios_engine.md`, `macos_engine.md` |
+| Android (youtubedl-android), iOS (embedded CPython + FFmpegKit, same Dart engine as Android), macOS / Windows / Linux (one desktop engine over bundled binaries, fetch scripts) | `docs/engine/android_engine.md`, `ios_engine.md`, `desktop_engine.md`, `macos_engine.md` |
 | Tested yt-dlp / ffmpeg commands, compression presets | `docs/engine/ffmpeg_recipes.md` |
 | What each site supports, cookies | `docs/engine/site_support.md` |
 | Instagram / TikTok / Facebook photos, Threads, X images, link routing | `docs/extractors/photo_extractors.md` |
@@ -191,7 +193,7 @@ Engine files aren't committed: after cloning run `macos/scripts/fetch_engine_bin
 
 ### Build order (v1)
 
-All six steps are implemented (untested on devices), plus a System tab (system monitor).
+All six steps are implemented (untested on devices), plus a System tab (system monitor) and Windows and Linux builds (built in CI, untested on devices).
 
 1. Project skeleton (architecture, theme, base widgets) + `MediaEngine` + **Android engine**. Paste → preview → MP4/MP3 with quality → progress → app folder. **Library** with Save to Photos / Save to Files / Share / Delete and the remove prompt; Share / Remove on finished downloads. YouTube, Facebook, Instagram, X, TikTok videos.
 2. Photo extractors (Facebook, Instagram, TikTok) + Threads extractor. A pasted link picks the video or photo route automatically.

@@ -33,7 +33,7 @@ The screen is a `ScreenScrollView`; its `bottomAction` (pinned above the nav bar
    - **From Photos**: `file_picker` with `FileType.media`.
    - **From Files**: `file_picker` (any file).
 
-   Picked files are copied into their own `work/source-<uuid>/` folder first (the original is never touched) and the picker's temporary copies are cleared. There is no drag-and-drop target on macOS yet. Below the tiles, `FormatOverviewCard` lists what can be converted.
+   Picked files are copied into their own `work/source-<uuid>/` folder first (the original is never touched) and the picker's temporary copies are cleared. There is no drag-and-drop target on the desktops yet. Below the tiles, `FormatOverviewCard` lists what can be converted.
 2. **Choose** — `SourcePreview` (the picked file with **Change**), then `ModePicker` (**Convert** / **Compress**; Compress only for video and images).
    - Convert: `FormatChips` with the valid targets (table below). For MP4 / MOV from a source whose video isn't H.264/HEVC, an **iPhone-compatible** switch.
    - Compress video: preset (High / Medium / Small), max resolution (Original + 1080p / 720p / 480p below the source), optional "Aim for about N MB" slider with a "too low" warning. Output is MP4.
@@ -56,7 +56,7 @@ The screen is a `ScreenScrollView`; its `bottomAction` (pinned above the nav bar
 | --- | --- |
 | Video | MP4, MOV, MKV, WebM (only if ffmpeg has `libvpx-vp9`), MP3 / M4A (when it has audio) |
 | Audio | MP3, M4A |
-| Image | JPG, PNG, WebP (not on macOS: the plugin writes JPEG for WebP), HEIC (not on Android: needs a hardware encoder) |
+| Image | JPG, PNG, WebP (not on macOS: the plugin writes JPEG for WebP), HEIC (not on Android: needs a hardware encoder; not on Windows or Linux, which convert images with ffmpeg) |
 
 The source's own format is left out. MP4 / MOV remux (`-c copy`) when the video is already iPhone-compatible, and fall back to an iPhone re-encode otherwise; each ffmpeg command list is tried in order, so a failing hardware encoder falls back to the next. Commands are in [ffmpeg Recipes](../engine/ffmpeg_recipes.md#convert).
 
@@ -76,5 +76,5 @@ The source's own format is left out. MP4 / MOV remux (`-c copy`) when the video 
 
 - Exact target-size two-pass video compression (v1 has single-pass "about N MB").
 - Batch conversion of many files at once.
-- HEIC output on Android, WebP output on macOS.
-- Drag and drop onto the Convert screen on macOS.
+- HEIC output on Android, Windows and Linux; WebP output on macOS.
+- Drag and drop onto the Convert screen on the desktops.

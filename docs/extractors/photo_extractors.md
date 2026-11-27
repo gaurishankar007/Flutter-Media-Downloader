@@ -2,7 +2,7 @@
 
 > Status: built (untested against every live site). Files: `lib/data/services/remote/extractors/`, `lib/data/services/remote/site_http_client.dart`, `lib/data/services/remote/media_file_downloader.dart`, `lib/data/repositories/post_repository_impl.dart`.
 
-yt-dlp only extracts video. On an Instagram photo post it fails with `There is no video in this post`. Photos (and Threads, which yt-dlp doesn't support at all) go through small Dart extractors. They're plain HTTP + HTML/JSON parsing, so they work the same on Android, iOS and macOS with no native code, and they keep working when the engine failed to start.
+yt-dlp only extracts video. On an Instagram photo post it fails with `There is no video in this post`. Photos (and Threads, which yt-dlp doesn't support at all) go through small Dart extractors. They're plain HTTP + HTML/JSON parsing, so they work the same on every platform with no native code, and they keep working when the engine failed to start.
 
 ## Interface
 
@@ -130,7 +130,7 @@ A request whose `isPost` is true skips the engine. `PostRepositoryImpl.download`
 Then `DownloadMediaUseCase`:
 
 - **Direct videos skip ffmpeg:** Threads, Instagram carousel and X videos come as MP4 from the CDN and go to the Library as downloaded (no remux, no iPhone re-encode).
-- **Photos to JPG** (Settings → "Convert photos to JPG", on by default): every non-JPG photo (WebP, HEIC, PNG…) is re-encoded with `ImageService.toJpg` (`flutter_image_compress`, quality 92). Videos are left alone.
+- **Photos to JPG** (Settings → "Convert photos to JPG", on by default): every non-JPG photo (WebP, HEIC, PNG…) is re-encoded with `ImageService.toJpg` (`flutter_image_compress`, quality 92; the bundled ffmpeg on Windows and Linux). Videos are left alone.
 - `LibraryRepository.addPost` names each file with `FilenameUtils.forPostItem` (`<user> <postid> 01.jpg`, …), makes a thumbnail for each photo, and adds one Library row per item. Items of a multi-item post share a `groupId` (with `groupIndex` for their order), so the Library shows them as one group.
 
 ## When an extractor breaks

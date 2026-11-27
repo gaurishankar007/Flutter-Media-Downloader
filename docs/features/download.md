@@ -66,7 +66,7 @@ sequenceDiagram
 `MediaPreviewSheet` builds its own `AppBottomSheet` (`ownLayout: true`) so its **Download** button is pinned with `bottomAction` under the scrolling content.
 
 - `PreviewHeader`: thumbnail, title, uploader, site badge, duration.
-- **Video preview:** `PreviewMedia` shows ▶ when the probe found a direct stream (`MediaInfo.previewStream`) and plays it inline with `video_player` (with the stream's HTTP headers). Without one, only the thumbnail shows.
+- **Video preview:** `PreviewMedia` shows ▶ when the probe found a direct stream (`MediaInfo.previewStream`) and plays it inline with `video_player` (with the stream's HTTP headers). Without one, only the thumbnail shows (always on Linux, which has no video player).
 - **Kind picker** (`SegmentedPicker`, only when there's more than one): Video, Audio (when the media has both), Photos (post media). The initial kind is Video, else Photos, else Audio.
 - **Video:** `VideoQualityChips` with the options that exist and their size estimates; the default is the highest option at or below Settings' default quality, else Best. Then the **iPhone-compatible** switch (default from Settings) and `ReencodeHint` when the chosen option needs a re-encode.
 - **Audio:** `AudioQualityChips` (320 / 192 / 128 kbps, default from Settings).

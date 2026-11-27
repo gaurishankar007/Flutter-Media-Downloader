@@ -22,7 +22,7 @@ There is **no gallery-dl fallback**: when a Dart extractor can't read a post (e.
 Some posts need the user's login (private Facebook posts, Instagram Stories, some YouTube videos behind a bot check). The app supports **importing cookies** (Settings → Cookies):
 
 - A Netscape `cookies.txt` file **per site**, stored as `cookies/<site>.txt` in the app's folder, on all platforms. yt-dlp gets it with `--cookies` only for links of that site, and the Dart extractors' `SiteHttpClient` sends it only to that site's own hosts.
-- macOS only: `--cookies-from-browser safari|chrome|firefox`, used for a site that has no imported file.
+- Desktops only: `--cookies-from-browser <browser>`, used for a site that has no imported file. macOS offers Safari, Chrome and Firefox; Linux Chrome and Firefox; Windows only Firefox (Chrome's app-bound cookie encryption blocks yt-dlp). The OS may ask for permission (Keychain on macOS, the keyring on Linux).
 
 Cookies are only ever sent to the site they belong to, stay in the app's private folder (excluded from backups on iOS) and never leave the device. See [Settings: Cookies](../features/settings.md#cookies).
 

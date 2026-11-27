@@ -1,6 +1,6 @@
 # Media Engine
 
-> Status: implemented on Android, iOS and macOS (not yet tested on real devices). Files: `lib/data/services/platform/media_engine/`.
+> Status: implemented on Android, iOS, macOS, Windows and Linux (not yet tested on real devices; Windows and Linux are built only in CI so far). Files: `lib/data/services/platform/media_engine/`.
 
 `MediaEngine` is the one Dart interface over yt-dlp (download) and ffmpeg (process, convert, read local files). The UI and repositories never know which platform they're on.
 
@@ -29,13 +29,13 @@ abstract interface class MediaEngine {
 
 `EngineEvent` is sealed: `EngineLine(text)` (one stdout line), `EngineDone`, `EngineFailed(output)` (the tail of stderr, at most 4000 characters) and `EngineCancelled`. Each job's stream ends after its first non-line event.
 
-The **commands are built once in Dart** (`YtDlpArgsBuilder`, `FfmpegCommandBuilder` in `media_engine/builders/`), so presets, file names and quality rules are identical on all three platforms. Each platform engine only knows how to *run* yt-dlp and ffmpeg. There is no separate `probeFile`: local files are read with `ffmpeg -i` (see [Reading Local Files](#reading-local-files)).
+The **commands are built once in Dart** (`YtDlpArgsBuilder`, `FfmpegCommandBuilder` in `media_engine/builders/`), so presets, file names and quality rules are identical on every platform. Each platform engine only knows how to *run* yt-dlp and ffmpeg. There is no separate `probeFile`: local files are read with `ffmpeg -i` (see [Reading Local Files](#reading-local-files)).
 
 | Platform | Dart class | How it runs |
 | --- | --- | --- |
 | Android | `AndroidMediaEngine` | Pigeon `MediaEngineHostApi` + `MediaEngineEventsApi` → Kotlin (youtubedl-android) |
 | iOS | `AndroidMediaEngine` (same class) | The same Pigeon API → Swift `IosMediaEngine`: embedded CPython running yt-dlp's CLI entry point, FFmpegKit in-process |
-| macOS | `MacosMediaEngine` | `dart:io` `Process` running the bundled `yt-dlp_macos` and `ffmpeg` |
+| macOS, Windows, Linux | `DesktopMediaEngine` | `dart:io` `Process` running the bundled yt-dlp (`yt-dlp_macos`, `yt-dlp.exe`, `yt-dlp_linux`) and `ffmpeg`; per-OS paths, environment and process-tree kill in `DesktopEngineBinaries` |
 
 The Pigeon bridge is identical on Android and iOS and both native sides emit the same stdout lines, so one Dart class serves both: it's registered with `@LazySingleton(as: MediaEngine, env: [PlatformEnv.android, PlatformEnv.ios])`. There is no `ios_media_engine.dart`.
 
@@ -46,7 +46,7 @@ flowchart LR
     B1 & B2 -- "List<String> args" --> E["MediaEngine"]
     E --> A["AndroidMediaEngine<br/>(Pigeon → Kotlin, youtubedl-android)"]
     E --> I["AndroidMediaEngine on iOS<br/>(Pigeon → Swift → CPython yt-dlp, FFmpegKit)"]
-    E --> M["MacosMediaEngine<br/>(Process: yt-dlp_macos, ffmpeg)"]
+    E --> M["DesktopMediaEngine on macOS, Windows, Linux<br/>(Process: bundled yt-dlp, ffmpeg)"]
 ```
 
 ## Probe
@@ -80,8 +80,8 @@ URL
 ```
 
 - There is no `--print after_move:filepath`. When yt-dlp exits successfully, `MediaRepositoryImpl` lists `work/<jobId>/`: `thumb.*` is the thumbnail and the **largest** other file (skipping `.part` / `.ytdl`) is the media. Dart then renames it from the title (`FilenameUtils`) and moves it into `downloads/` when it adds the Library row.
-- **Cookies, per site:** the site's own imported `cookies/<site>.txt` wins (`--cookies`). Without one, on macOS only, the Settings browser choice adds `--cookies-from-browser safari|chrome|firefox`. Cookies are never passed for other sites.
-- **macOS only** prefixes every yt-dlp call with `--ffmpeg-location <bin>` and, when `deno` is bundled, `--js-runtimes deno:<bin>/deno` (see [macOS Engine](macos_engine.md#running)).
+- **Cookies, per site:** the site's own imported `cookies/<site>.txt` wins (`--cookies`). Without one, on the desktops only, the Settings browser choice adds `--cookies-from-browser safari|chrome|firefox`, and only when that browser is offered on this OS (`CookieBrowser.availableOn`: all three on macOS, Chrome and Firefox on Linux, Firefox on Windows). Cookies are never passed for other sites.
+- **The desktops** prefix every yt-dlp call with `--ffmpeg-location <bin>` and, when `deno` is bundled, `--js-runtimes deno:<bin>/deno` (see [Desktop Engine](desktop_engine.md#running)).
 
 ## Progress
 
@@ -97,7 +97,7 @@ URL
 
 A video + audio download reports two downloads in a row. At each `[download] Destination:` line the parser banks the finished stream's bytes, and the fraction is measured against the larger of the probe's size estimate and the bytes seen so far, never going backwards.
 
-All three platforms deliver raw stdout lines (iOS included: the shim runs yt-dlp's CLI entry point, not progress-hook dicts), so this one parser serves every platform.
+Every platform delivers raw stdout lines (iOS included: the shim runs yt-dlp's CLI entry point, not progress-hook dicts), so this one parser serves every platform.
 
 ## Reading Local Files
 
@@ -109,7 +109,8 @@ The converter reads imported files with `FfmpegCommandBuilder.probe(path)` = `ff
 | --- | --- |
 | Android | yt-dlp: `YoutubeDL.destroyProcessById(jobId)`; ffmpeg: the `Process` started for that job is destroyed |
 | iOS | yt-dlp: the shim raises `JobCancelled` in the job's Python thread (`async_raise`); ffmpeg: the FFmpegKit session is cancelled |
-| macOS | SIGTERM to the process and its whole child tree (`pgrep -P`), SIGKILL after 3 s |
+| macOS, Linux | SIGTERM to the process and its whole child tree (`pgrep -P`), SIGKILL after 3 s |
+| Windows | `taskkill /PID <pid> /T /F` (the whole tree) |
 
 After a cancel (or any end of a job) the repository deletes `work/<jobId>/`.
 
@@ -125,14 +126,14 @@ Sites change and yt-dlp follows within days, so updating without a new app build
 | --- | --- |
 | Android | `YoutubeDL.updateYoutubeDL(context, STABLE)` |
 | iOS | Swift downloads the official `yt-dlp` zipapp (pure Python) to `Application Support/engine/yt-dlp.zip`, then the shim unloads yt-dlp and imports the new zip (falling back to the bundled one if it doesn't load) |
-| macOS | `yt-dlp -U` on the writable copy in `Application Support/…/engine/yt-dlp_macos` (the bundled binary is inside the signed app and read-only) |
+| macOS, Windows, Linux | `yt-dlp -U` on the writable copy in `<app support>/engine/` (`yt-dlp_macos`, `yt-dlp.exe`, `yt-dlp_linux`); the bundled binary may be read-only (signed macOS bundle, `Program Files`) |
 
 Settings → Engine shows the current version, **Check for updates** and **Update**. See [Settings](../features/settings.md#engine).
 
 ## Concurrency
 
 - **Downloads:** at most **2** run at once (`DownloadQueueNotifier._maxParallel`); more wait as `queued`.
-- **ffmpeg:** one at a time. `FfmpegSlot` (a lazy singleton) is a FIFO lock shared by `ConvertRepositoryImpl.run` (video/audio conversions and compressions) and `MediaRepositoryImpl._runFfmpeg` (the iPhone re-encode after a download and the TikTok slideshow video). Re-encodes are CPU and battery heavy, so they never run in parallel. Short ffmpeg calls (reading a local file, a thumbnail frame) don't take the slot. Image conversions use `flutter_image_compress` and don't take it either.
-- **Encoder fallback:** the re-encode and compress commands are a list, one per encoder from `FfmpegCommandBuilder.iphoneEncoders` (hardware first, `libx264` last); each runs only if the one before failed.
+- **ffmpeg:** one at a time. `FfmpegSlot` (a lazy singleton) is a FIFO lock shared by `ConvertRepositoryImpl.run` (video/audio conversions and compressions) and `MediaRepositoryImpl._runFfmpeg` (the iPhone re-encode after a download and the TikTok slideshow video). Re-encodes are CPU and battery heavy, so they never run in parallel. Short ffmpeg calls (reading a local file, a thumbnail frame) don't take the slot. Image conversions (`flutter_image_compress`, or a one-frame ffmpeg run on Windows and Linux) don't take it either.
+- **Encoder fallback:** the re-encode and compress commands are a list, one per encoder from `FfmpegCommandBuilder.iphoneEncoders` (hardware first, `libx264` last; Windows and Linux get `libx264` only); each runs only if the one before failed.
 
-Per-platform details: [Android](android_engine.md), [iOS](ios_engine.md), [macOS](macos_engine.md).
+Per-platform details: [Android](android_engine.md), [iOS](ios_engine.md), [Desktop](desktop_engine.md) (macOS, Windows, Linux), [macOS](macos_engine.md).
