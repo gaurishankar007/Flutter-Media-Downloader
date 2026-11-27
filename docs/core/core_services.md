@@ -40,10 +40,10 @@ Other helpers in `lib/core/utils/`: `FormatUtils` (bytes, speed, duration, ETA v
 `UrlUtils` (`lib/core/utils/url_utils.dart`):
 
 - `extractUrl(text)`: the first URL in pasted text ("Check this out https://…"), trailing punctuation dropped, https added if missing.
-- `normalise(url)`: force https, strip tracking params (`igsh`, `igshid`, `fqnt`, `si`, `fbclid`, `is_from_webapp`, `sender_device`, `feature`, `ref`, `s`, `mibextid`, `utm_*`).
-- `isShortLink(url)`: `vm.tiktok.com`, `vt.tiktok.com`, `fb.watch`, `t.co`, `instagr.am`, Facebook `/share/…`. These are followed before routing (see [Photo Extractors](../extractors/photo_extractors.md#routing-a-link)).
+- `normalise(url)`: force https, strip tracking params (`igsh`, `igshid`, `fqnt`, `si`, `fbclid`, `is_from_webapp`, `sender_device`, `feature`, `ref`, `s`, `mibextid`, `avpt`, `utm_*`).
+- `isShortLink(url)`: `vm.tiktok.com`, `vt.tiktok.com`, `fb.watch`, `t.co`, `instagr.am`, Facebook and Instagram `/share/…`. These are followed before routing (see [Photo Extractors](../extractors/photo_extractors.md#routing-a-link)).
 - `detectSite(url)` → `Site?` by registrable domain (subdomains match): youtube (`youtube.com`, `youtu.be`), facebook (`facebook.com`, `fb.watch`, `fb.com`), instagram (`instagram.com`, `instagr.am`), tiktok (`tiktok.com`), x (`x.com`, `twitter.com`, `t.co`), threads (`threads.net`, `threads.com`); `null` for anything else.
-- `looksLikePhotoPost(url)`: TikTok `/photo/`; Facebook `/photo…`, `/photos/`, `photo.php`. Instagram `/p/` can be either, so it's decided by trying.
+- `looksLikePhotoPost(url)`: TikTok `/photo/`; Facebook `/photo…`, `/photos/`, `photo.php`; YouTube `/post/` or `?lb=`. Instagram `/p/` can be either, so it's decided by trying.
 
 ## Platform Services
 

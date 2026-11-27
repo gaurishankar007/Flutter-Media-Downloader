@@ -159,7 +159,7 @@ Engine files aren't committed: after cloning run `macos/scripts/fetch_engine_bin
 
 ### Goal
 
-1. Download **videos** (MP4), **audio** (MP3) and **photos** (JPG) by pasting a link from YouTube, Facebook, Instagram, Threads, X/Twitter and TikTok. Photos: Facebook photo posts/albums, Instagram photos/carousels, TikTok photo posts (slideshows), Threads/X images.
+1. Download **videos** (MP4), **audio** (MP3) and **photos** (JPG) by pasting a link from YouTube, Facebook, Instagram, Threads, X/Twitter and TikTok. Photos: Facebook photo posts/albums, Instagram photos/carousels, TikTok photo posts (slideshows), Threads/X images, YouTube channel posts.
 2. **Preview** before downloading (thumbnail, title, in-app playback when possible, all photos of a post) and pick the **quality** (Best/4K/1440p/1080p/720p/480p; MP3 320/192/128).
 3. Save into the **app's own folder**; a **Library** shows everything, with Save to Photos, Save to Files, Share, Delete, and a "remove from app?" prompt after a confirmed save. Finished jobs on the Download page have **Share** and **Remove**.
 4. **Convert and compress** local files (from the Library, Photos or Files): video ↔ MP4/MKV/WebM/MOV, video → MP3/M4A, image ↔ JPG/PNG/WebP/HEIC, smaller videos and images.
@@ -183,7 +183,7 @@ Engine files aren't committed: after cloning run `macos/scripts/fetch_engine_bin
 | Android (youtubedl-android), iOS (embedded CPython + FFmpegKit, same Dart engine as Android), macOS / Windows / Linux (one desktop engine over bundled binaries, fetch scripts) | `docs/engine/android_engine.md`, `ios_engine.md`, `desktop_engine.md`, `macos_engine.md` |
 | Tested yt-dlp / ffmpeg commands, compression presets | `docs/engine/ffmpeg_recipes.md` |
 | What each site supports, cookies | `docs/engine/site_support.md` |
-| Instagram / TikTok / Facebook photos, Threads, X images, link routing | `docs/extractors/photo_extractors.md` |
+| Instagram / TikTok / Facebook photos, Threads, X images, YouTube posts, link routing | `docs/extractors/photo_extractors.md` |
 | Download page, preview, job cards, Share/Remove | `docs/features/download.md` |
 | Library, Save to Photos/Files, remove prompt | `docs/features/library.md` |
 | Converter and compressor | `docs/features/convert.md` |

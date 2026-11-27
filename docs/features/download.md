@@ -10,32 +10,33 @@ Paste a link → Preview → choose Video / Audio / Photos and quality → downl
 download/
   providers/
     link_input/       link_input_notifier.dart       # field text, cleaned URL, detected site
-    media_preview/    media_preview_notifier.dart    # resolve link + choices (autoDispose)
+    media_preview/    media_preview_notifier.dart    # resolve link + choices (keep-alive)
     download_queue/   download_queue_notifier.dart   # all jobs, progress, cancel/retry/share/remove (keep-alive)
     engine_status/    engine_status_notifier.dart    # engine init + yt-dlp update (keep-alive)
   views/
     download/
       download_screen.dart
       widgets/ supported_sites_row.dart, link_status_panel.dart, download_jobs_section.dart, download_job_card.dart
-    preview/                        # a bottom sheet (showAppBottomSheet), not a route
-      media_preview_sheet.dart
-      widgets/ preview_header.dart, preview_media.dart, preview_loading.dart, video_quality_chips.dart,
-               audio_quality_chips.dart, photo_selection_grid.dart, reencode_hint.dart
+        preview/                    # the inline preview card, not a sheet or route
+          media_preview_section.dart, media_preview_body.dart, preview_header.dart, preview_media.dart,
+          preview_loading.dart, video_quality_chips.dart, audio_quality_chips.dart, photo_selection_grid.dart,
+          reencode_hint.dart
 ```
 
-The screen is a `ScreenScrollView`: header, `SupportedSitesRow`, `LinkField`, `LinkStatusPanel` (what the link is + **Preview**), then the job sections, or an empty state when there are no jobs.
+The screen is a `ScreenScrollView`: header, `SupportedSitesRow`, `LinkField`, `LinkStatusPanel` (what the link is + **Preview**, hidden while that link's preview is open), `MediaPreviewSection` (the preview card, when open), then the job sections, or an empty state when there are no jobs.
 
 ## Providers
 
 | Provider | Owns | Key methods |
 | --- | --- | --- |
 | `linkInputProvider` (`LinkInputNotifier`) | The field's text, the normalised URL, the detected `Site`, `LinkStatus` (empty / notALink / unsupported / recognised) | `pasteFromClipboard()`, `onChanged()`, `clear()` |
-| `mediaPreviewProvider` (`MediaPreviewNotifier`, `.autoDispose`) | Preview status (incl. `waitingForEngine`), `MediaInfo`, chosen kind, video option, audio quality, iPhone toggle, selected images, slideshow switch | `start(url, site)`, `retry()`, `selectKind()`, `selectOption()`, `selectAudioQuality()`, `setIphoneCompatible()`, `toggleImage()`, `toggleSelectAll()`, `setSlideshowVideo()`, `buildRequest()` |
-| `downloadQueueProvider` (`DownloadQueueNotifier`, keep-alive) | All jobs (loaded from the database) + live progress per job | `enqueue(request)`, `cancel(id)`, `retry(id)`, `dismiss(id)`, `clearFinished()`, `share(id)`, `remove(id)` |
+| `mediaPreviewProvider` (`MediaPreviewNotifier`, keep-alive) | Preview status (`idle` when closed, `waitingForEngine`, …), the previewed `url`, `MediaInfo`, chosen kind, video option, audio quality, iPhone toggle, selected images, slideshow switch | `start(url, site)`, `close()`, `retry()`, `selectKind()`, `selectOption()`, `selectAudioQuality()`, `setIphoneCompatible()`, `toggleImage()`, `toggleSelectAll()`, `setSlideshowVideo()`, `buildRequest()` |
+| `downloadQueueProvider` (`DownloadQueueNotifier`, keep-alive) | All jobs (loaded from the database) + live progress per job; a "Downloaded and added to your Library" message when a job finishes | `enqueue(request)`, `cancel(id)`, `retry(id)`, `dismiss(id)`, `clearFinished()`, `share(id)`, `remove(id)` |
 | `engineStatusProvider` (`EngineStatusNotifier`, keep-alive) | Engine init status, `EngineInfo`, update check / update status | `retry()`, `checkForUpdate()`, `update()` (see [Settings](settings.md#engine)) |
 
 - The Download screen watches `engineStatusProvider` so the engine starts after the first frame and is ready by Preview (see [App Startup](../architecture/app_startup.md#engine-init-runs-after-the-first-frame)).
 - `MediaPreviewNotifier` resolves the link through `ResolveLinkUseCase` (engine probe or a photo extractor, see [Photo Extractors](../extractors/photo_extractors.md)). While the engine is initialising it shows "waiting for engine"; if the engine failed, photo posts and Threads still resolve without it (`worksWithoutEngine`), anything else shows the engine error with **Retry**.
+- The preview is keep-alive, so it stays open across tabs until **Download** or the close button. `start` and `close` bump a generation counter, so a slow resolve of an older link can't overwrite a newer preview.
 
 ## Flow
 
@@ -48,22 +49,22 @@ sequenceDiagram
     participant U as DownloadMediaUseCase
     V->>L: Paste / type
     L-->>V: normalised link + Site (recognised)
-    V->>V: Preview: open MediaPreviewSheet
+    V->>V: Preview: the card opens below the link
     V->>P: start(url, site)
     P-->>V: MediaInfo (title, thumb, video options or post media)
     V->>P: choose kind / quality / images
     V->>Q: enqueue(P.buildRequest())
-    V->>V: sheet pops true, link field clears
+    V->>V: preview closes, link field clears
     Q->>U: run(job)
     U-->>Q: JobProgress stream (downloading, processing, saving)
     Q-->>V: DownloadJobCard updates
     U-->>Q: done (Library item ids)
-    Q-->>V: card shows Share and Remove
+    Q-->>V: card shows Share and Remove, toast "Downloaded and added to your Library"
 ```
 
 ## Preview
 
-`MediaPreviewSheet` builds its own `AppBottomSheet` (`ownLayout: true`) so its **Download** button is pinned with `bottomAction` under the scrolling content.
+`MediaPreviewSection` shows a **Preview** section header with a close button (`close()`) and an `AppCard` holding `MediaPreviewBody` (loading, the error with **Retry**, or the choices below and the **Download** button). It opens and closes with `AnimatedSize`, and sits above the job sections.
 
 - `PreviewHeader`: thumbnail, title, uploader, site badge, duration.
 - **Video preview:** `PreviewMedia` shows ▶ when the probe found a direct stream (`MediaInfo.previewStream`) and plays it inline with `video_player` (with the stream's HTTP headers). Without one, only the thumbnail shows (always on Linux, which has no video player).
@@ -71,7 +72,7 @@ sequenceDiagram
 - **Video:** `VideoQualityChips` with the options that exist and their size estimates; the default is the highest option at or below Settings' default quality, else Best. Then the **iPhone-compatible** switch (default from Settings) and `ReencodeHint` when the chosen option needs a re-encode.
 - **Audio:** `AudioQualityChips` (320 / 192 / 128 kbps, default from Settings).
 - **Photos:** `PhotoSelectionGrid` with every item selected, tap to toggle, Select all / none. A TikTok slideshow (with music) adds a **Save as video** switch.
-- The pinned button reads "Download · 310 MB" (size when known), or "Download 6 photos" ("Download 6 items" when the post mixes photos and videos) for a post; it's disabled with nothing selected.
+- The **Download** button reads "Download · 310 MB" (size when known), or "Download 6 photos" ("Download 6 items" when the post mixes photos and videos) for a post; it's disabled with nothing selected.
 
 ## Job Card
 
@@ -93,6 +94,8 @@ The failure's own fix, chosen from its message:
 | --- | --- |
 | `EngineMessages.extractorBroken` (site changed) | **Update engine** → `EngineStatusNotifier.update()` |
 | `EngineMessages.needsLogin`, `EngineMessages.botCheck` | **Import cookies** → `CookiesRoute` |
+
+When a job finishes, the screen shows the toast "Downloaded and added to your Library" (`DownloadMessages.addedToLibrary`).
 
 Sections (`DownloadJobsSection`): **In progress** (queued, downloading, processing, saving) and **Finished** (done, failed, cancelled) with **Clear finished**. Dismiss and Clear finished remove cards only, never files.
 

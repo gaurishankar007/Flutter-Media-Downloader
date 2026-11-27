@@ -1,6 +1,6 @@
 # App Messages
 
-> Status: built. File: `lib/core/messages/app_messages.dart`. Current `kMessagesVersion`: `10`.
+> Status: built. File: `lib/core/messages/app_messages.dart`. Current `kMessagesVersion`: `12`.
 
 Every string the app writes itself (toasts, dialog text, empty and error states, button labels, semantic labels, validator errors) lives in one catalog. Never write a user-facing literal at the call site.
 
@@ -59,6 +59,8 @@ Areas, in file order:
 | 8 | Added `SystemMessages` storage and battery strings. |
 | 9 | Added `SystemMessages.batteryCycles` and `batteryHealthWithPercent`. |
 | 10 | Added `SystemMessages` hardware rows (battery capacity, CPU, GPU, RAM, drive), `cpuInfoBody` / `gpuInfoBody` and speed test strings. |
+| 11 | `CookiesMessages.browserBody` no longer names macOS (Windows and Linux read browsers too). |
+| 12 | Added `DownloadMessages.addedToLibrary` / `closePreview` and `ConvertMessages.addedToLibrary`. |
 
 ## Localisation
 

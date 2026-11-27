@@ -40,7 +40,7 @@ The screen is a `ScreenScrollView`; its `bottomAction` (pinned above the nav bar
    - Compress image: Original / longest side (4096 / 2048 / 1080 below the source) / 75 / 50 / 25 %, quality slider (not for PNG), strip metadata (on by default). Output keeps the source's format when the image encoder can write it, else JPG.
    - The pinned button shows an estimate when one exists: "Convert · about 48 MB". Images have no estimate.
 3. **Run** — `ConvertJobPanel`: a `JobCard` with "Waiting for another conversion to finish…" (the ffmpeg slot), percent, ETA and **Cancel**; on failure or cancel, **Try again**.
-4. **Result** — `ConvertResultSection` (preview + before → after sizes via `SizeComparison`) with the pinned `ResultActions`: **Save to Photos** (not for audio), **Save to Files**, **Share**, **Done** (forgets the job and the pick). The output is already in the Library (`origin: 'convert'`, keeping the source item's site, uploader and URL); the original is untouched.
+4. **Result** — `ConvertResultSection` (preview + before → after sizes via `SizeComparison`) with the pinned `ResultActions`: **Save to Photos** (not for audio), **Save to Files**, **Share**, **Done** (forgets the job and the pick). A toast says "Converted and added to your Library" (`ConvertMessages.addedToLibrary`). The output is already in the Library (`origin: 'convert'`, keeping the source item's site, uploader and URL); the original is untouched.
 
 ## Reading the Source
 

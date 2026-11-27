@@ -55,7 +55,7 @@ yt-dlp's messages are matched by text, since they're the only signal. The patter
 | yt-dlp / ffmpeg output matches | Message (`EngineMessages`) | Notes |
 | --- | --- | --- |
 | `not a bot` | `botCheck`: "YouTube wants a sign-in. Import YouTube cookies in Settings, or try again later." | Job card: **Cookies** |
-| `private`, `log in`, `login required`, `sign in`, `members-only`, `age-restricted` | `needsLogin`: "…Import cookies for this site in Settings." | Job card: **Cookies** |
+| `private`, `log in` / `login`, `logged-in`, `login required`, `sign in`, `registered users`, `--cookies`, `members-only`, `age-restricted` (checked after `not a bot`) | `needsLogin`: "…Import cookies for this site in Settings." | Job card: **Cookies** |
 | `Unsupported URL` | `unsupported` | |
 | `No video formats found`, `There is no video`, `No video could be found` | `noVideo` | `ResolveLinkUseCase` tries the photo extractor instead |
 | `unavailable`, `has been removed`, `does not exist`, `not found`, `HTTP Error 404` | `unavailable` | |

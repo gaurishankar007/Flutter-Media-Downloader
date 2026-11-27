@@ -173,7 +173,7 @@ flowchart TD
     D -- "yes" --> E["PostRepository.extract (Dart extractor)"]
     D -- "no" --> F["MediaRepository.probe (yt-dlp -J)"]
     F -- "engine says 'no video'" --> E
-    E & F --> G["MediaInfo -> preview sheet"]
+    E & F --> G["MediaInfo -> preview card"]
     G -- "Download" --> H["DownloadQueueNotifier.enqueue"]
     H --> I["DownloadMediaUseCase"]
     I --> J["MediaRepository.download (engine) / PostRepository.download (MediaFileDownloader)"]

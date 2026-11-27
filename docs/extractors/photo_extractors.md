@@ -16,7 +16,7 @@ abstract interface class PhotoExtractor {
 
 - `ExtractedPostDto`: `postId`, `media` (each `ExtractedMediaDto`: `url`, `isVideo`, `width`, `height`, `thumbnailUrl` for a video's still), `author`, `caption`, and `musicUrl` (TikTok slideshows).
 - `PostMapper.fromDto` turns it into the same `MediaInfo` the preview uses for videos, with `postMedia` filled. The title is the caption's first line (max 100 characters), else `@author`, else the site name. A post that is a single video gets a `previewStream`, so it plays inline in the preview.
-- `PhotoExtractors` (`photo_extractors.dart`) holds all five and answers `supports(site)` and `forUrl(url, site)`.
+- `PhotoExtractors` (`photo_extractors.dart`) holds all six and answers `supports(site)` and `forUrl(url, site)`.
 - Extractors throw `ExtractorException(failure, site:, detail:)` with `ExtractorFailure.loginRequired` / `notFound` / `noMedia` / `broken`, or a `DioException`. `PostRepository.extract` wraps them in `ErrorHandler.execute(action: 'extractor.<site>')`; see [Error Handling](../core/error_handling.md#translators) for the messages.
 - `ExtractorHtml` (`extractor_html.dart`) holds the shared helpers: `meta` (og: tags), `scriptJson(id)`, `jsonScripts` (every `<script type="application/json">`), `objects` (walks every JSON object depth first), `at(path)`, `widestInSrcset`, `asInt`.
 
@@ -24,7 +24,7 @@ abstract interface class PhotoExtractor {
 
 Every request of the extractors and direct downloads goes through `SiteHttpClient` (dio), never a general HTTP client:
 
-- A normal browser User-Agent (desktop Chrome; `mobile: true` uses iPhone Safari), `Accept-Language: en`.
+- A normal browser User-Agent (desktop Chrome; `mobile: true` uses iPhone Safari), `Accept-Language: en`, and a browser's navigation headers (`Sec-Fetch-Dest/Mode/Site/User`, `Upgrade-Insecure-Requests`). Without them Facebook answers share links with 400.
 - Page requests follow redirects **one hop at a time** (max 10). On every hop the `Cookie` header is rebuilt by `CookiesLocalService.cookieHeader(site, url)`, which returns nothing for hosts outside that site. So imported cookies are sent **only** to the site they belong to, even after a redirect.
 - `resolveRedirects(url)` follows short links: HEAD first, GET when the host answers HEAD with an error.
 - `download(url, path)` uses a second dio for CDN files: it follows redirects itself and **never sends cookies**.
@@ -37,7 +37,7 @@ Every request of the extractors and direct downloads goes through `SiteHttpClien
 ```mermaid
 flowchart TD
     A["Pasted text"] --> B["UrlUtils.extractUrl + normalise"]
-    B --> C{"isShortLink? (vm/vt.tiktok, fb.watch, t.co, instagr.am, facebook /share/)"}
+    B --> C{"isShortLink? (vm/vt.tiktok, fb.watch, t.co, instagr.am, facebook or instagram /share/)"}
     C -- yes --> D["PostRepository.followShortLink (SiteHttpClient.resolveRedirects)"]
     C -- no --> E
     D -- "on failure, keep the short link (the engine can follow it)" --> E["detectSite"]
@@ -55,7 +55,8 @@ flowchart TD
     P --> OK
 ```
 
-- `useEngine: false` (engine still failed / missing) skips the probe for sites with an extractor; `worksWithoutEngine(site)` tells the preview whether that's possible.
+- `useEngine: false` (engine still failed / missing) skips the probe for sites with an extractor; `worksWithoutEngine(link, site)` tells the preview whether that's possible (for YouTube only post links).
+- Instagram `/share/<code>` links redirect to `/reel/…` or `/p/…?avpt=…`; `avpt` is a tracking param and is stripped.
 - **Mixed posts** (an Instagram carousel or a tweet with a video and photos) get both: the engine's Video / Audio choices plus a Photos choice (`MediaInfo.withPost`).
 
 ## Instagram
@@ -117,6 +118,16 @@ Expect this to break when Meta changes the page. It's one isolated file.
 - Author `user.screen_name`, caption `text`.
 
 For a tweet with a video, the engine probe wins and the extractor only adds a Photos choice when the tweet also has photos.
+
+## YouTube Posts
+
+`YouTubePostExtractor`, for channel posts (formerly Community) with images: `/post/<id>` links and channel `…/community?lb=<id>` links. yt-dlp doesn't read posts. YouTube videos still go through the engine; only post links count as photo posts (`UrlUtils.looksLikePhotoPost`).
+
+1. Fetch `https://www.youtube.com/post/<id>` (YouTube cookies when imported).
+2. Read the `var ytInitialData = …;` script and find the `backstagePostRenderer` (none → `notFound`).
+3. Images under `backstageAttachment`: one image is a `backstageImageRenderer`, several are `postMultiImageRenderer.images[]` (each a `backstageImageRenderer`). Each takes the last (largest) thumbnail URL.
+4. The listed sizes are cropped (square on multi-image posts), so the URL is cut at its **first** `=` and `=s0` is added, which asks `yt3.ggpht.com` for the original image. (Multi-image URLs hold other `=` options like `fcrop64=1`, so cutting at the last `=` breaks them.)
+5. Author from `authorText`, caption from `contentText` (`runs` or `simpleText`). A post without images → `noMedia`.
 
 ## Downloading the Images
 

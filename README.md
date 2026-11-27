@@ -82,14 +82,14 @@ Get the latest version from the **[Releases page](https://github.com/gaurishanka
 
 | Site | Video / audio | Photos |
 |---|---|---|
-| YouTube | ✅ videos and Shorts, up to 4K, plus MP3 | n/a |
+| YouTube | ✅ videos and Shorts, up to 4K, plus MP3 | ✅ channel posts with images |
 | Facebook | ✅ videos and Reels | ✅ photo posts and albums |
 | Instagram | ✅ posts and Reels (Stories need cookies) | ✅ photos and carousels |
 | X / Twitter | ✅ videos | ✅ images |
 | TikTok | ✅ videos and short links | ✅ photo posts (slideshows) |
 | Threads | ✅ | ✅ |
 
-Paste any link and the app works out whether it's a video post or a photo post. Mixed posts (video and photos) let you choose between Video, Audio and Photos. Short links are followed automatically.
+Paste any link and the app works out whether it's a video post or a photo post. Mixed posts (video and photos) let you choose between Video, Audio and Photos. Short links and Facebook / Instagram share links are followed automatically.
 
 Private posts, or posts that need you to be logged in, need that site's cookies (see [Settings](#settings)).
 

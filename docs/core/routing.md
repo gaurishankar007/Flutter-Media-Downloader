@@ -25,7 +25,7 @@ flowchart TD
 - `MediaViewerRoute(initialId:, ids:)` takes the tapped item's id plus the ids to page through (the current filtered Library list, or the items of one carousel group / one finished job), so you can swipe to the next item. It's opened from the Library grid and from a finished job card on Download.
 - `CookiesRoute` is pushed from Settings → Cookies and from the **Cookies** button on a failed job card; `AboutRoute` from Settings → About.
 - `DesignGalleryRoute` is registered in every build, but its Settings entry is shown only when `kDebugMode`.
-- The **preview** after pasting is a bottom sheet (`showAppBottomSheet`, max width 640) on every screen size, not a route: closing it keeps you on Download with the link still in the field.
+- The **preview** after pasting is an inline card on the Download screen, not a route or sheet: closing it keeps you on Download with the link still in the field, and switching tabs keeps it open.
 - A Library item's **Convert** action calls `ConvertSourceNotifier.pickFromLibrary(id)` and then `context.router.navigate(const ConvertRoute())`, which switches to tab 3 with that item already chosen. `ConvertRoute` takes no arguments.
 
 ## Guards
