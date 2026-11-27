@@ -87,13 +87,14 @@ class SystemMonitor(context: Context) : SystemMonitorHostApi {
         } else {
             -1
         }
+        val levelPercent = level * 100.0 / scale
         return SystemBatteryMsg(
-            levelPercent = level * 100.0 / scale,
+            levelPercent = levelPercent,
             state = state,
             temperatureCelsius = if (temperature != Int.MIN_VALUE && temperature != 0) temperature / 10.0 else null,
             health = health,
             cycleCount = if (cycles >= 0) cycles.toLong() else null,
-            remainingCapacityMah = remainingMah(),
+            remainingCapacityMah = remainingMah(levelPercent),
         )
     }
 
@@ -118,10 +119,17 @@ class SystemMonitor(context: Context) : SystemMonitorHostApi {
         )
     }
 
-    /// The fuel gauge's charge counter (µAh); 0 or Int.MIN_VALUE when the device doesn't report it.
-    private fun remainingMah(): Long? {
-        val microAmpHours = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER)
-        val mah = microAmpHours / 1000L
+    /// The fuel gauge's charge counter; 0 or Int.MIN_VALUE when the device doesn't report it.
+    /// Android documents µAh, but some gauges (Xiaomi) report mAh: read as µAh, the whole
+    /// battery would come out under 500 mAh, which no phone or tablet has.
+    private fun remainingMah(levelPercent: Double): Long? {
+        val raw = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER).toLong()
+        if (raw <= 0) {
+            return null
+        }
+        val fromMicro = raw / 1000L
+        val impliedFullMah = fromMicro * 100 / levelPercent.coerceAtLeast(1.0)
+        val mah = if (impliedFullMah < 500) raw else fromMicro
         return if (mah in 1..30_000) mah else null
     }
 
