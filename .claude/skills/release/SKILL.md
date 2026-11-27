@@ -1,6 +1,6 @@
 ---
 name: release
-description: Publish a new Media Tool version to GitHub Releases (Android APKs + macOS DMG). Checks the local toolchain against the release workflow and updates it first, validates the build, bumps the version, drafts release notes for approval, then tags and watches the CI run. Use when the user asks to release, publish, ship a new version, or cut vX.Y.Z.
+description: Publish a new Media Tool version to GitHub Releases (Android APK + macOS DMG). Checks the local toolchain against the release workflow and updates it first, validates the build, bumps the version, drafts release notes for approval, then tags and watches the CI run. Use when the user asks to release, publish, ship a new version, or cut vX.Y.Z.
 ---
 
 # Release workflow
@@ -31,7 +31,7 @@ Show the user a short table of what changed (or "no changes").
 
 ## 3. Validate locally
 - `flutter pub get`, `dart run build_runner build`, `flutter analyze`. It must be clean.
-- `flutter build apk --release --split-per-abi`. It must succeed, and `apksigner verify --print-certs` on the arm64 APK must show `CN=GSS` (the release key, from `android/key.properties`). If `key.properties` is missing, stop: CI would still sign, but local parity is broken.
+- `flutter build apk --release` (one universal APK for every device). It must succeed, and `apksigner verify --print-certs` on `app-release.apk` must show `CN=GSS` (the release key, from `android/key.properties`). If `key.properties` is missing, stop: CI would still sign, but local parity is broken.
 - `flutter build macos --release`. It must succeed.
 - There are no automated tests in this project (see CLAUDE.md), so don't run `flutter test`.
 
@@ -61,7 +61,7 @@ No AI-attribution trailer in the commit (CLAUDE.md).
 - On failure, run `gh run view <id> --log-failed | tail -80`, report the failing step and the cause, and **stop**. Propose a fix. Once it's fixed and pushed, re-run by deleting and re-pushing the tag (`git push --delete origin vX.Y.Z && git tag -d vX.Y.Z`, then tag again) **only with the user's OK**, because it rewrites a public tag.
 
 ## 8. Verify and report
-- `gh release view vX.Y.Z --json assets -q '.assets[].name'` should list 3 APKs and 1 DMG.
+- `gh release view vX.Y.Z --json assets -q '.assets[].name'` should list 1 APK and 1 DMG.
 - Give the user the release URL, the asset list, and anything step 2 changed in the workflow.
 
 ## Secrets and keys (never print them)
