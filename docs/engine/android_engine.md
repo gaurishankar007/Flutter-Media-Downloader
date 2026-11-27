@@ -61,5 +61,5 @@ Files go to the app's own folder (`AppDirectories`, under Application Support). 
 
 ## Known Limits
 
-- The app grows by roughly 30–70 MB per ABI because of Python + ffmpeg.
+- The app grows by roughly 30–70 MB per ABI because of Python + ffmpeg; the released APK is universal (all ABIs), so it carries every copy.
 - gallery-dl isn't included. Photo posts go through the Dart extractors; see [Photo Extractors](../extractors/photo_extractors.md).

@@ -1,7 +1,6 @@
 ## Download
 
-**Android:** download `MediaTool-…-android-arm64-v8a.apk` (almost every phone from the last 8 years).
-Use `armeabi-v7a` for very old phones and `x86_64` for emulators or Chromebooks.
+**Android:** download `MediaTool-…-android.apk` (one file for every phone, tablet, emulator and Chromebook).
 Open the file on your phone and allow "Install unknown apps" for your browser or Files app when asked.
 
 **macOS:** download `MediaTool-…-macos.dmg`, open it and drag **Media Tool** into **Applications**.

@@ -12,7 +12,7 @@ Get the latest version from the **[Releases page](https://github.com/gaurishanka
 
 | Platform | File | How to install |
 |---|---|---|
-| **Android** | `MediaTool-<version>-android-arm64-v8a.apk` (most phones). Use `armeabi-v7a` for very old phones and `x86_64` for emulators or Chromebooks. | Open the APK on your phone and allow *Install unknown apps* when asked. Updates install over the old version. |
+| **Android** | `MediaTool-<version>-android.apk` (one file for every phone, tablet, emulator and Chromebook) | Open the APK on your phone and allow *Install unknown apps* when asked. Updates install over the old version. |
 | **macOS** | `MediaTool-<version>-macos.dmg` (Apple silicon and Intel) | Open the DMG and drag **Media Tool** to **Applications**. The app isn't notarized, so on first launch macOS blocks it. Click **Done**, then go to **System Settings → Privacy & Security → Open Anyway**. |
 | **iPhone** | Not available as a download | Apple only allows installs from the App Store or a developer's Mac, so install it from source with your own Apple ID (see [Install on an iPhone](#install-on-an-iphone)). |
 
