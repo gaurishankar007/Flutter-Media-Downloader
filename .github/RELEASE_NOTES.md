@@ -1,9 +1,3 @@
-- New app icon, and a launch screen with the icon in light and dark mode.
-- System tab: new Storage card (used, free and total space, plus how much Media Tool's files take) and Battery card (level and charging state; health and charge cycles on macOS, temperature, health and cycles on Android). Cards are now ordered Network, Battery, RAM, CPU, GPU, Storage.
-- Deleting a file in the Library now also removes it from the Download page and from Convert.
-- Download time left is now accurate for the whole download, including the audio part.
-- Changing iPhone-compatible in Settings now also applies to a file already picked in Convert.
-- Fixed icons sitting too high in the Convert / Compress, Video / Audio / Photos and theme pickers, and a few other alignment issues.
-- Round icon buttons are easier to tap.
-- Missing photos in the viewer show a placeholder instead of a broken image.
-- macOS: the window now has a minimum size of 600 × 600 points, so the layout stays usable when resized.
+- System tab: cards now show hardware details where your device reports them: battery capacity in mAh (design, full charge and charge left on macOS; charge left on Android), processor name, cores, threads and core layout, GPU name and GPU cores (macOS), RAM type and manufacturer (macOS), and the drive model and type, e.g. NVMe SSD (macOS).
+- System tab: new Test speed buttons on the RAM and Storage cards measure real read and write speed (plus RAM copy speed) in a few seconds.
+- Android now gets a CPU card (chip, cores, layout, max clock) and iOS a GPU card (GPU name), even though those systems don't share live load.
