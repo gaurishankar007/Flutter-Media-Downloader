@@ -12,7 +12,12 @@ abstract final class EngineErrors {
   static final _patterns = <(RegExp, String)>[
     (RegExp('not a bot', caseSensitive: false), EngineMessages.botCheck),
     (
-      RegExp('private|log ?in|login required|sign in|members-only|age-restricted', caseSensitive: false),
+      // "logged-in", "registered users" and yt-dlp's --cookies hint: Facebook and Instagram posts
+      // that need an account.
+      RegExp(
+        'private|log ?in|logged[- ]in|login required|sign in|registered users|--cookies|members-only|age-restricted',
+        caseSensitive: false,
+      ),
       EngineMessages.needsLogin,
     ),
     (RegExp('Unsupported URL', caseSensitive: false), EngineMessages.unsupported),

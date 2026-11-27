@@ -127,6 +127,12 @@ final class SiteHttpClient({required final CookiesLocalService _cookies}) {
     'User-Agent': mobile ? mobileUserAgent : desktopUserAgent,
     'Accept-Language': 'en',
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,application/json;q=0.8,*/*;q=0.7',
+    // A browser's page-navigation headers: without them Facebook answers 400.
+    'Sec-Fetch-Dest': 'document',
+    'Sec-Fetch-Mode': 'navigate',
+    'Sec-Fetch-Site': 'none',
+    'Sec-Fetch-User': '?1',
+    'Upgrade-Insecure-Requests': '1',
     ...extra,
     // Checked on every hop: the cookies service refuses hosts outside the site.
     'Cookie': ?(site == null ? null : _cookies.cookieHeader(site, url)),
