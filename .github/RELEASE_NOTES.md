@@ -1,3 +1,7 @@
-- System tab: cards now show hardware details where your device reports them: battery capacity in mAh (design, full charge and charge left on macOS; charge left on Android), processor name, cores, threads and core layout, GPU name and GPU cores (macOS), RAM type and manufacturer (macOS), and the drive model and type, e.g. NVMe SSD (macOS).
-- System tab: new Test speed buttons on the RAM and Storage cards measure real read and write speed (plus RAM copy speed) in a few seconds.
-- Android now gets a CPU card (chip, cores, layout, max clock) and iOS a GPU card (GPU name), even though those systems don't share live load.
+- New: Windows (x64 zip) and Linux (x64 tarball) builds. Linux has no video playback.
+- The preview now opens right on the Download screen, above your downloads, instead of in a pop-up sheet. Close it with the × button; it stays open when you switch tabs.
+- Download images from YouTube channel posts (single and multi-image posts, at full size).
+- A toast now tells you when a download or conversion has finished and been added to your Library.
+- Facebook share links (facebook.com/share/…) and Instagram share links (instagram.com/share/…) now open correctly.
+- Posts that need you to be logged in now say so and offer to import cookies, instead of saying the video is unavailable.
+- Android: the battery charge left is read correctly on devices that report it in mAh.
