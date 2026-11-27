@@ -1,12 +1,13 @@
 import 'package:media_tool/core/types/types.dart';
+import 'package:media_tool/domain/models/cookie_browser.dart';
 import 'package:media_tool/domain/models/site.dart';
 import 'package:media_tool/domain/models/site_cookies.dart';
 
 /// Imported cookies per site. They stay on the device and only go to their
 /// own site. See docs/features/settings.md#cookies.
 abstract interface class CookiesRepository {
-  /// Whether yt-dlp can read cookies straight from a browser (macOS).
-  bool get supportsBrowserCookies;
+  /// The browsers yt-dlp can read cookies from here (desktops); empty on phones.
+  List<CookieBrowser> get cookieBrowsers;
 
   /// The sites that have cookies.
   FutureList<SiteCookies> list();

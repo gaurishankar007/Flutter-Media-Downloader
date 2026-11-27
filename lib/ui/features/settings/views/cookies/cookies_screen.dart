@@ -19,7 +19,7 @@ import 'package:media_tool/ui/features/settings/widgets/settings_section.dart';
 import 'package:media_tool/ui/features/settings/widgets/settings_tile.dart';
 
 /// Settings → Cookies: import a cookies.txt per site, see which sites have
-/// cookies, remove them; macOS can read a browser's cookies instead.
+/// cookies, remove them; desktops can read a browser's cookies instead.
 /// See docs/features/settings.md#cookies.
 @RoutePage()
 class const CookiesScreen({super.key}) extends ConsumerWidget {
@@ -69,7 +69,11 @@ class const CookiesScreen({super.key}) extends ConsumerWidget {
                   icon: Symbols.public_rounded,
                   title: CookiesMessages.browser,
                   subtitle: CookiesMessages.browserBody,
-                  below: CookieBrowserPicker(selected: browser, onSelected: notifier.setBrowser),
+                  below: CookieBrowserPicker(
+                    browsers: state.cookieBrowsers,
+                    selected: browser,
+                    onSelected: notifier.setBrowser,
+                  ),
                 ),
               ],
             ),

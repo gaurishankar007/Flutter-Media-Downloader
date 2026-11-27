@@ -192,6 +192,39 @@ abstract final class FfmpegCommandBuilder {
     ];
   }
 
+  /// One image re-encoded as [format] (`jpg`, `png` or `webp`) at [quality]
+  /// (1–100), its short side scaled down to [shortSide] (never up). Used on
+  /// Windows and Linux, which have no system image encoder plugin.
+  /// See docs/engine/ffmpeg_recipes.md#images.
+  static List<String> image({
+    required String input,
+    required String output,
+    required String format,
+    required int quality,
+    int? shortSide,
+  }) => [
+    '-hide_banner',
+    '-nostats',
+    '-y',
+    '-i',
+    input,
+    if (shortSide != null) ...[
+      '-vf',
+      "scale='if(gt(iw,ih),-1,min($shortSide,iw))':'if(gt(iw,ih),min($shortSide,ih),-1)'",
+    ],
+    ...switch (format) {
+      'png' => ['-c:v', 'png'],
+      'webp' => ['-c:v', 'libwebp', '-quality', '$quality'],
+      // mjpeg's -q:v runs 2 (best) to 31.
+      _ => ['-c:v', 'mjpeg', '-q:v', '${(2 + (100 - quality.clamp(0, 100)) * 29 / 100).round()}'],
+    },
+    '-frames:v',
+    '1',
+    '-update',
+    '1',
+    output,
+  ];
+
   /// One frame at [atSeconds] as a 480px-wide JPG for the Library card.
   static List<String> thumbnail({required String input, required String output, required double atSeconds}) => [
     '-hide_banner',

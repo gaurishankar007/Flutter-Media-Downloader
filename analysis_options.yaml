@@ -29,3 +29,5 @@ analyzer:
     - lib/**/*.config.dart
     # Pigeon inputs keep classic syntax (see CLAUDE.md).
     - lib/config/pigeon/**
+    - windows/**
+    - linux/**

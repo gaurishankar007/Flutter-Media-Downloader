@@ -6,6 +6,7 @@ import 'package:media_tool/core/errors/error_handler.dart';
 import 'package:media_tool/core/types/types.dart';
 import 'package:media_tool/data/services/local/cookies_local_service.dart';
 import 'package:media_tool/data/services/platform/file_picker_service.dart';
+import 'package:media_tool/domain/models/cookie_browser.dart';
 import 'package:media_tool/domain/models/site.dart';
 import 'package:media_tool/domain/models/site_cookies.dart';
 import 'package:media_tool/domain/repositories/cookies_repository.dart';
@@ -17,7 +18,7 @@ final class CookiesRepositoryImpl({
   required final ErrorHandler _errorHandler,
 }) implements CookiesRepository {
   @override
-  bool get supportsBrowserCookies => Platform.isMacOS;
+  List<CookieBrowser> get cookieBrowsers => CookieBrowser.availableOn(Platform.operatingSystem);
 
   @override
   FutureList<SiteCookies> list() => _localService.list();

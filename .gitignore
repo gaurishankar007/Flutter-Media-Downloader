@@ -51,5 +51,11 @@ app.*.map.json
 macos/Runner/Resources/bin/*
 !macos/Runner/Resources/bin/.gitkeep
 
+# Bundled Windows / Linux binaries (fetch with windows/scripts/fetch_engine.ps1, linux/scripts/fetch_engine_binaries.sh)
+windows/engine/bin/*
+!windows/engine/bin/.gitkeep
+linux/engine/bin/*
+!linux/engine/bin/.gitkeep
+
 # iOS engine frameworks (download with ios/scripts/fetch_engine.sh)
 ios/Frameworks/

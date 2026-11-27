@@ -57,12 +57,12 @@ import 'package:media_tool/data/services/platform/background_work/noop_backgroun
     as _i880;
 import 'package:media_tool/data/services/platform/file_export/android_file_export_service.dart'
     as _i1055;
+import 'package:media_tool/data/services/platform/file_export/desktop_file_export_service.dart'
+    as _i35;
 import 'package:media_tool/data/services/platform/file_export/file_export_service.dart'
     as _i18;
 import 'package:media_tool/data/services/platform/file_export/ios_file_export_service.dart'
     as _i765;
-import 'package:media_tool/data/services/platform/file_export/macos_file_export_service.dart'
-    as _i955;
 import 'package:media_tool/data/services/platform/file_picker_service.dart'
     as _i537;
 import 'package:media_tool/data/services/platform/gallery_service.dart'
@@ -72,10 +72,12 @@ import 'package:media_tool/data/services/platform/image_convert_service.dart'
 import 'package:media_tool/data/services/platform/image_service.dart' as _i879;
 import 'package:media_tool/data/services/platform/media_engine/android_media_engine.dart'
     as _i173;
+import 'package:media_tool/data/services/platform/media_engine/desktop_engine_binaries.dart'
+    as _i248;
+import 'package:media_tool/data/services/platform/media_engine/desktop_media_engine.dart'
+    as _i310;
 import 'package:media_tool/data/services/platform/media_engine/ffmpeg_slot.dart'
     as _i847;
-import 'package:media_tool/data/services/platform/media_engine/macos_media_engine.dart'
-    as _i946;
 import 'package:media_tool/data/services/platform/media_engine/media_engine.dart'
     as _i11;
 import 'package:media_tool/data/services/platform/media_picker_service.dart'
@@ -83,8 +85,12 @@ import 'package:media_tool/data/services/platform/media_picker_service.dart'
 import 'package:media_tool/data/services/platform/share_service.dart' as _i316;
 import 'package:media_tool/data/services/platform/speed_test/speed_test_service.dart'
     as _i808;
+import 'package:media_tool/data/services/platform/system_monitor/linux_system_monitor_service.dart'
+    as _i1047;
 import 'package:media_tool/data/services/platform/system_monitor/system_monitor_service.dart'
     as _i338;
+import 'package:media_tool/data/services/platform/system_monitor/windows_system_monitor_service.dart'
+    as _i868;
 import 'package:media_tool/data/services/remote/engine_release_service.dart'
     as _i759;
 import 'package:media_tool/data/services/remote/extractors/facebook_photo_extractor.dart'
@@ -126,9 +132,11 @@ import 'package:media_tool/domain/use_cases/download_media_use_case.dart'
 import 'package:media_tool/domain/use_cases/resolve_link_use_case.dart'
     as _i143;
 
-const String _ios = 'ios';
-const String _macos = 'macos';
+const String _windows = 'windows';
 const String _android = 'android';
+const String _ios = 'ios';
+const String _linux = 'linux';
+const String _macos = 'macos';
 
 extension GetItInjectableX on _i174.GetIt {
   // initializes the registration of main-scope dependencies inside of GetIt
@@ -139,15 +147,17 @@ extension GetItInjectableX on _i174.GetIt {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     gh.singleton<_i1027.AppDirectories>(() => _i1027.AppDirectories());
     gh.lazySingleton<_i847.FfmpegSlot>(() => _i847.FfmpegSlot());
+    gh.lazySingleton<_i338.SystemMonitorService>(
+      () => _i868.WindowsSystemMonitorService(
+        directories: gh<_i1027.AppDirectories>(),
+      ),
+      registerFor: {_windows},
+    );
     gh.lazySingleton<_i298.ErrorLogLocalService>(
       () => _i298.ErrorLogLocalServiceImpl(
         database: gh<_i840.AppDatabase>(),
         errorHandler: gh<_i166.ErrorHandler>(),
       ),
-    );
-    gh.lazySingleton<_i495.BackgroundWorkService>(
-      () => _i880.NoopBackgroundWorkService(),
-      registerFor: {_ios, _macos},
     );
     gh.lazySingleton<_i221.SettingsLocalService>(
       () => _i221.SettingsLocalServiceImpl(
@@ -170,13 +180,9 @@ extension GetItInjectableX on _i174.GetIt {
       ),
     );
     gh.lazySingleton<_i10.ClipboardService>(() => _i10.ClipboardServiceImpl());
-    gh.lazySingleton<_i919.GalleryService>(() => _i919.GalleryServiceImpl());
     gh.lazySingleton<_i11.MediaEngine>(
       () => _i173.AndroidMediaEngine(errorHandler: gh<_i166.ErrorHandler>()),
       registerFor: {_android, _ios},
-    );
-    gh.lazySingleton<_i338.SystemMonitorService>(
-      () => _i338.SystemMonitorServiceImpl(),
     );
     gh.lazySingleton<_i1017.MediaPickerService>(
       () => _i1017.MediaPickerServiceImpl(),
@@ -186,22 +192,11 @@ extension GetItInjectableX on _i174.GetIt {
         localService: gh<_i221.SettingsLocalService>(),
       ),
     );
-    gh.lazySingleton<_i879.ImageService>(() => _i879.ImageServiceImpl());
-    gh.lazySingleton<_i990.ImageConvertService>(
-      () => _i990.ImageConvertServiceImpl(),
-    );
     gh.lazySingleton<_i808.SpeedTestService>(
       () => _i808.SpeedTestServiceImpl(),
     );
     gh.lazySingleton<_i247.AppInfoService>(() => _i247.AppInfoServiceImpl());
     gh.lazySingleton<_i600.FileService>(() => _i600.FileServiceImpl());
-    gh.lazySingleton<_i11.MediaEngine>(
-      () => _i946.MacosMediaEngine(
-        errorHandler: gh<_i166.ErrorHandler>(),
-        directories: gh<_i1027.AppDirectories>(),
-      ),
-      registerFor: {_macos},
-    );
     gh.lazySingleton<_i193.JobLocalService>(
       () => _i193.JobLocalServiceImpl(
         database: gh<_i840.AppDatabase>(),
@@ -209,15 +204,33 @@ extension GetItInjectableX on _i174.GetIt {
       ),
     );
     gh.lazySingleton<_i316.ShareService>(() => _i316.ShareServiceImpl());
+    gh.lazySingleton<_i338.SystemMonitorService>(
+      () => _i1047.LinuxSystemMonitorService(
+        directories: gh<_i1027.AppDirectories>(),
+      ),
+      registerFor: {_linux},
+    );
+    gh.lazySingleton<_i879.ImageService>(
+      () => _i879.ImageServiceImpl(),
+      registerFor: {_android, _ios, _macos},
+    );
+    gh.lazySingleton<_i990.ImageConvertService>(
+      () => _i990.ImageConvertServiceImpl(),
+      registerFor: {_android, _ios, _macos},
+    );
+    gh.lazySingleton<_i338.SystemMonitorService>(
+      () => _i338.PigeonSystemMonitorService(),
+      registerFor: {_android, _ios, _macos},
+    );
     gh.lazySingleton<_i149.CookiesLocalService>(
       () => _i149.CookiesLocalServiceImpl(
         directories: gh<_i1027.AppDirectories>(),
         errorHandler: gh<_i166.ErrorHandler>(),
       ),
     );
-    gh.lazySingleton<_i18.FileExportService>(
-      () => _i955.MacosFileExportService(),
-      registerFor: {_macos},
+    gh.lazySingleton<_i495.BackgroundWorkService>(
+      () => _i880.NoopBackgroundWorkService(),
+      registerFor: {_ios, _macos, _windows, _linux},
     );
     gh.lazySingleton<_i18.FileExportService>(
       () => _i1055.AndroidFileExportService(),
@@ -240,37 +253,47 @@ extension GetItInjectableX on _i174.GetIt {
         errorHandler: gh<_i166.ErrorHandler>(),
       ),
     );
-    gh.lazySingleton<_i601.LibraryRepository>(
-      () => _i728.LibraryRepositoryImpl(
-        localService: gh<_i202.LibraryLocalService>(),
-        directories: gh<_i1027.AppDirectories>(),
-        files: gh<_i600.FileService>(),
-        share: gh<_i316.ShareService>(),
-        gallery: gh<_i919.GalleryService>(),
-        fileExport: gh<_i18.FileExportService>(),
-        images: gh<_i879.ImageService>(),
-        errorHandler: gh<_i166.ErrorHandler>(),
-      ),
+    gh.lazySingleton<_i919.GalleryService>(
+      () => _i919.LinuxGalleryService(),
+      registerFor: {_linux},
+    );
+    gh.lazySingleton<_i919.GalleryService>(
+      () => _i919.GalleryServiceImpl(),
+      registerFor: {_android, _ios, _macos, _windows},
+    );
+    gh.lazySingleton<_i18.FileExportService>(
+      () => _i35.DesktopFileExportService(),
+      registerFor: {_macos, _windows, _linux},
     );
     gh.lazySingleton<_i495.BackgroundWorkService>(
       () => _i376.AndroidBackgroundWorkService(),
       registerFor: {_android},
     );
+    gh.lazySingleton<_i248.DesktopEngineBinaries>(
+      () =>
+          _i248.DesktopEngineBinaries(directories: gh<_i1027.AppDirectories>()),
+      registerFor: {_macos, _windows, _linux},
+    );
     gh.lazySingleton<_i191.SiteHttpClient>(
       () => _i191.SiteHttpClient(cookies: gh<_i149.CookiesLocalService>()),
     );
-    gh.lazySingleton<_i377.ConvertRepository>(
-      () => _i789.ConvertRepositoryImpl(
-        engine: gh<_i11.MediaEngine>(),
-        slot: gh<_i847.FfmpegSlot>(),
-        images: gh<_i990.ImageConvertService>(),
-        thumbnails: gh<_i879.ImageService>(),
-        picker: gh<_i1017.MediaPickerService>(),
-        library: gh<_i202.LibraryLocalService>(),
-        directories: gh<_i1027.AppDirectories>(),
-        files: gh<_i600.FileService>(),
-        errorHandler: gh<_i166.ErrorHandler>(),
+    gh.lazySingleton<_i990.ImageConvertService>(
+      () => _i990.FfmpegImageConvertService(
+        binaries: gh<_i248.DesktopEngineBinaries>(),
       ),
+      registerFor: {_windows, _linux},
+    );
+    gh.lazySingleton<_i879.ImageService>(
+      () =>
+          _i879.FfmpegImageService(binaries: gh<_i248.DesktopEngineBinaries>()),
+      registerFor: {_windows, _linux},
+    );
+    gh.lazySingleton<_i11.MediaEngine>(
+      () => _i310.DesktopMediaEngine(
+        errorHandler: gh<_i166.ErrorHandler>(),
+        binaries: gh<_i248.DesktopEngineBinaries>(),
+      ),
+      registerFor: {_macos, _windows, _linux},
     );
     gh.lazySingleton<_i521.SystemMonitorRepository>(
       () => _i815.SystemMonitorRepositoryImpl(
@@ -290,9 +313,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i1062.JobRepository>(
       () => _i727.JobRepositoryImpl(localService: gh<_i193.JobLocalService>()),
-    );
-    gh.factory<_i966.ConvertMediaUseCase>(
-      () => _i966.ConvertMediaUseCase(convert: gh<_i377.ConvertRepository>()),
     );
     gh.lazySingleton<_i305.BackgroundWorkRepository>(
       () => _i384.BackgroundWorkRepositoryImpl(
@@ -328,6 +348,34 @@ extension GetItInjectableX on _i174.GetIt {
         releases: gh<_i759.EngineReleaseService>(),
         slot: gh<_i847.FfmpegSlot>(),
       ),
+    );
+    gh.lazySingleton<_i601.LibraryRepository>(
+      () => _i728.LibraryRepositoryImpl(
+        localService: gh<_i202.LibraryLocalService>(),
+        directories: gh<_i1027.AppDirectories>(),
+        files: gh<_i600.FileService>(),
+        share: gh<_i316.ShareService>(),
+        gallery: gh<_i919.GalleryService>(),
+        fileExport: gh<_i18.FileExportService>(),
+        images: gh<_i879.ImageService>(),
+        errorHandler: gh<_i166.ErrorHandler>(),
+      ),
+    );
+    gh.lazySingleton<_i377.ConvertRepository>(
+      () => _i789.ConvertRepositoryImpl(
+        engine: gh<_i11.MediaEngine>(),
+        slot: gh<_i847.FfmpegSlot>(),
+        images: gh<_i990.ImageConvertService>(),
+        thumbnails: gh<_i879.ImageService>(),
+        picker: gh<_i1017.MediaPickerService>(),
+        library: gh<_i202.LibraryLocalService>(),
+        directories: gh<_i1027.AppDirectories>(),
+        files: gh<_i600.FileService>(),
+        errorHandler: gh<_i166.ErrorHandler>(),
+      ),
+    );
+    gh.factory<_i966.ConvertMediaUseCase>(
+      () => _i966.ConvertMediaUseCase(convert: gh<_i377.ConvertRepository>()),
     );
     gh.lazySingleton<_i501.PhotoExtractors>(
       () => _i501.PhotoExtractors(

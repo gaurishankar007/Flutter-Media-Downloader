@@ -4,9 +4,10 @@ import 'package:media_tool/domain/models/cookie_browser.dart';
 import 'package:media_tool/ui/core/themes/app_spacing.dart';
 import 'package:media_tool/ui/core/ui/base/chips/select_chip.dart';
 
-/// macOS: Off / Safari / Chrome / Firefox.
+/// Off plus the browsers this desktop can read (macOS: Safari, Chrome, Firefox).
 class const CookieBrowserPicker({
   super.key,
+  required final List<CookieBrowser> browsers,
   required final CookieBrowser selected,
   required final ValueChanged<CookieBrowser> onSelected,
 }) extends StatelessWidget {
@@ -16,7 +17,7 @@ class const CookieBrowserPicker({
       spacing: AppSpacing.sm,
       runSpacing: AppSpacing.sm,
       children: [
-        for (final browser in CookieBrowser.values)
+        for (final browser in browsers)
           SelectChip(
             label: switch (browser) {
               .none => CookiesMessages.browserNone,

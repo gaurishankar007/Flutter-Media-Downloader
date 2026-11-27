@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 /// Fixed hardware facts, read once. Each field is null where the platform
-/// doesn't tell apps (RAM type, GPU cores and the drive are macOS only).
+/// doesn't tell apps (RAM type, GPU cores and the drive are desktop only).
 final class const DeviceHardware({
   final String? cpuName,
   final int? cpuCores,

@@ -1,5 +1,8 @@
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:injectable/injectable.dart';
+import 'package:media_tool/config/injector/platform_env.dart';
+import 'package:media_tool/data/services/platform/media_engine/builders/ffmpeg_command_builder.dart';
+import 'package:media_tool/data/services/platform/media_engine/desktop_engine_binaries.dart';
 
 /// Image conversion with the platform's own encoders (`flutter_image_compress`),
 /// not ffmpeg. Methods throw; repositories call them inside `ErrorHandler.execute`.
@@ -12,7 +15,7 @@ abstract interface class ImageService {
   Future<void> thumbnail(String input, String output, {int size = 480});
 }
 
-@LazySingleton(as: ImageService)
+@LazySingleton(as: ImageService, env: [PlatformEnv.android, PlatformEnv.ios, PlatformEnv.macos])
 final class ImageServiceImpl implements ImageService {
   // The plugin scales down to at least minWidth × minHeight; this keeps every
   // image at its own size.
@@ -38,4 +41,18 @@ final class ImageServiceImpl implements ImageService {
       throw UnsupportedError('Could not convert the image');
     }
   }
+}
+
+/// Windows / Linux: `flutter_image_compress` has no plugin there, so the
+/// bundled ffmpeg does the work.
+@LazySingleton(as: ImageService, env: [PlatformEnv.windows, PlatformEnv.linux])
+final class FfmpegImageService({required final DesktopEngineBinaries _binaries}) implements ImageService {
+  @override
+  Future<void> toJpg(String input, String output, {int quality = 92}) =>
+      _binaries.runFfmpeg(FfmpegCommandBuilder.image(input: input, output: output, format: 'jpg', quality: quality));
+
+  @override
+  Future<void> thumbnail(String input, String output, {int size = 480}) => _binaries.runFfmpeg(
+    FfmpegCommandBuilder.image(input: input, output: output, format: 'jpg', quality: 80, shortSide: size),
+  );
 }

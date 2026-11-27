@@ -123,7 +123,7 @@ final class CookiesLocalServiceImpl({
     final target = File(_fileFor(site));
     await target.parent.create(recursive: true);
     await target.writeAsString('$_header\n\n${kept.join('\n')}\n', flush: true);
-    if (Platform.isMacOS) {
+    if (Platform.isMacOS || Platform.isLinux) {
       // Readable by this user only.
       await Process.run('chmod', ['600', target.path]);
     }

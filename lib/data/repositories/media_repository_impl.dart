@@ -226,9 +226,12 @@ final class MediaRepositoryImpl({
     }
   }
 
-  /// The site's imported cookies.txt, else the macOS browser setting.
-  ({String? path, CookieBrowser browser}) _cookiesFor(Site site) =>
-      (path: _cookies.pathFor(site), browser: Platform.isMacOS ? _settings.current.cookieBrowser : .none);
+  /// The site's imported cookies.txt, else the browser setting (desktops).
+  ({String? path, CookieBrowser browser}) _cookiesFor(Site site) {
+    final browser = _settings.current.cookieBrowser;
+    final available = CookieBrowser.availableOn(Platform.operatingSystem).contains(browser);
+    return (path: _cookies.pathFor(site), browser: available ? browser : .none);
+  }
 
   String _rememberVersion(String version) {
     if (_info case final info?) {

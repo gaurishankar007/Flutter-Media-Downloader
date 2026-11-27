@@ -3,6 +3,9 @@ import 'dart:ui' as ui;
 
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:injectable/injectable.dart';
+import 'package:media_tool/config/injector/platform_env.dart';
+import 'package:media_tool/data/services/platform/media_engine/builders/ffmpeg_command_builder.dart';
+import 'package:media_tool/data/services/platform/media_engine/desktop_engine_binaries.dart';
 import 'package:media_tool/domain/models/convert_format.dart';
 
 /// Image convert / compress with the platform's own encoders
@@ -27,7 +30,7 @@ abstract interface class ImageConvertService {
   });
 }
 
-@LazySingleton(as: ImageConvertService)
+@LazySingleton(as: ImageConvertService, env: [PlatformEnv.android, PlatformEnv.ios, PlatformEnv.macos])
 final class ImageConvertServiceImpl implements ImageConvertService {
   // The plugin scales down to at least minWidth × minHeight; this keeps the size.
   static const _noResize = 1 << 16;
@@ -43,18 +46,7 @@ final class ImageConvertServiceImpl implements ImageConvertService {
   ];
 
   @override
-  Future<({int width, int height})?> sizeOf(String path) async {
-    try {
-      final buffer = await ui.ImmutableBuffer.fromFilePath(path);
-      final descriptor = await ui.ImageDescriptor.encoded(buffer);
-      final size = (width: descriptor.width, height: descriptor.height);
-      descriptor.dispose();
-      buffer.dispose();
-      return size;
-    } on Object {
-      return null;
-    }
-  }
+  Future<({int width, int height})?> sizeOf(String path) => _decodedSize(path);
 
   @override
   Future<void> convert(
@@ -84,5 +76,53 @@ final class ImageConvertServiceImpl implements ImageConvertService {
     if (result == null) {
       throw UnsupportedError('Could not write the image');
     }
+  }
+}
+
+/// Windows / Linux: the bundled ffmpeg (no `flutter_image_compress` plugin
+/// there). It writes JPG, PNG and WebP; it can't write HEIC, and it drops
+/// metadata.
+@LazySingleton(as: ImageConvertService, env: [PlatformEnv.windows, PlatformEnv.linux])
+final class FfmpegImageConvertService({required final DesktopEngineBinaries _binaries}) implements ImageConvertService {
+  @override
+  List<ConvertFormat> get outputFormats => const [.jpg, .png, .webp];
+
+  @override
+  Future<({int width, int height})?> sizeOf(String path) => _decodedSize(path);
+
+  @override
+  Future<void> convert(
+    String input,
+    String output, {
+    required ConvertFormat format,
+    required int quality,
+    int? shortSide,
+    bool keepMetadata = false,
+  }) => _binaries.runFfmpeg(
+    FfmpegCommandBuilder.image(
+      input: input,
+      output: output,
+      format: switch (format) {
+        .png => 'png',
+        .webp => 'webp',
+        _ => 'jpg',
+      },
+      quality: quality,
+      shortSide: shortSide,
+    ),
+  );
+}
+
+/// The decoded size (rotation applied), or null when Flutter can't decode it.
+Future<({int width, int height})?> _decodedSize(String path) async {
+  try {
+    final buffer = await ui.ImmutableBuffer.fromFilePath(path);
+    final descriptor = await ui.ImageDescriptor.encoded(buffer);
+    final size = (width: descriptor.width, height: descriptor.height);
+    descriptor.dispose();
+    buffer.dispose();
+    return size;
+  } on Object {
+    return null;
   }
 }

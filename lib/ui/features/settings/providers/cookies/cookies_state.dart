@@ -5,10 +5,14 @@ final class const CookiesState({
 
   /// The site whose import is running.
   final Site? busySite,
-  final bool supportsBrowserCookies = false,
+
+  /// Browsers to read cookies from; empty where that isn't possible.
+  final List<CookieBrowser> cookieBrowsers = const [],
   super.status,
   super.message,
 }) extends BaseState {
+  bool get supportsBrowserCookies => cookieBrowsers.isNotEmpty;
+
   SiteCookies? cookiesFor(Site site) => cookies.where((entry) => entry.site == site).firstOrNull;
 
   CookiesState copyWith({
@@ -20,11 +24,11 @@ final class const CookiesState({
   }) => CookiesState(
     cookies: cookies ?? this.cookies,
     busySite: clearBusySite ? null : busySite ?? this.busySite,
-    supportsBrowserCookies: supportsBrowserCookies,
+    cookieBrowsers: cookieBrowsers,
     status: status ?? this.status,
     message: message,
   );
 
   @override
-  List<Object?> get props => [cookies, busySite, supportsBrowserCookies, ...super.props];
+  List<Object?> get props => [cookies, busySite, cookieBrowsers, ...super.props];
 }

@@ -48,7 +48,7 @@ abstract final class YtDlpArgsBuilder {
     request.url,
   ];
 
-  /// The site's own cookies.txt wins over browser cookies (macOS only).
+  /// The site's own cookies.txt wins over browser cookies (desktops only).
   static List<String> _cookies(String? cookiesPath, CookieBrowser browser) =>
       switch ((cookiesPath, browser.ytDlpName)) {
         (final path?, _) => ['--cookies', path],

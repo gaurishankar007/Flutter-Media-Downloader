@@ -21,7 +21,8 @@ library;
 /// 9: added SystemMessages.batteryCycles and batteryHealthWithPercent.
 /// 10: added SystemMessages hardware rows (battery capacity, CPU, GPU, RAM, drive),
 ///     cpuInfoBody / gpuInfoBody and speed test strings.
-const kMessagesVersion = 10;
+/// 11: CookiesMessages.browserBody no longer names macOS (Windows and Linux read browsers too).
+const kMessagesVersion = 11;
 
 abstract final class CommonMessages {
   /// Fallback for any failure without a clearer message.
@@ -505,9 +506,10 @@ abstract final class CookiesMessages {
   static const notCookiesFile = 'That isn’t a cookies.txt file. Export it in the Netscape format and try again.';
   static String noCookiesFor(String site) => 'That file has no $site cookies. Log in to $site, then export again.';
 
-  /// macOS browser cookies.
+  /// Browser cookies (desktops).
+  /// 11: browserBody no longer names macOS.
   static const browser = 'Use cookies from a browser';
-  static const browserBody = 'Used for sites without a cookies.txt. macOS may ask for permission.';
+  static const browserBody = 'Used for sites without a cookies.txt. Your computer may ask for permission.';
   static const browserNone = 'Off';
   static const browserSafari = 'Safari';
   static const browserChrome = 'Chrome';

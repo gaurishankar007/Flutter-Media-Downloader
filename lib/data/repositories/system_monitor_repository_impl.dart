@@ -31,9 +31,11 @@ final class SystemMonitorRepositoryImpl({
 }) implements SystemMonitorRepository {
   static const _mb = 1024 * 1024;
 
+  static final _desktop = Platform.isMacOS || Platform.isWindows || Platform.isLinux;
+
   /// Big enough to outgrow CPU caches and drive buffers, small enough for a phone.
-  static final _memoryTestBytes = (Platform.isMacOS ? 256 : 128) * _mb;
-  static final _storageTestBytes = (Platform.isMacOS ? 1024 : 512) * _mb;
+  static final _memoryTestBytes = (_desktop ? 256 : 128) * _mb;
+  static final _storageTestBytes = (_desktop ? 1024 : 512) * _mb;
 
   SystemProfile? _profile;
   SystemSampleMsg? _previous;

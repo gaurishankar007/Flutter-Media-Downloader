@@ -11,7 +11,7 @@ import 'package:media_tool/ui/features/settings/providers/settings/settings_noti
 
 part 'cookies_state.dart';
 
-/// Per-site cookie status: import, remove, and the macOS browser option.
+/// Per-site cookie status: import, remove, and the browser option on desktops.
 /// The View confirms removes. See docs/features/settings.md#cookies.
 class CookiesNotifier extends BaseNotifier<CookiesState> {
   late final CookiesRepository _repository;
@@ -22,7 +22,7 @@ class CookiesNotifier extends BaseNotifier<CookiesState> {
     _repository = GetIt.I<CookiesRepository>();
     _settings = ref.read(settingsProvider.notifier);
     Future.microtask(refresh);
-    return CookiesState(status: .loading, supportsBrowserCookies: _repository.supportsBrowserCookies);
+    return CookiesState(status: .loading, cookieBrowsers: _repository.cookieBrowsers);
   }
 
   Future<void> refresh() => runFlow('cookies.list', () async {
