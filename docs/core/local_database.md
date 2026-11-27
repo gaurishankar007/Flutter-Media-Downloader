@@ -21,7 +21,7 @@ Store paths relative to the app's base folder (`downloads/abc.mp4`), never absol
 
 ### Live queries
 
-`LibraryLocalService.watchAll()` returns a drift `Stream` of every item, newest first. It isn't filtered: `LibraryRepository.watchItems()` wraps it in `DataState` (a stream error becomes one recorded `FailureState`), and the Library notifier filters, searches, sorts and groups in memory. The Library grid therefore updates by itself when a download finishes or an item is removed.
+`LibraryLocalService.watchAll()` returns a drift `Stream` of every item, newest first. It isn't filtered: `LibraryRepository.watchItems()` wraps it in `DataState` with `ErrorHandler.executeStream` (a stream error becomes a recorded `FailureState` event and the stream keeps going), and the Library notifier filters, searches, sorts and groups in memory. The Library grid therefore updates by itself when a download finishes or an item is removed.
 
 Jobs aren't watched: `DownloadQueueNotifier` (keep-alive) holds them in memory and `JobLocalService` only loads them at startup (`getAll`), saves stage changes (`save`) and deletes cleared ones (`deleteByIds`). Jobs that were still running when the app was killed come back as failed with "The app was closed during this download."
 

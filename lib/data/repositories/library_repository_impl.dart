@@ -196,19 +196,8 @@ final class LibraryRepositoryImpl({
   });
 
   @override
-  StreamData<List<LibraryItem>> watchItems() async* {
-    try {
-      await for (final items in _localService.watchAll()) {
-        yield SuccessState(data: items);
-      }
-    } catch (error, stackTrace) {
-      // Records the error and turns it into a FailureState with a user message.
-      yield await _errorHandler.execute<List<LibraryItem>>(
-        action: 'library.watch',
-        () async => Error.throwWithStackTrace(error, stackTrace),
-      );
-    }
-  }
+  StreamData<List<LibraryItem>> watchItems() =>
+      _errorHandler.executeStream(_localService.watchAll(), action: 'library.watch');
 
   @override
   String absolutePath(String relativePath) => _directories.resolve(relativePath);

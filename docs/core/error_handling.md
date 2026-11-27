@@ -29,6 +29,7 @@ flowchart TB
 `ErrorHandler` (`error_handler.dart`, registered through `ErrorHandlerProvider.register` in `lib/config/injector/injector.dart`):
 
 - `execute<T>(callback, action:)`: runs the callback; on a throw, translates it to `FailureState<T>`, gives it an error id and stack trace, records it and returns it. A returned `FailureState` gets the `action` added to its action path too. The `action:` label names the exact operation (`'engine.probe'`, `'extractor.instagram'`, `'library.deleteByIds'`).
+- `executeStream<T>(stream, action:)`: wraps each value in a `SuccessState`; an error event is translated, recorded and sent on as a `FailureState` event, and the stream keeps going (e.g. `LibraryRepository.watchItems()` over drift's `watchAll()`).
 - `executeSafe()` / `executeSafeReturn(onError:)`: record but don't propagate (best-effort work such as a video still for a thumbnail or deleting temp files).
 - `configureErrorHandlers()` hooks every recorder into uncaught errors (`FlutterError.onError`, `PlatformDispatcher.onError`).
 

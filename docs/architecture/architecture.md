@@ -124,14 +124,15 @@ flowchart TB
 
 Rules:
 
-- Every notifier extends `BaseNotifier` / `BaseAsyncNotifier` / `BaseStreamNotifier`; every state extends `BaseState` (`StateStatus` + `StateMessage`).
+- Every notifier extends `BaseNotifier` / `BaseAsyncNotifier` / `BaseStreamNotifier`; every state extends `BaseState` (`StateStatus` + `StateMessage`, plus `isLoading`).
+- `StateMessage`s are equal by text. Views show them with `ref.listenMessages(provider, context)`, which toasts only when the message changes (it takes any provider, `.select` or family included).
 - `copyWith` never keeps the old `message`: it takes the argument as given, so a message can be cleared.
 - A notifier runs each user flow in `runFlow('<flow label>', ...)` and reports failures with `trackFailure(dataState)` / `trackError(text)`. See [Error Handling](../core/error_handling.md).
 - Text comes from `lib/core/messages/app_messages.dart`. See [App Messages](../core/app_messages.md).
-- An `.autoDispose` notifier can be disposed during an `await` (e.g. the preview sheet closes mid-probe). Check `ref.mounted` before touching state after an `await`.
+- An `.autoDispose` notifier can be disposed during an `await` (e.g. the media viewer closes mid-load). Check `ref.mounted` before touching state after an `await`.
 - A notifier that calls another notifier captures it once in `build()`, never through a lazy getter.
 
-Long-running work (downloads, conversions) is owned by **keep-alive** notifiers (`DownloadQueueNotifier`, `ConvertJobNotifier`, plain `NotifierProvider`s), so leaving a screen never cancels a job. Screen-scoped notifiers (preview sheet, media viewer, cookies, about, storage, system monitor) are `.autoDispose`.
+Long-running work (downloads, conversions) is owned by **keep-alive** notifiers (`DownloadQueueNotifier`, `ConvertJobNotifier`, plain `NotifierProvider`s), so leaving a screen never cancels a job. The preview is keep-alive too, so it stays open across tabs. Screen-scoped notifiers (media viewer, cookies, about, storage, system monitor) are `.autoDispose`.
 
 ## Dependency Injection
 

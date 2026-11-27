@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:get_it/get_it.dart';
 import 'package:media_tool/core/data/states/data_state.dart';
 import 'package:media_tool/core/errors/error_recorders/error_recorder.dart';
@@ -12,6 +14,10 @@ abstract interface class ErrorHandler {
   /// Runs [callBack]; a thrown error becomes a recorded [FailureState].
   /// [action] names the exact operation, e.g. `'settings.save'`.
   FutureData<T> execute<T>(FutureData<T> Function() callBack, {required String action});
+
+  /// Wraps [stream]'s values in `SuccessState`s; an error event becomes a
+  /// recorded [FailureState] event instead of breaking the stream.
+  StreamData<T> executeStream<T>(Stream<T> stream, {required String action});
 
   /// Runs [callBack], recording (not rethrowing) any error.
   Future<void> executeSafe(Future<void> Function() callBack);
@@ -45,6 +51,21 @@ final class ErrorHandlerImpl({
       return failure;
     }
   }
+
+  @override
+  StreamData<T> executeStream<T>(Stream<T> stream, {required String action}) => stream.transform(
+    StreamTransformer.fromHandlers(
+      handleData: (data, sink) => sink.add(SuccessState(data: data)),
+      handleError: (error, stackTrace, sink) {
+        final failure = _translate<T>(error)
+            .withAction(action)
+            .withStackTrace(stackTrace)
+            .withErrorId(const Uuid().v4());
+        _record(error: error, failureState: failure, stackTrace: stackTrace);
+        sink.add(failure);
+      },
+    ),
+  );
 
   @override
   Future<void> executeSafe(Future<void> Function() callBack) async {
