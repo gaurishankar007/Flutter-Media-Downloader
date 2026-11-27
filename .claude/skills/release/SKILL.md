@@ -1,6 +1,6 @@
 ---
 name: release
-description: Publish a new Media Tool version to GitHub Releases (Android APK + macOS DMG). Checks the local toolchain against the release workflow and updates it first, validates the build, bumps the version, drafts release notes for approval, then tags and watches the CI run. Use when the user asks to release, publish, ship a new version, or cut vX.Y.Z.
+description: Publish a new Media Tool version to GitHub Releases (Android APK, macOS DMG, Windows zip, Linux tarball). Checks the local toolchain against the release workflow and updates it first, validates the build, bumps the version, drafts release notes for approval, then tags and watches the CI run. Use when the user asks to release, publish, ship a new version, or cut vX.Y.Z.
 ---
 
 # Release workflow
@@ -24,8 +24,8 @@ CI must build with the same toolchain that validated the build locally. Compare 
 | Dart SDK constraint | `dart --version` | `environment.sdk` in `pubspec.yaml` must allow it (if not, tell the user and stop: that's an SDK upgrade, not a release step) |
 | Android compileSdk | `android/app/build.gradle.kts` | the GitHub Ubuntu image must have it, or a step must install it (the Android Gradle plugin downloads missing platforms; leave it unless a CI run failed on it) |
 | GitHub Actions | `actions/checkout`, `actions/setup-java`, `actions/upload-artifact`, `actions/download-artifact`, `subosito/flutter-action`, `softprops/action-gh-release` | for each, `gh api repos/<owner>/<repo>/releases/latest -q .tag_name`. Bump the major tag (e.g. `@v4` → `@v5`) only when a new major exists, and read its release notes for breaking input changes first |
-| Runner images | `ubuntu-latest`, `macos-latest` | keep them unless a run failed because of them |
-| Engine fetch scripts | `macos/scripts/fetch_engine_binaries.sh` flags used in the workflow | still valid (`--universal --with-deno`) |
+| Runner images | `ubuntu-latest`, `macos-latest`, `windows-latest` | keep them unless a run failed because of them |
+| Engine fetch scripts | `macos/scripts/fetch_engine_binaries.sh`, `windows/scripts/fetch_engine.ps1`, `linux/scripts/fetch_engine_binaries.sh` flags used in the workflow | still valid (`--universal --with-deno`, `-WithDeno`, `--with-deno`) |
 
 Show the user a short table of what changed (or "no changes").
 
@@ -33,6 +33,7 @@ Show the user a short table of what changed (or "no changes").
 - `flutter pub get`, `dart run build_runner build`, `flutter analyze`. It must be clean.
 - `flutter build apk --release` (one universal APK for every device). It must succeed, and `apksigner verify --print-certs` on `app-release.apk` must show `CN=GSS` (the release key, from `android/key.properties`). If `key.properties` is missing, stop: CI would still sign, but local parity is broken.
 - `flutter build macos --release`. It must succeed.
+- Windows and Linux can't be built on a Mac: their CI jobs are the build check. Run `flutter analyze` (above) so Dart errors are caught before tagging.
 - There are no automated tests in this project (see CLAUDE.md), so don't run `flutter test`.
 
 ## 4. Choose the version
@@ -57,11 +58,11 @@ git push origin vX.Y.Z          # this triggers the Release workflow
 No AI-attribution trailer in the commit (CLAUDE.md).
 
 ## 7. Watch the run
-- Find it with `gh run list --workflow release.yml --limit 1`, then follow it with `gh run watch <id> --exit-status`. Use the Monitor tool and post a short line to the user whenever a job changes state (android, macos, release).
+- Find it with `gh run list --workflow release.yml --limit 1`, then follow it with `gh run watch <id> --exit-status`. Use the Monitor tool and post a short line to the user whenever a job changes state (android, macos, windows, linux, release).
 - On failure, run `gh run view <id> --log-failed | tail -80`, report the failing step and the cause, and **stop**. Propose a fix. Once it's fixed and pushed, re-run by deleting and re-pushing the tag (`git push --delete origin vX.Y.Z && git tag -d vX.Y.Z`, then tag again) **only with the user's OK**, because it rewrites a public tag.
 
 ## 8. Verify and report
-- `gh release view vX.Y.Z --json assets -q '.assets[].name'` should list 1 APK and 1 DMG.
+- `gh release view vX.Y.Z --json assets -q '.assets[].name'` should list 1 APK, 1 DMG, 1 Windows zip and 1 Linux tar.gz.
 - Give the user the release URL, the asset list, and anything step 2 changed in the workflow.
 
 ## Secrets and keys (never print them)
