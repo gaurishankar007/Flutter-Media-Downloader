@@ -105,6 +105,8 @@ import 'package:media_tool/data/services/remote/extractors/tiktok_photo_extracto
     as _i121;
 import 'package:media_tool/data/services/remote/extractors/x_image_extractor.dart'
     as _i97;
+import 'package:media_tool/data/services/remote/extractors/youtube_post_extractor.dart'
+    as _i687;
 import 'package:media_tool/data/services/remote/media_file_downloader.dart'
     as _i883;
 import 'package:media_tool/data/services/remote/site_http_client.dart' as _i191;
@@ -335,6 +337,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i97.XImageExtractor>(
       () => _i97.XImageExtractor(http: gh<_i191.SiteHttpClient>()),
     );
+    gh.lazySingleton<_i687.YouTubePostExtractor>(
+      () => _i687.YouTubePostExtractor(http: gh<_i191.SiteHttpClient>()),
+    );
     gh.lazySingleton<_i883.MediaFileDownloader>(
       () => _i883.MediaFileDownloader(http: gh<_i191.SiteHttpClient>()),
     );
@@ -361,6 +366,16 @@ extension GetItInjectableX on _i174.GetIt {
         errorHandler: gh<_i166.ErrorHandler>(),
       ),
     );
+    gh.lazySingleton<_i501.PhotoExtractors>(
+      () => _i501.PhotoExtractors(
+        instagram: gh<_i556.InstagramPhotoExtractor>(),
+        tiktok: gh<_i121.TikTokPhotoExtractor>(),
+        facebook: gh<_i984.FacebookPhotoExtractor>(),
+        threads: gh<_i895.ThreadsExtractor>(),
+        x: gh<_i97.XImageExtractor>(),
+        youtube: gh<_i687.YouTubePostExtractor>(),
+      ),
+    );
     gh.lazySingleton<_i377.ConvertRepository>(
       () => _i789.ConvertRepositoryImpl(
         engine: gh<_i11.MediaEngine>(),
@@ -376,15 +391,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i966.ConvertMediaUseCase>(
       () => _i966.ConvertMediaUseCase(convert: gh<_i377.ConvertRepository>()),
-    );
-    gh.lazySingleton<_i501.PhotoExtractors>(
-      () => _i501.PhotoExtractors(
-        instagram: gh<_i556.InstagramPhotoExtractor>(),
-        tiktok: gh<_i121.TikTokPhotoExtractor>(),
-        facebook: gh<_i984.FacebookPhotoExtractor>(),
-        threads: gh<_i895.ThreadsExtractor>(),
-        x: gh<_i97.XImageExtractor>(),
-      ),
     );
     gh.lazySingleton<_i665.PostRepository>(
       () => _i1059.PostRepositoryImpl(

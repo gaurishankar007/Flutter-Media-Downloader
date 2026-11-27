@@ -14,9 +14,9 @@ import 'package:media_tool/ui/features/settings/providers/settings/settings_noti
 
 part 'media_preview_state.dart';
 
-/// The preview sheet: resolves the link (engine probe or photo extractor)
-/// once the engine is ready and holds the user's choices. AutoDispose: lives
-/// as long as the sheet.
+/// The preview card on the Download screen: resolves the link (engine probe
+/// or photo extractor) once the engine is ready and holds the user's choices.
+/// Keep-alive, so the preview survives switching tabs until it's closed.
 class MediaPreviewNotifier extends BaseNotifier<MediaPreviewState> {
   late final ResolveLinkUseCase _resolveLink;
 
@@ -25,24 +25,43 @@ class MediaPreviewNotifier extends BaseNotifier<MediaPreviewState> {
   bool _photosToJpg = true;
   ({String url, Site site})? _link;
 
+  /// Bumped by every start and close, so a lookup that finishes after the
+  /// preview moved on is dropped.
+  int _generation = 0;
+
   @override
   MediaPreviewState build() {
     _resolveLink = GetIt.I<ResolveLinkUseCase>();
-    final settings = ref.read(settingsProvider).settings;
-    _photosToJpg = settings.photosToJpg;
-    _defaultResolution = settings.defaultVideoQuality.resolution;
     ref.listen(engineStatusProvider, (_, engine) {
       if (state.previewStatus == .waitingForEngine) {
         _probeWhenReady(engine);
       }
     });
-    return MediaPreviewState(audioQuality: settings.defaultAudioQuality, iphoneCompatible: settings.iphoneCompatible);
+    return const MediaPreviewState();
   }
 
-  /// Starts the preview for [url]; waits for the engine if it isn't ready.
+  /// Starts a fresh preview for [url] (replacing any open one); waits for the
+  /// engine if it isn't ready.
   void start(String url, Site site) {
+    final settings = ref.read(settingsProvider).settings;
+    _photosToJpg = settings.photosToJpg;
+    _defaultResolution = settings.defaultVideoQuality.resolution;
     _link = (url: url, site: site);
+    _generation++;
+    state = MediaPreviewState(
+      previewStatus: .waitingForEngine,
+      url: url,
+      audioQuality: settings.defaultAudioQuality,
+      iphoneCompatible: settings.iphoneCompatible,
+    );
     _probeWhenReady(ref.read(engineStatusProvider));
+  }
+
+  /// Removes the preview (after Download, or the close button).
+  void close() {
+    _link = null;
+    _generation++;
+    state = const MediaPreviewState();
   }
 
   Future<void> retry() async {
@@ -135,12 +154,12 @@ class MediaPreviewNotifier extends BaseNotifier<MediaPreviewState> {
   }
 
   void _probeWhenReady(EngineStatusState engine) {
-    final site = _link?.site;
+    final link = _link;
     switch (engine.engineStatus) {
       case .initializing:
         state = state.copyWith(previewStatus: .waitingForEngine);
       // Photo posts and Threads don't need the engine.
-      case .failed when site != null && _resolveLink.worksWithoutEngine(site):
+      case .failed when link != null && _resolveLink.worksWithoutEngine(link.url, link.site):
         _resolve(useEngine: false);
       case .failed:
         state = state.copyWith(previewStatus: .failed, errorText: engine.errorText);
@@ -154,9 +173,10 @@ class MediaPreviewNotifier extends BaseNotifier<MediaPreviewState> {
     if (link == null) {
       return;
     }
+    final generation = _generation;
     state = state.copyWith(previewStatus: .loading);
     final result = await _resolveLink.run(link.url, useEngine: useEngine);
-    if (!ref.mounted) {
+    if (!ref.mounted || generation != _generation) {
       return;
     }
     switch (result) {
@@ -188,4 +208,4 @@ class MediaPreviewNotifier extends BaseNotifier<MediaPreviewState> {
   }
 }
 
-final mediaPreviewProvider = NotifierProvider.autoDispose(MediaPreviewNotifier.new);
+final mediaPreviewProvider = NotifierProvider(MediaPreviewNotifier.new);

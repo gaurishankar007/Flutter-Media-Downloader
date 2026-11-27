@@ -1,9 +1,13 @@
 part of 'media_preview_notifier.dart';
 
-enum PreviewStatus { waitingForEngine, loading, loaded, failed }
+/// `idle`: no preview open.
+enum PreviewStatus { idle, waitingForEngine, loading, loaded, failed }
 
 final class const MediaPreviewState({
-  final PreviewStatus previewStatus = .waitingForEngine,
+  final PreviewStatus previewStatus = .idle,
+
+  /// The link being previewed, as passed to `start`.
+  final String? url,
   final MediaInfo? info,
   final MediaKind kind = .video,
 
@@ -19,6 +23,8 @@ final class const MediaPreviewState({
   super.status,
   super.message,
 }) extends BaseState {
+  bool get isOpen => previewStatus != .idle;
+
   VideoOption? get selectedOption {
     final options = info?.videoOptions ?? const <VideoOption>[];
     return optionIndex < options.length ? options[optionIndex] : null;
@@ -56,6 +62,7 @@ final class const MediaPreviewState({
     StateMessage? message,
   }) => MediaPreviewState(
     previewStatus: previewStatus ?? this.previewStatus,
+    url: url,
     info: info ?? this.info,
     kind: kind ?? this.kind,
     optionIndex: optionIndex ?? this.optionIndex,
@@ -71,6 +78,7 @@ final class const MediaPreviewState({
   @override
   List<Object?> get props => [
     previewStatus,
+    url,
     info,
     kind,
     optionIndex,

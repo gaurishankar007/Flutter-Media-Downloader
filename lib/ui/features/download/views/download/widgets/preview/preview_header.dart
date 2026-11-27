@@ -3,7 +3,7 @@ import 'package:media_tool/domain/models/media_info.dart';
 import 'package:media_tool/ui/core/themes/app_spacing.dart';
 import 'package:media_tool/ui/core/themes/theme.dart';
 import 'package:media_tool/ui/core/ui/base/media/site_badge.dart';
-import 'package:media_tool/ui/features/download/views/preview/widgets/preview_media.dart';
+import 'package:media_tool/ui/features/download/views/download/widgets/preview/preview_media.dart';
 
 /// Thumbnail (playable when possible), title, uploader and site.
 class const PreviewHeader({super.key, required final MediaInfo info}) extends StatelessWidget {

@@ -12,7 +12,9 @@ import 'package:media_tool/ui/features/download/providers/link_input/link_input_
 class const LinkStatusPanel({
   super.key,
   required final LinkStatus status,
-  required final VoidCallback onPreview,
+
+  /// `null` hides the Preview button (the link is already in the preview).
+  required final VoidCallback? onPreview,
   final Site? site,
 }) extends StatelessWidget {
   @override
@@ -48,7 +50,7 @@ class const LinkStatusPanel({
                       ),
                     ],
                   ),
-                  if (status == .recognised)
+                  if (status == .recognised && onPreview != null)
                     GradientButton(
                       label: DownloadMessages.preview,
                       icon: Symbols.visibility_rounded,

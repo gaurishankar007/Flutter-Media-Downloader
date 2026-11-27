@@ -22,7 +22,9 @@ library;
 /// 10: added SystemMessages hardware rows (battery capacity, CPU, GPU, RAM, drive),
 ///     cpuInfoBody / gpuInfoBody and speed test strings.
 /// 11: CookiesMessages.browserBody no longer names macOS (Windows and Linux read browsers too).
-const kMessagesVersion = 11;
+/// 12: added DownloadMessages.addedToLibrary / closePreview and ConvertMessages.addedToLibrary
+///     (toasts that say where finished files go).
+const kMessagesVersion = 12;
 
 abstract final class CommonMessages {
   /// Fallback for any failure without a clearer message.
@@ -167,6 +169,12 @@ abstract final class DownloadMessages {
 
   /// Toast after Download is tapped in the preview.
   static const added = 'Added to downloads';
+
+  /// Toast when a download finishes.
+  static const addedToLibrary = 'Downloaded and added to your Library';
+
+  /// The preview card's close button.
+  static const closePreview = 'Close preview';
 
   /// Job list sections and actions.
   static const inProgress = 'In progress';
@@ -321,6 +329,9 @@ abstract final class ConvertMessages {
   /// Convert screen header.
   static const title = 'Convert';
   static const subtitle = "Change a file's format, or make it smaller.";
+
+  /// Toast when a conversion finishes.
+  static const addedToLibrary = 'Converted and added to your Library';
 
   /// Source section and tiles.
   static const pickFile = 'Pick a file';

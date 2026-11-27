@@ -20,6 +20,7 @@ abstract final class UrlUtils {
     'ref',
     's',
     'mibextid',
+    'avpt',
   };
 
   /// The first URL in [text] ("Check this out https://…"), with https added if missing.
@@ -55,24 +56,25 @@ abstract final class UrlUtils {
   static const _shortHosts = {'vm.tiktok.com', 'vt.tiktok.com', 'fb.watch', 't.co', 'instagr.am'};
 
   /// A share link that has to be followed to find the post (`vm.tiktok.com`,
-  /// `fb.watch`, `t.co`, Facebook `/share/…`).
+  /// `fb.watch`, `t.co`, Facebook and Instagram `/share/…`).
   static bool isShortLink(Uri url) {
     final host = url.host.toLowerCase().replaceFirst(RegExp(r'^www\.'), '');
     if (_shortHosts.contains(host)) {
       return true;
     }
-    final isFacebook = host == 'facebook.com' || host.endsWith('.facebook.com');
-    return isFacebook && url.path.startsWith('/share/');
+    final sharesByLink = ['facebook.com', 'instagram.com'].any((domain) => host == domain || host.endsWith('.$domain'));
+    return sharesByLink && url.path.startsWith('/share/');
   }
 
   /// A link that can only be a photo post: TikTok `/photo/`, Facebook
-  /// `/photo`, `/photos/`, `photo.php`. Instagram `/p/` can be either, so
-  /// it's decided by trying.
+  /// `/photo`, `/photos/`, `photo.php`, YouTube posts (`/post/`, `?lb=`).
+  /// Instagram `/p/` can be either, so it's decided by trying.
   static bool looksLikePhotoPost(Uri url) {
     final path = url.path.toLowerCase();
     return switch (detectSite(url)) {
       .tiktok => path.contains('/photo/'),
       .facebook => path.startsWith('/photo') || path.contains('/photos/') || path.contains('photo.php'),
+      .youtube => path.startsWith('/post/') || url.queryParameters.containsKey('lb'),
       _ => false,
     };
   }

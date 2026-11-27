@@ -13,9 +13,19 @@ import 'package:media_tool/domain/repositories/post_repository.dart';
 /// See docs/extractors/photo_extractors.md#routing-a-link.
 @injectable
 final class ResolveLinkUseCase({required final MediaRepository _media, required final PostRepository _posts}) {
-  /// Whether links from [site] can still be read when the engine isn't
-  /// available (photo posts, Threads).
-  bool worksWithoutEngine(Site site) => _posts.supports(site);
+  /// Whether [link] can still be read when the engine isn't available
+  /// (photo posts, Threads).
+  bool worksWithoutEngine(String link, Site site) {
+    if (!_posts.supports(site)) {
+      return false;
+    }
+    // YouTube videos need the engine; only its posts are read in Dart.
+    if (site == .youtube) {
+      final url = UrlUtils.extractUrl(link);
+      return url != null && UrlUtils.looksLikePhotoPost(url);
+    }
+    return true;
+  }
 
   /// [useEngine] false skips the probe (engine failed or missing) and asks
   /// the photo extractor only.

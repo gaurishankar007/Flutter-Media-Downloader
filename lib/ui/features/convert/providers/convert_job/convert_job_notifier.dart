@@ -132,6 +132,7 @@ class ConvertJobNotifier extends BaseNotifier<ConvertJobState> {
     }
     state = state.copyWith(
       progress: progress,
+      message: const SuccessMessage(ConvertMessages.addedToLibrary),
       result: item,
       resultThumbnailPath: switch (item?.thumbnailRelativePath) {
         final thumbnail? => _library.absolutePath(thumbnail),

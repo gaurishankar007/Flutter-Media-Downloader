@@ -194,7 +194,14 @@ class DownloadQueueNotifier extends BaseNotifier<DownloadQueueState> {
               return;
             }
             final stageChanged = current.stage != progress.stage;
-            _update(current.copyWith(progress: progress), persist: stageChanged);
+            _update(
+              current.copyWith(progress: progress),
+              persist: stageChanged,
+              // Says where the files went: the Library.
+              message: stageChanged && progress.stage == .done
+                  ? const SuccessMessage(DownloadMessages.addedToLibrary)
+                  : null,
+            );
           },
           onDone: () {
             _running.remove(job.id);
@@ -221,12 +228,13 @@ class DownloadQueueNotifier extends BaseNotifier<DownloadQueueState> {
 
   DownloadJob? _job(String id) => state.jobs.where((job) => job.id == id).firstOrNull;
 
-  void _update(DownloadJob job, {bool persist = true}) {
+  void _update(DownloadJob job, {bool persist = true, StateMessage? message}) {
     state = state.copyWith(
       jobs: [
         for (final existing in state.jobs)
           if (existing.id == job.id) job else existing,
       ],
+      message: message,
     );
     if (persist) {
       _persist(job);
