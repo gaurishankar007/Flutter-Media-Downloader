@@ -134,15 +134,15 @@ The bottom bar shows on phones and a sidebar shows on tablets and macOS.
 | Image | Longest side or %, quality, strip metadata |
 
 ### 📊 System
-Live device stats. Network, RAM, CPU and GPU update every second with a 60-second graph; battery and storage update every few seconds. It only shows what your platform can measure. There are no "not available" placeholders.
+Live device stats. Network, RAM, CPU and GPU update every second with a 60-second graph; battery and storage update every few seconds. Cards also show hardware details. It only shows what your platform can measure. There are no "not available" placeholders.
 
 | Platform | Network ↓ / ↑ | Battery | RAM | CPU | GPU | Storage |
 |---|---|---|---|---|---|---|
-| Android | ✅ whole device | ✅ level, status, temperature, health, cycles (Android 14+, if the phone reports them) | ✅ | — | — | ✅ |
-| iOS | ✅ whole device | ✅ level and status | ✅ | ✅ | — | ✅ |
-| macOS | ✅ whole device | ✅ laptops: level, status, time left, health %, cycles | ✅ | ✅ | ✅ | ✅ |
+| Android | ✅ whole device | ✅ level, status, temperature, health, cycles (Android 14+), charge left in mAh (if the phone reports them) | ✅ | chip, cores, layout, max clock (no live load) | — | ✅ |
+| iOS | ✅ whole device | ✅ level and status | ✅ | ✅ load, chip, cores, layout | GPU name (no live load) | ✅ |
+| macOS | ✅ whole device | ✅ laptops: level, status, time left, health %, cycles, design / full / remaining mAh | ✅ type, manufacturer | ✅ load, chip, cores, threads, layout | ✅ load, name, GPU cores | ✅ drive model, NVMe / SSD, interface |
 
-**Storage** shows used, free and total space, plus how much Media Tool's own files take. It polls only while the tab is on screen.
+**Storage** shows used, free and total space, plus how much Media Tool's own files take. **RAM** and **Storage** have a **Test speed** button that measures real read and write speed (and RAM copy speed) in a few seconds; the storage test writes a temporary file and deletes it. It polls only while the tab is on screen.
 
 ### ⚙️ Settings
 - **Downloads:** default video and audio quality, the iPhone-compatible output toggle, and "convert photos to JPG".
@@ -252,7 +252,7 @@ Flutter UI (Views + Riverpod Notifiers)
 - **Photo posts** (which yt-dlp doesn't handle) go through small Dart extractors for Instagram, TikTok, Facebook, Threads and X. They use an HTTP client that sends each site's cookies only to that site.
 - **Converter and compressor** use the same ffmpeg each engine already ships, and run one ffmpeg job at a time.
 - **Storage:** files live in the app's own folder. A local drift database indexes them for the Library, storing paths relative to the app folder.
-- **System monitor** uses a small Pigeon API per platform that returns raw counters. Dart turns them into rates.
+- **System monitor** uses a small Pigeon API per platform that returns raw counters and hardware facts. Dart turns the counters into rates. Speed tests call the C library through `dart:ffi` in a background isolate.
 
 **Stack:**
 - Flutter 3.50 / Dart 3.14

@@ -185,7 +185,7 @@ Engine files aren't committed: after cloning run `macos/scripts/fetch_engine_bin
 | Download page, preview, job cards, Share/Remove | `docs/features/download.md` |
 | Library, Save to Photos/Files, remove prompt | `docs/features/library.md` |
 | Converter and compressor | `docs/features/convert.md` |
-| System tab: RAM / CPU / GPU / network monitor per platform | `docs/features/system.md` |
+| System tab: RAM / CPU / GPU / network monitor, hardware facts, speed tests per platform | `docs/features/system.md` |
 | Settings, cookies, engine updates, About | `docs/features/settings.md` |
 | Look and feel | `docs/design/design_system.md` |
 

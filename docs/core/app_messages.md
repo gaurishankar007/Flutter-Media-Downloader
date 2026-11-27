@@ -1,6 +1,6 @@
 # App Messages
 
-> Status: built. File: `lib/core/messages/app_messages.dart`. Current `kMessagesVersion`: `7`.
+> Status: built. File: `lib/core/messages/app_messages.dart`. Current `kMessagesVersion`: `10`.
 
 Every string the app writes itself (toasts, dialog text, empty and error states, button labels, semantic labels, validator errors) lives in one catalog. Never write a user-facing literal at the call site.
 
@@ -35,7 +35,7 @@ Areas, in file order:
 | `SettingsMessages` | Settings screen |
 | `CookiesMessages` | Cookies screen |
 | `AboutMessages` | About screen |
-| `SystemMessages` | System tab (metric names, storage and battery rows, idle speed, unavailable state) |
+| `SystemMessages` | System tab (metric names, storage, battery and hardware rows, speed tests, idle speed, unavailable state) |
 | `DesignGalleryMessages` | Debug-only design gallery, incl. the toast demo strings |
 
 ## Writing Style
@@ -58,6 +58,7 @@ Areas, in file order:
 | 7 | Added `DesignGalleryMessages` toast demo strings, `ConvertMessages.savePhotosShort` / `saveFilesShort`, `LibraryMessages.loadFailed`, `SystemMessages.unavailableTitle` / `unavailableBody`. |
 | 8 | Added `SystemMessages` storage and battery strings. |
 | 9 | Added `SystemMessages.batteryCycles` and `batteryHealthWithPercent`. |
+| 10 | Added `SystemMessages` hardware rows (battery capacity, CPU, GPU, RAM, drive), `cpuInfoBody` / `gpuInfoBody` and speed test strings. |
 
 ## Localisation
 

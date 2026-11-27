@@ -61,7 +61,8 @@ All in `lib/data/services/platform/`, each behind an interface. Per-platform imp
 | `ImageConvertService` | Converter images: output formats this platform can write, decoded size, convert/resize/strip metadata | `flutter_image_compress`, `dart:ui` |
 | `AppInfoService` | App version `1.0.0 (1)` for About | `package_info_plus` |
 | `BackgroundWorkService` | Android: the `dataSync` foreground service + notification with Cancel (Pigeon `background_work_api.dart`). iOS/macOS: no-op. | Pigeon / `permission_handler` |
-| `SystemMonitorService` | RAM / CPU / GPU / network samples, storage and battery readings for the System tab | Pigeon `system_monitor_api.dart`, see [System](../features/system.md) |
+| `SystemMonitorService` | RAM / CPU / GPU / network samples, storage, battery and hardware facts for the System tab | Pigeon `system_monitor_api.dart`, see [System](../features/system.md) |
+| `SpeedTestService` | RAM and storage speed tests for the System tab, at native speed in a background isolate | `dart:ffi` (libc), see [System](../features/system.md#speed-tests) |
 
 Save to Photos and Save to Files return a **confirmed result** (saved / cancelled / failed), which is what lets the Library show the "remove from app?" prompt safely. The share sheet doesn't give a reliable result on every platform, so no prompt follows Share.
 

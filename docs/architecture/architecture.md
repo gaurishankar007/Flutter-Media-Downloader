@@ -49,11 +49,11 @@ lib/
 │   └── services/
 │       ├── local/           # LibraryLocalService, JobLocalService, SettingsLocalService, CookiesLocalService, ErrorLogLocalService, AppFilesLocalService
 │       ├── platform/        # media_engine/ (Android + macOS engines, builders, parsers, FfmpegSlot), file_export/, background_work/,
-│       │                    # system_monitor/, GalleryService, ShareService, FilePickerService, MediaPickerService,
+│       │                    # system_monitor/, speed_test/, GalleryService, ShareService, FilePickerService, MediaPickerService,
 │       │                    # ImageService, ImageConvertService, AppInfoService
 │       └── remote/          # SiteHttpClient, extractors/ (Instagram, TikTok, Facebook, Threads, X), MediaFileDownloader, EngineReleaseService
 ├── domain/
-│   ├── models/              # Site, MediaInfo, VideoOption, DownloadRequest, DownloadJob, JobProgress, LibraryItem, ConvertRequest, AppSettings, SystemSample, DeviceStorage, BatteryStatus, ...
+│   ├── models/              # Site, MediaInfo, VideoOption, DownloadRequest, DownloadJob, JobProgress, LibraryItem, ConvertRequest, AppSettings, SystemSample, SystemProfile, DeviceHardware, DeviceStorage, BatteryStatus, SpeedTestResult, ...
 │   ├── repositories/        # abstract contracts
 │   └── use_cases/           # ResolveLinkUseCase, DownloadMediaUseCase, ConvertMediaUseCase
 ├── routing/
