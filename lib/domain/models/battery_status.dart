@@ -4,7 +4,8 @@ import 'package:media_tool/domain/models/battery_health.dart';
 
 /// The battery at one moment. Extras are null where the platform doesn't
 /// report them: temperature and health (Android), time remaining and
-/// [healthPercent] (macOS), [cycleCount] (macOS, Android 14+ on some devices).
+/// [healthPercent] (macOS), [cycleCount] (macOS, Android 14+ on some devices),
+/// design and full-charge capacity (macOS), charge left in mAh (macOS, Android).
 final class const BatteryStatus({
   required final double levelPercent,
   required final BatteryChargeState state,
@@ -15,6 +16,9 @@ final class const BatteryStatus({
   /// Full-charge capacity as a share of design capacity, 0–100.
   final double? healthPercent,
   final int? cycleCount,
+  final int? designCapacityMah,
+  final int? fullChargeCapacityMah,
+  final int? remainingCapacityMah,
 }) extends Equatable {
   @override
   List<Object?> get props => [
@@ -25,5 +29,8 @@ final class const BatteryStatus({
     minutesRemaining,
     healthPercent,
     cycleCount,
+    designCapacityMah,
+    fullChargeCapacityMah,
+    remainingCapacityMah,
   ];
 }

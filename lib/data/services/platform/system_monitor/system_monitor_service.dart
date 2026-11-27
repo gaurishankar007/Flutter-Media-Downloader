@@ -12,6 +12,8 @@ abstract interface class SystemMonitorService {
   Future<SystemStorageMsg> storage();
 
   Future<SystemBatteryMsg> battery();
+
+  Future<SystemHardwareMsg> hardware();
 }
 
 @LazySingleton(as: SystemMonitorService)
@@ -29,4 +31,7 @@ final class SystemMonitorServiceImpl implements SystemMonitorService {
 
   @override
   Future<SystemBatteryMsg> battery() => _api.battery();
+
+  @override
+  Future<SystemHardwareMsg> hardware() => _api.hardware();
 }

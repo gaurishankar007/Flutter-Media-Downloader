@@ -81,6 +81,8 @@ import 'package:media_tool/data/services/platform/media_engine/media_engine.dart
 import 'package:media_tool/data/services/platform/media_picker_service.dart'
     as _i1017;
 import 'package:media_tool/data/services/platform/share_service.dart' as _i316;
+import 'package:media_tool/data/services/platform/speed_test/speed_test_service.dart'
+    as _i808;
 import 'package:media_tool/data/services/platform/system_monitor/system_monitor_service.dart'
     as _i338;
 import 'package:media_tool/data/services/remote/engine_release_service.dart'
@@ -188,6 +190,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i990.ImageConvertService>(
       () => _i990.ImageConvertServiceImpl(),
     );
+    gh.lazySingleton<_i808.SpeedTestService>(
+      () => _i808.SpeedTestServiceImpl(),
+    );
     gh.lazySingleton<_i247.AppInfoService>(() => _i247.AppInfoServiceImpl());
     gh.lazySingleton<_i600.FileService>(() => _i600.FileServiceImpl());
     gh.lazySingleton<_i11.MediaEngine>(
@@ -251,13 +256,6 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i376.AndroidBackgroundWorkService(),
       registerFor: {_android},
     );
-    gh.lazySingleton<_i521.SystemMonitorRepository>(
-      () => _i815.SystemMonitorRepositoryImpl(
-        service: gh<_i338.SystemMonitorService>(),
-        appFiles: gh<_i662.AppFilesLocalService>(),
-        errorHandler: gh<_i166.ErrorHandler>(),
-      ),
-    );
     gh.lazySingleton<_i191.SiteHttpClient>(
       () => _i191.SiteHttpClient(cookies: gh<_i149.CookiesLocalService>()),
     );
@@ -271,6 +269,15 @@ extension GetItInjectableX on _i174.GetIt {
         library: gh<_i202.LibraryLocalService>(),
         directories: gh<_i1027.AppDirectories>(),
         files: gh<_i600.FileService>(),
+        errorHandler: gh<_i166.ErrorHandler>(),
+      ),
+    );
+    gh.lazySingleton<_i521.SystemMonitorRepository>(
+      () => _i815.SystemMonitorRepositoryImpl(
+        service: gh<_i338.SystemMonitorService>(),
+        speedTests: gh<_i808.SpeedTestService>(),
+        appFiles: gh<_i662.AppFilesLocalService>(),
+        directories: gh<_i1027.AppDirectories>(),
         errorHandler: gh<_i166.ErrorHandler>(),
       ),
     );

@@ -19,7 +19,9 @@ library;
 ///    saveFilesShort, LibraryMessages.loadFailed, SystemMessages.unavailableTitle / Body.
 /// 8: added SystemMessages storage and battery strings.
 /// 9: added SystemMessages.batteryCycles and batteryHealthWithPercent.
-const kMessagesVersion = 9;
+/// 10: added SystemMessages hardware rows (battery capacity, CPU, GPU, RAM, drive),
+///     cpuInfoBody / gpuInfoBody and speed test strings.
+const kMessagesVersion = 10;
 
 abstract final class CommonMessages {
   /// Fallback for any failure without a clearer message.
@@ -569,6 +571,10 @@ abstract final class SystemMessages {
   static const storageBody = 'Space on the drive that holds the app';
   static const batteryBody = 'Charge level and power';
 
+  /// CPU / GPU cards on systems that keep the live load private (CPU on Android, GPU on iOS).
+  static const cpuInfoBody = 'Chip and cores. This system keeps CPU load private.';
+  static const gpuInfoBody = 'Graphics chip. This system keeps GPU load private.';
+
   /// Storage card rows.
   static const storageUsed = 'Used';
   static const storageFree = 'Free';
@@ -592,6 +598,59 @@ abstract final class SystemMessages {
   static const batteryTimeLeft = 'Time left';
   static const batteryTimeToFull = 'Until full';
   static const batteryCycles = 'Cycles';
+
+  /// Battery capacity rows.
+  static const batteryDesignCapacity = 'Design capacity';
+  static const batteryFullCapacity = 'Full charge';
+  static const batteryRemaining = 'Charge left';
+  static String mah(String amount) => '$amount mAh';
+
+  /// CPU card rows.
+  static const cpuProcessor = 'Processor';
+  static const cpuCores = 'Cores';
+  static const cpuThreads = 'Threads';
+  static const cpuLayout = 'Layout';
+  static const cpuMaxClock = 'Max clock';
+  static String ghz(String value) => '$value GHz';
+
+  /// Core clusters, fastest first: "8 performance + 4 efficiency",
+  /// "1 prime + 3 performance + 4 efficiency".
+  static String coreLayout(List<int> clusters) => switch (clusters) {
+    [final performance, final efficiency] => '$performance performance + $efficiency efficiency',
+    [final prime, final performance, final efficiency] =>
+      '$prime prime + $performance performance + $efficiency efficiency',
+    _ => clusters.join(' + '),
+  };
+
+  /// GPU card rows.
+  static const gpuName = 'Graphics';
+  static const gpuCores = 'GPU cores';
+
+  /// RAM card rows.
+  static const memoryType = 'Type';
+  static const memoryManufacturer = 'Manufacturer';
+  static const memoryClock = 'Clock';
+  static String mhz(int value) => '$value MHz';
+
+  /// Storage card drive rows.
+  static const storageDrive = 'Drive';
+  static const storageType = 'Type';
+  static const storageNvmeSsd = 'NVMe SSD';
+  static const storageSsd = 'SSD';
+  static const storageHardDrive = 'Hard drive';
+
+  /// Drive type and how it's attached, e.g. "NVMe SSD · Apple Fabric".
+  static String storageTypeWithInterface(String type, String interface) => '$type · $interface';
+
+  /// Speed tests (RAM and Storage cards).
+  static const speedRead = 'Read speed';
+  static const speedWrite = 'Write speed';
+  static const speedCopy = 'Copy speed';
+  static const testSpeed = 'Test speed';
+  static const testSpeedAgain = 'Test again';
+  static const testingSpeed = 'Testing…';
+  static const memoryTestNote = 'Fills, reads and copies a large block of memory. Takes a few seconds.';
+  static const storageTestNote = 'Writes a temporary file, reads it back and deletes it. Takes a few seconds.';
 
   /// Health condition with capacity left, e.g. "Good · 92%".
   static String batteryHealthWithPercent(String condition, String percent) => '$condition · $percent';

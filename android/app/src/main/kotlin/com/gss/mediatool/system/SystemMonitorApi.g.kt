@@ -13,6 +13,12 @@ import io.flutter.plugin.common.StandardMethodCodec
 import io.flutter.plugin.common.StandardMessageCodec
 import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 private object SystemMonitorApiPigeonUtils {
 
   fun wrapResult(result: Any?): List<Any?> {
@@ -430,7 +436,13 @@ data class SystemBatteryMsg (
   /** macOS only: full-charge capacity as a share of design capacity, 0–100. */
   val healthPercent: Double? = null,
   /** Charge cycles so far (macOS; Android 14+ where the device reports it). */
-  val cycleCount: Long? = null
+  val cycleCount: Long? = null,
+  /** macOS only: capacity the battery was built with, in mAh. */
+  val designCapacityMah: Long? = null,
+  /** macOS only: what a full charge holds now, in mAh. */
+  val fullChargeCapacityMah: Long? = null,
+  /** Charge left in mAh (macOS; Android where the fuel gauge reports it). */
+  val remainingCapacityMah: Long? = null
 )
  {
   companion object {
@@ -442,7 +454,10 @@ data class SystemBatteryMsg (
       val minutesRemaining = pigeonVar_list[4] as Long?
       val healthPercent = pigeonVar_list[5] as Double?
       val cycleCount = pigeonVar_list[6] as Long?
-      return SystemBatteryMsg(levelPercent, state, temperatureCelsius, health, minutesRemaining, healthPercent, cycleCount)
+      val designCapacityMah = pigeonVar_list[7] as Long?
+      val fullChargeCapacityMah = pigeonVar_list[8] as Long?
+      val remainingCapacityMah = pigeonVar_list[9] as Long?
+      return SystemBatteryMsg(levelPercent, state, temperatureCelsius, health, minutesRemaining, healthPercent, cycleCount, designCapacityMah, fullChargeCapacityMah, remainingCapacityMah)
     }
   }
   fun toList(): List<Any?> {
@@ -454,6 +469,9 @@ data class SystemBatteryMsg (
       minutesRemaining,
       healthPercent,
       cycleCount,
+      designCapacityMah,
+      fullChargeCapacityMah,
+      remainingCapacityMah,
     )
   }
   override fun equals(other: Any?): Boolean {
@@ -464,7 +482,7 @@ data class SystemBatteryMsg (
       return true
     }
     val other = other as SystemBatteryMsg
-    return SystemMonitorApiPigeonUtils.deepEquals(this.levelPercent, other.levelPercent) && SystemMonitorApiPigeonUtils.deepEquals(this.state, other.state) && SystemMonitorApiPigeonUtils.deepEquals(this.temperatureCelsius, other.temperatureCelsius) && SystemMonitorApiPigeonUtils.deepEquals(this.health, other.health) && SystemMonitorApiPigeonUtils.deepEquals(this.minutesRemaining, other.minutesRemaining) && SystemMonitorApiPigeonUtils.deepEquals(this.healthPercent, other.healthPercent) && SystemMonitorApiPigeonUtils.deepEquals(this.cycleCount, other.cycleCount)
+    return SystemMonitorApiPigeonUtils.deepEquals(this.levelPercent, other.levelPercent) && SystemMonitorApiPigeonUtils.deepEquals(this.state, other.state) && SystemMonitorApiPigeonUtils.deepEquals(this.temperatureCelsius, other.temperatureCelsius) && SystemMonitorApiPigeonUtils.deepEquals(this.health, other.health) && SystemMonitorApiPigeonUtils.deepEquals(this.minutesRemaining, other.minutesRemaining) && SystemMonitorApiPigeonUtils.deepEquals(this.healthPercent, other.healthPercent) && SystemMonitorApiPigeonUtils.deepEquals(this.cycleCount, other.cycleCount) && SystemMonitorApiPigeonUtils.deepEquals(this.designCapacityMah, other.designCapacityMah) && SystemMonitorApiPigeonUtils.deepEquals(this.fullChargeCapacityMah, other.fullChargeCapacityMah) && SystemMonitorApiPigeonUtils.deepEquals(this.remainingCapacityMah, other.remainingCapacityMah)
   }
 
   override fun hashCode(): Int {
@@ -476,10 +494,119 @@ data class SystemBatteryMsg (
     result = 31 * result + SystemMonitorApiPigeonUtils.deepHash(this.minutesRemaining)
     result = 31 * result + SystemMonitorApiPigeonUtils.deepHash(this.healthPercent)
     result = 31 * result + SystemMonitorApiPigeonUtils.deepHash(this.cycleCount)
+    result = 31 * result + SystemMonitorApiPigeonUtils.deepHash(this.designCapacityMah)
+    result = 31 * result + SystemMonitorApiPigeonUtils.deepHash(this.fullChargeCapacityMah)
+    result = 31 * result + SystemMonitorApiPigeonUtils.deepHash(this.remainingCapacityMah)
     return result
   }
   override fun toString(): String {
-    return "SystemBatteryMsg(levelPercent=$levelPercent, state=$state, temperatureCelsius=$temperatureCelsius, health=$health, minutesRemaining=$minutesRemaining, healthPercent=$healthPercent, cycleCount=$cycleCount)"
+    return "SystemBatteryMsg(levelPercent=$levelPercent, state=$state, temperatureCelsius=$temperatureCelsius, health=$health, minutesRemaining=$minutesRemaining, healthPercent=$healthPercent, cycleCount=$cycleCount, designCapacityMah=$designCapacityMah, fullChargeCapacityMah=$fullChargeCapacityMah, remainingCapacityMah=$remainingCapacityMah)"
+  }
+}
+
+/**
+ * Fixed hardware facts, read once. Every field is null where the platform
+ * doesn't tell apps.
+ *
+ * Generated class from Pigeon that represents data sent in messages.
+ */
+data class SystemHardwareMsg (
+  /** "Apple M4 Pro" (macOS), "Apple A16" (iOS, from the GPU name), "QTI SM8550" (Android 12+). */
+  val cpuName: String? = null,
+  /** Physical cores. */
+  val cpuCores: Long? = null,
+  /** Logical CPUs (more than [cpuCores] only with hyper-threading, e.g. Intel Macs). */
+  val cpuThreads: Long? = null,
+  /** Cores per cluster, fastest first (Apple: performance, efficiency; Android: by max clock). */
+  val cpuClusterCores: List<Long>? = null,
+  /** Android only: the fastest core's max clock. */
+  val cpuMaxFrequencyMhz: Long? = null,
+  /** "Apple M4 Pro" (macOS IOAccelerator), "Apple A16 GPU" (iOS Metal). */
+  val gpuName: String? = null,
+  /** macOS (Apple silicon) only. */
+  val gpuCores: Long? = null,
+  /** macOS only: "LPDDR5", "DDR4". */
+  val memoryType: String? = null,
+  /** macOS only. */
+  val memoryManufacturer: String? = null,
+  /** macOS (Intel) only. */
+  val memorySpeedMhz: Long? = null,
+  /** macOS only: the drive holding the app's files. */
+  val storageModel: String? = null,
+  val storageSolidState: Boolean? = null,
+  val storageNvme: Boolean? = null,
+  /** macOS only: "Apple Fabric", "PCI-Express", "SATA". */
+  val storageInterface: String? = null
+)
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): SystemHardwareMsg {
+      val cpuName = pigeonVar_list[0] as String?
+      val cpuCores = pigeonVar_list[1] as Long?
+      val cpuThreads = pigeonVar_list[2] as Long?
+      val cpuClusterCores = pigeonVar_list[3] as List<Long>?
+      val cpuMaxFrequencyMhz = pigeonVar_list[4] as Long?
+      val gpuName = pigeonVar_list[5] as String?
+      val gpuCores = pigeonVar_list[6] as Long?
+      val memoryType = pigeonVar_list[7] as String?
+      val memoryManufacturer = pigeonVar_list[8] as String?
+      val memorySpeedMhz = pigeonVar_list[9] as Long?
+      val storageModel = pigeonVar_list[10] as String?
+      val storageSolidState = pigeonVar_list[11] as Boolean?
+      val storageNvme = pigeonVar_list[12] as Boolean?
+      val storageInterface = pigeonVar_list[13] as String?
+      return SystemHardwareMsg(cpuName, cpuCores, cpuThreads, cpuClusterCores, cpuMaxFrequencyMhz, gpuName, gpuCores, memoryType, memoryManufacturer, memorySpeedMhz, storageModel, storageSolidState, storageNvme, storageInterface)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      cpuName,
+      cpuCores,
+      cpuThreads,
+      cpuClusterCores,
+      cpuMaxFrequencyMhz,
+      gpuName,
+      gpuCores,
+      memoryType,
+      memoryManufacturer,
+      memorySpeedMhz,
+      storageModel,
+      storageSolidState,
+      storageNvme,
+      storageInterface,
+    )
+  }
+  override fun equals(other: Any?): Boolean {
+    if (other == null || other.javaClass != javaClass) {
+      return false
+    }
+    if (this === other) {
+      return true
+    }
+    val other = other as SystemHardwareMsg
+    return SystemMonitorApiPigeonUtils.deepEquals(this.cpuName, other.cpuName) && SystemMonitorApiPigeonUtils.deepEquals(this.cpuCores, other.cpuCores) && SystemMonitorApiPigeonUtils.deepEquals(this.cpuThreads, other.cpuThreads) && SystemMonitorApiPigeonUtils.deepEquals(this.cpuClusterCores, other.cpuClusterCores) && SystemMonitorApiPigeonUtils.deepEquals(this.cpuMaxFrequencyMhz, other.cpuMaxFrequencyMhz) && SystemMonitorApiPigeonUtils.deepEquals(this.gpuName, other.gpuName) && SystemMonitorApiPigeonUtils.deepEquals(this.gpuCores, other.gpuCores) && SystemMonitorApiPigeonUtils.deepEquals(this.memoryType, other.memoryType) && SystemMonitorApiPigeonUtils.deepEquals(this.memoryManufacturer, other.memoryManufacturer) && SystemMonitorApiPigeonUtils.deepEquals(this.memorySpeedMhz, other.memorySpeedMhz) && SystemMonitorApiPigeonUtils.deepEquals(this.storageModel, other.storageModel) && SystemMonitorApiPigeonUtils.deepEquals(this.storageSolidState, other.storageSolidState) && SystemMonitorApiPigeonUtils.deepEquals(this.storageNvme, other.storageNvme) && SystemMonitorApiPigeonUtils.deepEquals(this.storageInterface, other.storageInterface)
+  }
+
+  override fun hashCode(): Int {
+    var result = javaClass.hashCode()
+    result = 31 * result + SystemMonitorApiPigeonUtils.deepHash(this.cpuName)
+    result = 31 * result + SystemMonitorApiPigeonUtils.deepHash(this.cpuCores)
+    result = 31 * result + SystemMonitorApiPigeonUtils.deepHash(this.cpuThreads)
+    result = 31 * result + SystemMonitorApiPigeonUtils.deepHash(this.cpuClusterCores)
+    result = 31 * result + SystemMonitorApiPigeonUtils.deepHash(this.cpuMaxFrequencyMhz)
+    result = 31 * result + SystemMonitorApiPigeonUtils.deepHash(this.gpuName)
+    result = 31 * result + SystemMonitorApiPigeonUtils.deepHash(this.gpuCores)
+    result = 31 * result + SystemMonitorApiPigeonUtils.deepHash(this.memoryType)
+    result = 31 * result + SystemMonitorApiPigeonUtils.deepHash(this.memoryManufacturer)
+    result = 31 * result + SystemMonitorApiPigeonUtils.deepHash(this.memorySpeedMhz)
+    result = 31 * result + SystemMonitorApiPigeonUtils.deepHash(this.storageModel)
+    result = 31 * result + SystemMonitorApiPigeonUtils.deepHash(this.storageSolidState)
+    result = 31 * result + SystemMonitorApiPigeonUtils.deepHash(this.storageNvme)
+    result = 31 * result + SystemMonitorApiPigeonUtils.deepHash(this.storageInterface)
+    return result
+  }
+  override fun toString(): String {
+    return "SystemHardwareMsg(cpuName=$cpuName, cpuCores=$cpuCores, cpuThreads=$cpuThreads, cpuClusterCores=$cpuClusterCores, cpuMaxFrequencyMhz=$cpuMaxFrequencyMhz, gpuName=$gpuName, gpuCores=$gpuCores, memoryType=$memoryType, memoryManufacturer=$memoryManufacturer, memorySpeedMhz=$memorySpeedMhz, storageModel=$storageModel, storageSolidState=$storageSolidState, storageNvme=$storageNvme, storageInterface=$storageInterface)"
   }
 }
 private open class SystemMonitorApiPigeonCodec : StandardMessageCodec() {
@@ -515,6 +642,11 @@ private open class SystemMonitorApiPigeonCodec : StandardMessageCodec() {
           SystemBatteryMsg.fromList(it)
         }
       }
+      135.toByte() -> {
+        (readValue(buffer) as? List<Any?>)?.let {
+          SystemHardwareMsg.fromList(it)
+        }
+      }
       else -> super.readValueOfType(type, buffer)
     }
   }
@@ -544,10 +676,15 @@ private open class SystemMonitorApiPigeonCodec : StandardMessageCodec() {
         stream.write(134)
         writeValue(stream, value.toList())
       }
+      is SystemHardwareMsg -> {
+        stream.write(135)
+        writeValue(stream, value.toList())
+      }
       else -> super.writeValue(stream, value)
     }
   }
 }
+
 
 /**
  * Device stats for the System monitor. Nothing leaves the device.
@@ -559,6 +696,8 @@ interface SystemMonitorHostApi {
   fun sample(): SystemSampleMsg
   fun storage(): SystemStorageMsg
   fun battery(): SystemBatteryMsg
+  /** Slow on macOS (runs system_profiler), so off the main thread. */
+  suspend fun hardware(): SystemHardwareMsg
 
   companion object {
     /** The codec used by SystemMonitorHostApi. */
@@ -624,6 +763,23 @@ interface SystemMonitorHostApi {
               SystemMonitorApiPigeonUtils.wrapError(exception)
             }
             reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.media_tool.SystemMonitorHostApi.hardware$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            CoroutineScope(Dispatchers.Main).launch {
+              val wrapped: List<Any?> = try {
+                listOf(api.hardware())
+              } catch (exception: Throwable) {
+                SystemMonitorApiPigeonUtils.wrapError(exception)
+              }
+              reply.reply(wrapped)
+            }
           }
         } else {
           channel.setMessageHandler(null)

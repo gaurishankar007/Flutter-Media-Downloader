@@ -18,10 +18,15 @@ class const MetricValueRow({
       spacing: AppSpacing.sm,
       children: [
         if (icon case final icon?) Icon(icon, size: 18, color: color),
+        Text(label, style: context.text.label.copyWith(color: context.colors.textSecondary)),
+        // Long values (a chip name, a core layout) wrap instead of overflowing.
         Expanded(
-          child: Text(label, style: context.text.label.copyWith(color: context.colors.textSecondary)),
+          child: Text(
+            value,
+            textAlign: .end,
+            style: context.text.bodyStrong.copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
+          ),
         ),
-        Text(value, style: context.text.bodyStrong.copyWith(fontFeatures: const [FontFeature.tabularFigures()])),
       ],
     );
   }

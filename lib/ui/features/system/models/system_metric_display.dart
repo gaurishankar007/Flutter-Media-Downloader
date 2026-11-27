@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:media_tool/core/messages/app_messages.dart';
@@ -5,7 +6,9 @@ import 'package:media_tool/core/utils/format_utils.dart';
 import 'package:media_tool/domain/models/battery_charge_state.dart';
 import 'package:media_tool/domain/models/battery_health.dart';
 import 'package:media_tool/domain/models/battery_status.dart';
+import 'package:media_tool/domain/models/device_hardware.dart';
 import 'package:media_tool/domain/models/device_storage.dart';
+import 'package:media_tool/domain/models/speed_test_result.dart';
 import 'package:media_tool/domain/models/system_metric.dart';
 import 'package:media_tool/domain/models/system_sample.dart';
 
@@ -27,6 +30,13 @@ extension SystemMetricDisplay on SystemMetric {
     .network => SystemMessages.networkBody,
     .storage => SystemMessages.storageBody,
     .battery => SystemMessages.batteryBody,
+  };
+
+  /// The description when the card has no live load, only hardware facts.
+  String bodyFor({required bool live}) => switch (this) {
+    .cpu when !live => SystemMessages.cpuInfoBody,
+    .gpu when !live => SystemMessages.gpuInfoBody,
+    _ => body,
   };
 
   IconData get icon => switch (this) {
@@ -51,6 +61,66 @@ extension SystemMetricDisplay on SystemMetric {
 
 /// Text for live values; [SystemMessages.pending] until there's a reading.
 abstract final class SystemFormat {
+  static final _grouped = NumberFormat.decimalPattern();
+  static final _oneDecimal = NumberFormat('0.0');
+
+  /// Design capacity, full charge and charge left, each only when known.
+  static List<(String, String)> batteryCapacity(BatteryStatus battery) => [
+    if (battery.designCapacityMah case final mah?) (SystemMessages.batteryDesignCapacity, _mah(mah)),
+    if (battery.fullChargeCapacityMah case final mah?) (SystemMessages.batteryFullCapacity, _mah(mah)),
+    if (battery.remainingCapacityMah case final mah?) (SystemMessages.batteryRemaining, _mah(mah)),
+  ];
+
+  static String _mah(int mah) => SystemMessages.mah(_grouped.format(mah));
+
+  static List<(String, String)> cpu(DeviceHardware? hardware) => [
+    if (hardware?.cpuName case final name?) (SystemMessages.cpuProcessor, name),
+    if (hardware?.cpuCores case final cores?) (SystemMessages.cpuCores, '$cores'),
+    if (hardware?.cpuThreads case final threads?) (SystemMessages.cpuThreads, '$threads'),
+    if (hardware != null && hardware.cpuClusterCores.length > 1)
+      (SystemMessages.cpuLayout, SystemMessages.coreLayout(hardware.cpuClusterCores)),
+    if (hardware?.cpuMaxFrequencyMhz case final mhz?)
+      (SystemMessages.cpuMaxClock, SystemMessages.ghz(_oneDecimal.format(mhz / 1000))),
+  ];
+
+  static List<(String, String)> gpu(DeviceHardware? hardware) => [
+    if (hardware?.gpuName case final name?) (SystemMessages.gpuName, name),
+    if (hardware?.gpuCores case final cores?) (SystemMessages.gpuCores, '$cores'),
+  ];
+
+  static List<(String, String)> memory(DeviceHardware? hardware) => [
+    if (hardware?.memoryType case final type?) (SystemMessages.memoryType, type),
+    if (hardware?.memoryManufacturer case final maker?) (SystemMessages.memoryManufacturer, maker),
+    if (hardware?.memorySpeedMhz case final mhz?) (SystemMessages.memoryClock, SystemMessages.mhz(mhz)),
+  ];
+
+  static List<(String, String)> drive(DeviceHardware? hardware) {
+    final type = switch ((hardware?.storageNvme, hardware?.storageSolidState)) {
+      (true, _) => SystemMessages.storageNvmeSsd,
+      (_, true) => SystemMessages.storageSsd,
+      (_, false) => SystemMessages.storageHardDrive,
+      _ => null,
+    };
+    final interface = hardware?.storageInterface;
+    return [
+      if (hardware?.storageModel case final model?) (SystemMessages.storageDrive, model),
+      if (type ?? interface case final shown?)
+        (
+          SystemMessages.storageType,
+          type != null && interface != null ? SystemMessages.storageTypeWithInterface(type, interface) : shown,
+        ),
+    ];
+  }
+
+  /// Read, write and (RAM) copy speed; empty before the test ran.
+  static List<(String, String)> speedTest(SpeedTestResult? result) => [
+    if (result != null) ...[
+      (SystemMessages.speedRead, FormatUtils.speed(result.readBytesPerSecond)),
+      (SystemMessages.speedWrite, FormatUtils.speed(result.writeBytesPerSecond)),
+      if (result.copyBytesPerSecond case final copy?) (SystemMessages.speedCopy, FormatUtils.speed(copy)),
+    ],
+  ];
+
   static String fraction(double? value) => value == null ? SystemMessages.pending : SystemMessages.percent(value * 100);
 
   /// `FormatUtils.speed` rounds anything below 1 KB up; an idle link reads 0.

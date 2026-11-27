@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:media_tool/core/messages/app_messages.dart';
+import 'package:media_tool/domain/models/speed_test.dart';
 import 'package:media_tool/routing/routes.gr.dart';
 import 'package:media_tool/ui/core/themes/app_spacing.dart';
 import 'package:media_tool/ui/core/ui/base/cards/app_card.dart';
@@ -11,6 +12,7 @@ import 'package:media_tool/ui/core/ui/base/layout/screen_header.dart';
 import 'package:media_tool/ui/core/ui/base/layout/screen_scroll_view.dart';
 import 'package:media_tool/ui/core/ui/base/states/empty_state.dart';
 import 'package:media_tool/ui/core/ui/base/states/shimmer_box.dart';
+import 'package:media_tool/ui/core/utils/toast_util.dart';
 import 'package:media_tool/ui/features/system/models/monitor_visibility.dart';
 import 'package:media_tool/ui/features/system/providers/system_monitor/system_monitor_notifier.dart';
 import 'package:media_tool/ui/features/system/views/system/widgets/metric_cards_grid.dart';
@@ -29,6 +31,14 @@ class const SystemScreen({super.key}) extends HookConsumerWidget {
         (ModalRoute.isCurrentOf(context) ?? true);
     // Tabs stay mounted; not watching lets the autoDispose notifier stop polling.
     final state = onScreen ? ref.watch(systemMonitorProvider) : const SystemMonitorState();
+    if (onScreen) {
+      // Only speed tests set a message; the background monitor never does.
+      ref.listen(systemMonitorProvider.select((state) => state.message), (previous, next) {
+        if (next != null && next != previous) {
+          ToastUtil.showStateMessage(context, next);
+        }
+      });
+    }
 
     return ScreenScrollView(
       children: [
@@ -56,8 +66,17 @@ class const SystemScreen({super.key}) extends HookConsumerWidget {
                   metric: metric,
                   latest: state.latest,
                   history: state.history,
+                  live: state.liveMetrics.contains(metric),
                   storage: state.storage,
                   battery: state.battery,
+                  hardware: state.hardware,
+                  speedResult: switch (metric) {
+                    .memory => state.speedResults[SpeedTest.memory],
+                    .storage => state.speedResults[SpeedTest.storage],
+                    _ => null,
+                  },
+                  runningTest: state.runningTest,
+                  onSpeedTest: ref.read(systemMonitorProvider.notifier).runSpeedTest,
                 ),
             ],
           ),

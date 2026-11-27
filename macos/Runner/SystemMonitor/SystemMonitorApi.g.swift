@@ -406,6 +406,12 @@ struct SystemBatteryMsg: Hashable, CustomStringConvertible {
   var healthPercent: Double? = nil
   /// Charge cycles so far (macOS; Android 14+ where the device reports it).
   var cycleCount: Int64? = nil
+  /// macOS only: capacity the battery was built with, in mAh.
+  var designCapacityMah: Int64? = nil
+  /// macOS only: what a full charge holds now, in mAh.
+  var fullChargeCapacityMah: Int64? = nil
+  /// Charge left in mAh (macOS; Android where the fuel gauge reports it).
+  var remainingCapacityMah: Int64? = nil
 
 
   // swift-format-ignore: AlwaysUseLowerCamelCase
@@ -417,6 +423,9 @@ struct SystemBatteryMsg: Hashable, CustomStringConvertible {
     let minutesRemaining: Int64? = nilOrValue(pigeonVar_list[4])
     let healthPercent: Double? = nilOrValue(pigeonVar_list[5])
     let cycleCount: Int64? = nilOrValue(pigeonVar_list[6])
+    let designCapacityMah: Int64? = nilOrValue(pigeonVar_list[7])
+    let fullChargeCapacityMah: Int64? = nilOrValue(pigeonVar_list[8])
+    let remainingCapacityMah: Int64? = nilOrValue(pigeonVar_list[9])
 
     return SystemBatteryMsg(
       levelPercent: levelPercent,
@@ -425,7 +434,10 @@ struct SystemBatteryMsg: Hashable, CustomStringConvertible {
       health: health,
       minutesRemaining: minutesRemaining,
       healthPercent: healthPercent,
-      cycleCount: cycleCount
+      cycleCount: cycleCount,
+      designCapacityMah: designCapacityMah,
+      fullChargeCapacityMah: fullChargeCapacityMah,
+      remainingCapacityMah: remainingCapacityMah
     )
   }
   func toList() -> [Any?] {
@@ -437,13 +449,16 @@ struct SystemBatteryMsg: Hashable, CustomStringConvertible {
       minutesRemaining,
       healthPercent,
       cycleCount,
+      designCapacityMah,
+      fullChargeCapacityMah,
+      remainingCapacityMah,
     ]
   }
   static func == (lhs: SystemBatteryMsg, rhs: SystemBatteryMsg) -> Bool {
     if Swift.type(of: lhs) != Swift.type(of: rhs) {
       return false
     }
-    return SystemMonitorApiPigeonInternal.deepEquals(lhs.levelPercent, rhs.levelPercent) && SystemMonitorApiPigeonInternal.deepEquals(lhs.state, rhs.state) && SystemMonitorApiPigeonInternal.deepEquals(lhs.temperatureCelsius, rhs.temperatureCelsius) && SystemMonitorApiPigeonInternal.deepEquals(lhs.health, rhs.health) && SystemMonitorApiPigeonInternal.deepEquals(lhs.minutesRemaining, rhs.minutesRemaining) && SystemMonitorApiPigeonInternal.deepEquals(lhs.healthPercent, rhs.healthPercent) && SystemMonitorApiPigeonInternal.deepEquals(lhs.cycleCount, rhs.cycleCount)
+    return SystemMonitorApiPigeonInternal.deepEquals(lhs.levelPercent, rhs.levelPercent) && SystemMonitorApiPigeonInternal.deepEquals(lhs.state, rhs.state) && SystemMonitorApiPigeonInternal.deepEquals(lhs.temperatureCelsius, rhs.temperatureCelsius) && SystemMonitorApiPigeonInternal.deepEquals(lhs.health, rhs.health) && SystemMonitorApiPigeonInternal.deepEquals(lhs.minutesRemaining, rhs.minutesRemaining) && SystemMonitorApiPigeonInternal.deepEquals(lhs.healthPercent, rhs.healthPercent) && SystemMonitorApiPigeonInternal.deepEquals(lhs.cycleCount, rhs.cycleCount) && SystemMonitorApiPigeonInternal.deepEquals(lhs.designCapacityMah, rhs.designCapacityMah) && SystemMonitorApiPigeonInternal.deepEquals(lhs.fullChargeCapacityMah, rhs.fullChargeCapacityMah) && SystemMonitorApiPigeonInternal.deepEquals(lhs.remainingCapacityMah, rhs.remainingCapacityMah)
   }
 
   func hash(into hasher: inout Hasher) {
@@ -455,10 +470,128 @@ struct SystemBatteryMsg: Hashable, CustomStringConvertible {
     SystemMonitorApiPigeonInternal.deepHash(value: minutesRemaining, hasher: &hasher)
     SystemMonitorApiPigeonInternal.deepHash(value: healthPercent, hasher: &hasher)
     SystemMonitorApiPigeonInternal.deepHash(value: cycleCount, hasher: &hasher)
+    SystemMonitorApiPigeonInternal.deepHash(value: designCapacityMah, hasher: &hasher)
+    SystemMonitorApiPigeonInternal.deepHash(value: fullChargeCapacityMah, hasher: &hasher)
+    SystemMonitorApiPigeonInternal.deepHash(value: remainingCapacityMah, hasher: &hasher)
   }
 
   public var description: String {
-    return "SystemBatteryMsg(levelPercent: \(String(describing: levelPercent)), state: \(String(describing: state)), temperatureCelsius: \(String(describing: temperatureCelsius)), health: \(String(describing: health)), minutesRemaining: \(String(describing: minutesRemaining)), healthPercent: \(String(describing: healthPercent)), cycleCount: \(String(describing: cycleCount)))"
+    return "SystemBatteryMsg(levelPercent: \(String(describing: levelPercent)), state: \(String(describing: state)), temperatureCelsius: \(String(describing: temperatureCelsius)), health: \(String(describing: health)), minutesRemaining: \(String(describing: minutesRemaining)), healthPercent: \(String(describing: healthPercent)), cycleCount: \(String(describing: cycleCount)), designCapacityMah: \(String(describing: designCapacityMah)), fullChargeCapacityMah: \(String(describing: fullChargeCapacityMah)), remainingCapacityMah: \(String(describing: remainingCapacityMah)))"
+  }
+}
+
+/// Fixed hardware facts, read once. Every field is null where the platform
+/// doesn't tell apps.
+///
+/// Generated class from Pigeon that represents data sent in messages.
+struct SystemHardwareMsg: Hashable, CustomStringConvertible {
+  /// "Apple M4 Pro" (macOS), "Apple A16" (iOS, from the GPU name), "QTI SM8550" (Android 12+).
+  var cpuName: String? = nil
+  /// Physical cores.
+  var cpuCores: Int64? = nil
+  /// Logical CPUs (more than [cpuCores] only with hyper-threading, e.g. Intel Macs).
+  var cpuThreads: Int64? = nil
+  /// Cores per cluster, fastest first (Apple: performance, efficiency; Android: by max clock).
+  var cpuClusterCores: [Int64]? = nil
+  /// Android only: the fastest core's max clock.
+  var cpuMaxFrequencyMhz: Int64? = nil
+  /// "Apple M4 Pro" (macOS IOAccelerator), "Apple A16 GPU" (iOS Metal).
+  var gpuName: String? = nil
+  /// macOS (Apple silicon) only.
+  var gpuCores: Int64? = nil
+  /// macOS only: "LPDDR5", "DDR4".
+  var memoryType: String? = nil
+  /// macOS only.
+  var memoryManufacturer: String? = nil
+  /// macOS (Intel) only.
+  var memorySpeedMhz: Int64? = nil
+  /// macOS only: the drive holding the app's files.
+  var storageModel: String? = nil
+  var storageSolidState: Bool? = nil
+  var storageNvme: Bool? = nil
+  /// macOS only: "Apple Fabric", "PCI-Express", "SATA".
+  var storageInterface: String? = nil
+
+
+  // swift-format-ignore: AlwaysUseLowerCamelCase
+  static func fromList(_ pigeonVar_list: [Any?]) -> SystemHardwareMsg? {
+    let cpuName: String? = nilOrValue(pigeonVar_list[0])
+    let cpuCores: Int64? = nilOrValue(pigeonVar_list[1])
+    let cpuThreads: Int64? = nilOrValue(pigeonVar_list[2])
+    let cpuClusterCores: [Int64]? = nilOrValue(pigeonVar_list[3])
+    let cpuMaxFrequencyMhz: Int64? = nilOrValue(pigeonVar_list[4])
+    let gpuName: String? = nilOrValue(pigeonVar_list[5])
+    let gpuCores: Int64? = nilOrValue(pigeonVar_list[6])
+    let memoryType: String? = nilOrValue(pigeonVar_list[7])
+    let memoryManufacturer: String? = nilOrValue(pigeonVar_list[8])
+    let memorySpeedMhz: Int64? = nilOrValue(pigeonVar_list[9])
+    let storageModel: String? = nilOrValue(pigeonVar_list[10])
+    let storageSolidState: Bool? = nilOrValue(pigeonVar_list[11])
+    let storageNvme: Bool? = nilOrValue(pigeonVar_list[12])
+    let storageInterface: String? = nilOrValue(pigeonVar_list[13])
+
+    return SystemHardwareMsg(
+      cpuName: cpuName,
+      cpuCores: cpuCores,
+      cpuThreads: cpuThreads,
+      cpuClusterCores: cpuClusterCores,
+      cpuMaxFrequencyMhz: cpuMaxFrequencyMhz,
+      gpuName: gpuName,
+      gpuCores: gpuCores,
+      memoryType: memoryType,
+      memoryManufacturer: memoryManufacturer,
+      memorySpeedMhz: memorySpeedMhz,
+      storageModel: storageModel,
+      storageSolidState: storageSolidState,
+      storageNvme: storageNvme,
+      storageInterface: storageInterface
+    )
+  }
+  func toList() -> [Any?] {
+    return [
+      cpuName,
+      cpuCores,
+      cpuThreads,
+      cpuClusterCores,
+      cpuMaxFrequencyMhz,
+      gpuName,
+      gpuCores,
+      memoryType,
+      memoryManufacturer,
+      memorySpeedMhz,
+      storageModel,
+      storageSolidState,
+      storageNvme,
+      storageInterface,
+    ]
+  }
+  static func == (lhs: SystemHardwareMsg, rhs: SystemHardwareMsg) -> Bool {
+    if Swift.type(of: lhs) != Swift.type(of: rhs) {
+      return false
+    }
+    return SystemMonitorApiPigeonInternal.deepEquals(lhs.cpuName, rhs.cpuName) && SystemMonitorApiPigeonInternal.deepEquals(lhs.cpuCores, rhs.cpuCores) && SystemMonitorApiPigeonInternal.deepEquals(lhs.cpuThreads, rhs.cpuThreads) && SystemMonitorApiPigeonInternal.deepEquals(lhs.cpuClusterCores, rhs.cpuClusterCores) && SystemMonitorApiPigeonInternal.deepEquals(lhs.cpuMaxFrequencyMhz, rhs.cpuMaxFrequencyMhz) && SystemMonitorApiPigeonInternal.deepEquals(lhs.gpuName, rhs.gpuName) && SystemMonitorApiPigeonInternal.deepEquals(lhs.gpuCores, rhs.gpuCores) && SystemMonitorApiPigeonInternal.deepEquals(lhs.memoryType, rhs.memoryType) && SystemMonitorApiPigeonInternal.deepEquals(lhs.memoryManufacturer, rhs.memoryManufacturer) && SystemMonitorApiPigeonInternal.deepEquals(lhs.memorySpeedMhz, rhs.memorySpeedMhz) && SystemMonitorApiPigeonInternal.deepEquals(lhs.storageModel, rhs.storageModel) && SystemMonitorApiPigeonInternal.deepEquals(lhs.storageSolidState, rhs.storageSolidState) && SystemMonitorApiPigeonInternal.deepEquals(lhs.storageNvme, rhs.storageNvme) && SystemMonitorApiPigeonInternal.deepEquals(lhs.storageInterface, rhs.storageInterface)
+  }
+
+  func hash(into hasher: inout Hasher) {
+    hasher.combine("SystemHardwareMsg")
+    SystemMonitorApiPigeonInternal.deepHash(value: cpuName, hasher: &hasher)
+    SystemMonitorApiPigeonInternal.deepHash(value: cpuCores, hasher: &hasher)
+    SystemMonitorApiPigeonInternal.deepHash(value: cpuThreads, hasher: &hasher)
+    SystemMonitorApiPigeonInternal.deepHash(value: cpuClusterCores, hasher: &hasher)
+    SystemMonitorApiPigeonInternal.deepHash(value: cpuMaxFrequencyMhz, hasher: &hasher)
+    SystemMonitorApiPigeonInternal.deepHash(value: gpuName, hasher: &hasher)
+    SystemMonitorApiPigeonInternal.deepHash(value: gpuCores, hasher: &hasher)
+    SystemMonitorApiPigeonInternal.deepHash(value: memoryType, hasher: &hasher)
+    SystemMonitorApiPigeonInternal.deepHash(value: memoryManufacturer, hasher: &hasher)
+    SystemMonitorApiPigeonInternal.deepHash(value: memorySpeedMhz, hasher: &hasher)
+    SystemMonitorApiPigeonInternal.deepHash(value: storageModel, hasher: &hasher)
+    SystemMonitorApiPigeonInternal.deepHash(value: storageSolidState, hasher: &hasher)
+    SystemMonitorApiPigeonInternal.deepHash(value: storageNvme, hasher: &hasher)
+    SystemMonitorApiPigeonInternal.deepHash(value: storageInterface, hasher: &hasher)
+  }
+
+  public var description: String {
+    return "SystemHardwareMsg(cpuName: \(String(describing: cpuName)), cpuCores: \(String(describing: cpuCores)), cpuThreads: \(String(describing: cpuThreads)), cpuClusterCores: \(String(describing: cpuClusterCores)), cpuMaxFrequencyMhz: \(String(describing: cpuMaxFrequencyMhz)), gpuName: \(String(describing: gpuName)), gpuCores: \(String(describing: gpuCores)), memoryType: \(String(describing: memoryType)), memoryManufacturer: \(String(describing: memoryManufacturer)), memorySpeedMhz: \(String(describing: memorySpeedMhz)), storageModel: \(String(describing: storageModel)), storageSolidState: \(String(describing: storageSolidState)), storageNvme: \(String(describing: storageNvme)), storageInterface: \(String(describing: storageInterface)))"
   }
 }
 
@@ -485,6 +618,8 @@ private class SystemMonitorApiPigeonCodecReader: FlutterStandardReader {
       return SystemStorageMsg.fromList(self.readValue() as! [Any?])
     case 134:
       return SystemBatteryMsg.fromList(self.readValue() as! [Any?])
+    case 135:
+      return SystemHardwareMsg.fromList(self.readValue() as! [Any?])
     default:
       return super.readValue(ofType: type)
     }
@@ -511,6 +646,9 @@ private class SystemMonitorApiPigeonCodecWriter: FlutterStandardWriter {
     } else if let value = value as? SystemBatteryMsg {
       super.writeByte(134)
       super.writeValue(value.toList())
+    } else if let value = value as? SystemHardwareMsg {
+      super.writeByte(135)
+      super.writeValue(value.toList())
     } else {
       super.writeValue(value)
     }
@@ -531,6 +669,7 @@ class SystemMonitorApiPigeonCodec: FlutterStandardMessageCodec, @unchecked Senda
   static let shared = SystemMonitorApiPigeonCodec(readerWriter: SystemMonitorApiPigeonCodecReaderWriter())
 }
 
+
 /// Device stats for the System monitor. Nothing leaves the device.
 ///
 /// Generated protocol from Pigeon that represents a handler of messages from Flutter.
@@ -539,6 +678,8 @@ protocol SystemMonitorHostApi {
   func sample() throws -> SystemSampleMsg
   func storage() throws -> SystemStorageMsg
   func battery() throws -> SystemBatteryMsg
+  /// Slow on macOS (runs system_profiler), so off the main thread.
+  func hardware() async throws -> SystemHardwareMsg
 }
 
 /// Generated setup class from Pigeon to handle messages through the `binaryMessenger`.
@@ -598,6 +739,22 @@ class SystemMonitorHostApiSetup {
       }
     } else {
       batteryChannel.setMessageHandler(nil)
+    }
+    /// Slow on macOS (runs system_profiler), so off the main thread.
+    let hardwareChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.media_tool.SystemMonitorHostApi.hardware\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      hardwareChannel.setMessageHandler { _, reply in
+        Task { @MainActor in
+          do {
+            let result = try await api.hardware()
+            reply(wrapResult(result))
+          } catch {
+            reply(wrapError(error))
+          }
+        }
+      }
+    } else {
+      hardwareChannel.setMessageHandler(nil)
     }
   }
 }

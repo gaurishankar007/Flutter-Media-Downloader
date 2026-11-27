@@ -4,7 +4,10 @@ import 'package:get_it/get_it.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:media_tool/core/data/states/data_state.dart';
 import 'package:media_tool/domain/models/battery_status.dart';
+import 'package:media_tool/domain/models/device_hardware.dart';
 import 'package:media_tool/domain/models/device_storage.dart';
+import 'package:media_tool/domain/models/speed_test.dart';
+import 'package:media_tool/domain/models/speed_test_result.dart';
 import 'package:media_tool/domain/models/system_metric.dart';
 import 'package:media_tool/domain/models/system_sample.dart';
 import 'package:media_tool/domain/repositories/system_monitor_repository.dart';
@@ -17,6 +20,7 @@ part 'system_monitor_state.dart';
 /// battery change slowly, so they're read every [slowEvery] ticks, and the
 /// app's own folder (a walk over every file) on open and every [appFilesEvery]
 /// ticks. Failures stay in the error log only: a background monitor never toasts.
+/// Speed tests are user-started, so their failures do show.
 class SystemMonitorNotifier extends BaseNotifier<SystemMonitorState> {
   static const interval = Duration(seconds: 1);
 
@@ -43,27 +47,56 @@ class SystemMonitorNotifier extends BaseNotifier<SystemMonitorState> {
   SystemMonitorState build() {
     _repository = GetIt.I<SystemMonitorRepository>();
     ref.onDispose(() => _timer?.cancel());
-    final known = _repository.knownMetrics;
+    final known = _repository.knownProfile;
     // Cached after the first time, so returning to the tab keeps its layout.
-    Future.microtask(_loadMetrics);
-    return SystemMonitorState(metrics: known ?? const [], metricsKnown: known != null);
+    Future.microtask(_loadProfile);
+    return SystemMonitorState(
+      metrics: known?.metrics ?? const [],
+      liveMetrics: known?.liveMetrics ?? const {},
+      metricsKnown: known != null,
+      hardware: known?.hardware,
+      speedResults: {for (final test in SpeedTest.values) test: ?_repository.lastSpeedTest(test)},
+    );
   }
 
-  Future<void> _loadMetrics() => runFlow('systemMonitor.metrics', () async {
-    final result = await _repository.metrics();
+  /// Runs [test] unless one is already running.
+  Future<void> runSpeedTest(SpeedTest test) => runFlow('systemMonitor.speedTest', () async {
+    if (state.runningTest != null) {
+      return;
+    }
+    state = state.copyWith(runningTest: test);
+    final result = await _repository.runSpeedTest(test);
     if (!ref.mounted) {
       return;
     }
-    final metrics = switch (result) {
+    switch (result) {
+      case SuccessState(:final data?):
+        state = state.copyWith(speedResults: {...state.speedResults, test: data}, clearRunningTest: true);
+      default:
+        state = state.copyWith(clearRunningTest: true, message: trackFailure(result));
+    }
+  });
+
+  Future<void> _loadProfile() => runFlow('systemMonitor.profile', () async {
+    final result = await _repository.profile();
+    if (!ref.mounted) {
+      return;
+    }
+    final profile = switch (result) {
       SuccessState(:final data?) => data,
-      _ => const <SystemMetric>[],
+      _ => null,
     };
-    state = state.copyWith(metrics: metrics, metricsKnown: true);
+    state = state.copyWith(
+      metrics: profile?.metrics ?? const [],
+      liveMetrics: profile?.liveMetrics ?? const {},
+      hardware: profile?.hardware,
+      metricsKnown: true,
+    );
     _start();
   });
 
   void _start() {
-    if (!ref.mounted || state.metrics.isEmpty) {
+    if (!ref.mounted || state.liveMetrics.isEmpty) {
       return;
     }
     _sample();
@@ -86,7 +119,7 @@ class SystemMonitorNotifier extends BaseNotifier<SystemMonitorState> {
       return;
     }
     _slowSampling = true;
-    final metrics = state.metrics;
+    final metrics = state.liveMetrics;
     final storage = metrics.contains(SystemMetric.storage)
         ? await _repository.storage(measureAppFiles: measureAppFiles)
         : null;

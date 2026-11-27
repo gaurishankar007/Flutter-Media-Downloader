@@ -2,6 +2,7 @@
 // keep both copies identical (GPU and power sources are macOS-only behind
 // #if os(macOS), UIDevice battery is iOS-only behind #if os(iOS)).
 import Foundation
+import Metal
 
 #if os(macOS)
   import IOKit
@@ -15,13 +16,22 @@ import Foundation
 /// loopback excluded), storage (volume resource values), battery (UIDevice on
 /// iOS, IOKit power sources plus AppleSmartBattery health and cycles on macOS)
 /// and, on macOS, GPU utilization
-/// (IOAccelerator). Raw counters only; Dart computes rates. Nothing leaves the device.
+/// (IOAccelerator). Raw counters only; Dart computes rates. Hardware facts come
+/// from sysctl (cores), Metal (GPU name) and, on macOS, IOKit (GPU cores) and
+/// system_profiler (RAM type, drive). Nothing leaves the device.
 final class SystemMonitor: SystemMonitorHostApi {
   private let host = mach_host_self()
 
   #if os(macOS)
+    private struct BatteryWear {
+      var healthPercent: Double?
+      var cycleCount: Int64?
+      var designMah: Int64?
+      var fullMah: Int64?
+    }
+
     /// Health and cycles change over weeks; read the IORegistry once a minute at most.
-    private var wear: (healthPercent: Double?, cycleCount: Int64?)?
+    private var wear: BatteryWear?
     private var wearReadAt: TimeInterval = 0
     private static let wearMaxAge: TimeInterval = 60
   #endif
@@ -104,6 +114,65 @@ final class SystemMonitor: SystemMonitorHostApi {
     #else
       return macBattery()
     #endif
+  }
+
+  func hardware() async throws -> SystemHardwareMsg {
+    await withCheckedContinuation { continuation in
+      DispatchQueue.global(qos: .userInitiated).async {
+        continuation.resume(returning: Self.readHardware())
+      }
+    }
+  }
+
+  private static func readHardware() -> SystemHardwareMsg {
+    let physical = sysctlInt("hw.physicalcpu")
+    let logical = sysctlInt("hw.logicalcpu")
+    // Apple silicon: perflevel0 is the performance cluster, perflevel1 efficiency.
+    let levels = sysctlInt("hw.nperflevels") ?? 0
+    let clusters = (0..<levels).compactMap { sysctlInt("hw.perflevel\($0).physicalcpu") }
+    let metalName = MTLCreateSystemDefaultDevice()?.name
+    var msg = SystemHardwareMsg(
+      cpuCores: physical,
+      cpuThreads: logical,
+      cpuClusterCores: clusters.count > 1 && clusters.count == levels ? clusters : nil,
+      gpuName: metalName
+    )
+    #if os(macOS)
+      msg.cpuName = sysctlString("machdep.cpu.brand_string")
+      if let gpu = appleGpu() {
+        msg.gpuName = gpu.name ?? msg.gpuName
+        msg.gpuCores = gpu.cores
+      }
+      applyProfiler(to: &msg)
+    #else
+      // iOS has no chip name; Metal's "Apple A16 GPU" names it.
+      if let metalName, metalName.hasSuffix(" GPU") {
+        msg.cpuName = String(metalName.dropLast(4))
+      }
+    #endif
+    return msg
+  }
+
+  private static func sysctlInt(_ name: String) -> Int64? {
+    var value: Int32 = 0
+    var size = MemoryLayout<Int32>.size
+    guard sysctlbyname(name, &value, &size, nil, 0) == 0, value > 0 else {
+      return nil
+    }
+    return Int64(value)
+  }
+
+  private static func sysctlString(_ name: String) -> String? {
+    var size = 0
+    guard sysctlbyname(name, nil, &size, nil, 0) == 0, size > 1 else {
+      return nil
+    }
+    var buffer = [CChar](repeating: 0, count: size)
+    guard sysctlbyname(name, &buffer, &size, nil, 0) == 0 else {
+      return nil
+    }
+    let text = String(cString: buffer).trimmingCharacters(in: .whitespaces)
+    return text.isEmpty ? nil : text
   }
 
   /// "Memory Used" as Activity Monitor counts it: app memory + wired + compressed.
@@ -213,7 +282,10 @@ final class SystemMonitor: SystemMonitorHostApi {
           state: state,
           minutesRemaining: minutes,
           healthPercent: wear.healthPercent,
-          cycleCount: wear.cycleCount
+          cycleCount: wear.cycleCount,
+          designCapacityMah: wear.designMah,
+          fullChargeCapacityMah: wear.fullMah,
+          remainingCapacityMah: remainingMah()
         )
       }
       return none
@@ -221,7 +293,7 @@ final class SystemMonitor: SystemMonitorHostApi {
 
     /// Health (full-charge capacity ÷ design capacity) and cycle count from the
     /// AppleSmartBattery IORegistry entry, cached for `wearMaxAge`.
-    private func batteryWear() -> (healthPercent: Double?, cycleCount: Int64?) {
+    private func batteryWear() -> BatteryWear {
       let now = ProcessInfo.processInfo.systemUptime
       if let wear, now - wearReadAt < Self.wearMaxAge {
         return wear
@@ -232,37 +304,140 @@ final class SystemMonitor: SystemMonitorHostApi {
       return fresh
     }
 
-    private func readBatteryWear() -> (healthPercent: Double?, cycleCount: Int64?) {
-      let service = IOServiceGetMatchingService(kIOMainPortDefault, IOServiceMatching("AppleSmartBattery"))
-      guard service != 0 else {
-        return (nil, nil)
-      }
-      defer { IOObjectRelease(service) }
-      func number(_ key: String, in entry: io_registry_entry_t) -> NSNumber? {
-        IORegistryEntryCreateCFProperty(entry, key as CFString, kCFAllocatorDefault, 0)?
-          .takeRetainedValue() as? NSNumber
-      }
-      // Newer macOS keeps the raw mAh values only inside "BatteryData".
-      let data =
-        IORegistryEntryCreateCFProperty(service, "BatteryData" as CFString, kCFAllocatorDefault, 0)?
-        .takeRetainedValue() as? [String: Any]
-      func capacity(_ key: String) -> Double? {
-        let value = number(key, in: service)?.doubleValue ?? (data?[key] as? NSNumber)?.doubleValue
-        return value.flatMap { $0 > 0 ? $0 : nil }
+    private func readBatteryWear() -> BatteryWear {
+      guard let battery = SmartBattery() else {
+        return BatteryWear()
       }
       // On Apple silicon "MaxCapacity" is a percentage, so use the raw mAh values.
+      let design = battery.mah("DesignCapacity")
+      let full = battery.mah("AppleRawMaxCapacity") ?? battery.mah("NominalChargeCapacity")
       var health: Double?
-      if let design = capacity("DesignCapacity"),
-        let full = capacity("AppleRawMaxCapacity") ?? capacity("NominalChargeCapacity")
-      {
-        let ratio = full / design * 100
+      var validFull: Int64?
+      if let design, let full {
+        let ratio = Double(full) / Double(design) * 100
         // Far outside 0–150% means the keys don't hold what we expect.
         if ratio.isFinite, ratio > 0, ratio <= 150 {
           health = min(ratio, 100)
+          validFull = full
         }
       }
-      let cycles = number("CycleCount", in: service)?.int64Value ?? (data?["CycleCount"] as? NSNumber)?.int64Value
-      return (health, cycles.flatMap { $0 >= 0 && $0 < 100_000 ? $0 : nil })
+      let cycles = battery.number("CycleCount")?.int64Value
+      return BatteryWear(
+        healthPercent: health,
+        cycleCount: cycles.flatMap { $0 >= 0 && $0 < 100_000 ? $0 : nil },
+        designMah: design,
+        fullMah: validFull
+      )
+    }
+
+    /// Charge left in mAh, read each time (it changes by the minute).
+    private func remainingMah() -> Int64? {
+      SmartBattery()?.mah("AppleRawCurrentCapacity")
+    }
+
+    /// The AppleSmartBattery IORegistry entry. Newer macOS keeps the raw mAh
+    /// values only inside "BatteryData", so each key falls back to it.
+    private final class SmartBattery {
+      private let service: io_registry_entry_t
+      private let data: [String: Any]?
+
+      init?() {
+        service = IOServiceGetMatchingService(kIOMainPortDefault, IOServiceMatching("AppleSmartBattery"))
+        guard service != 0 else {
+          return nil
+        }
+        data =
+          IORegistryEntryCreateCFProperty(service, "BatteryData" as CFString, kCFAllocatorDefault, 0)?
+          .takeRetainedValue() as? [String: Any]
+      }
+
+      deinit { IOObjectRelease(service) }
+
+      func number(_ key: String) -> NSNumber? {
+        IORegistryEntryCreateCFProperty(service, key as CFString, kCFAllocatorDefault, 0)?
+          .takeRetainedValue() as? NSNumber ?? data?[key] as? NSNumber
+      }
+
+      /// A capacity in mAh; zero, negative or absurd values mean the key isn't what we expect.
+      func mah(_ key: String) -> Int64? {
+        number(key).map(\.int64Value).flatMap { $0 > 0 && $0 < 100_000 ? $0 : nil }
+      }
+    }
+
+    /// The Apple silicon GPU's name and core count from its IOAccelerator entry.
+    private static func appleGpu() -> (name: String?, cores: Int64?)? {
+      let service = IOServiceGetMatchingService(kIOMainPortDefault, IOServiceMatching("AGXAccelerator"))
+      guard service != 0 else {
+        return nil
+      }
+      defer { IOObjectRelease(service) }
+      func property(_ key: String) -> Any? {
+        IORegistryEntryCreateCFProperty(service, key as CFString, kCFAllocatorDefault, 0)?.takeRetainedValue()
+      }
+      let cores = (property("gpu-core-count") as? NSNumber)?.int64Value
+      return (property("model") as? String, cores.flatMap { $0 > 0 ? $0 : nil })
+    }
+
+    /// RAM type and the app's drive from `system_profiler -json` (about 0.2 s).
+    private static func applyProfiler(to msg: inout SystemHardwareMsg) {
+      let process = Process()
+      process.executableURL = URL(fileURLWithPath: "/usr/sbin/system_profiler")
+      process.arguments = ["-json", "-detailLevel", "mini", "SPMemoryDataType", "SPStorageDataType", "SPNVMeDataType"]
+      let pipe = Pipe()
+      process.standardOutput = pipe
+      process.standardError = FileHandle.nullDevice
+      guard (try? process.run()) != nil else {
+        return
+      }
+      let output = pipe.fileHandleForReading.readDataToEndOfFile()
+      process.waitUntilExit()
+      guard process.terminationStatus == 0,
+        let root = try? JSONSerialization.jsonObject(with: output) as? [String: Any]
+      else {
+        return
+      }
+      func text(_ value: Any?) -> String? {
+        (value as? String).flatMap { $0.isEmpty || $0.lowercased() == "empty" ? nil : $0 }
+      }
+
+      // Apple silicon lists one entry with the type on top; Intel lists DIMM slots under "_items".
+      if let memory = (root["SPMemoryDataType"] as? [[String: Any]])?.first {
+        let slots = (memory["_items"] as? [[String: Any]])?.flatMap { $0["_items"] as? [[String: Any]] ?? [$0] } ?? []
+        let filled = slots.first { text($0["dimm_type"]) != nil }
+        msg.memoryType = text(memory["dimm_type"]) ?? text(filled?["dimm_type"])
+        msg.memoryManufacturer = text(memory["dimm_manufacturer"]) ?? text(filled?["dimm_manufacturer"])
+        if let speed = text(filled?["dimm_speed"]), let mhz = Int64(speed.split(separator: " ").first ?? "") {
+          msg.memorySpeedMhz = mhz
+        }
+      }
+
+      // The volume holding the home folder. /Users is firmlinked to the Data
+      // volume on modern macOS, so a match on "/" means the Data volume.
+      let volumes = root["SPStorageDataType"] as? [[String: Any]] ?? []
+      func mounted(at path: String) -> [String: Any]? {
+        volumes.first { text($0["mount_point"]) == path }
+      }
+      let home = NSHomeDirectory()
+      var volume = volumes
+        .filter { text($0["mount_point"]).map { home.hasPrefix($0) } ?? false }
+        .max { (text($0["mount_point"])?.count ?? 0) < (text($1["mount_point"])?.count ?? 0) }
+      if volume.map({ text($0["mount_point"]) == "/" }) ?? true {
+        volume = mounted(at: "/System/Volumes/Data") ?? volume
+      }
+      if let drive = volume?["physical_drive"] as? [String: Any] {
+        let model = text(drive["device_name"])
+        msg.storageModel = model
+        msg.storageInterface = text(drive["protocol"])
+        if let medium = text(drive["medium_type"])?.lowercased() {
+          msg.storageSolidState = medium == "ssd" ? true : medium == "rotational" ? false : nil
+        }
+        let nvmeModels = (root["SPNVMeDataType"] as? [[String: Any]] ?? [])
+          .flatMap { $0["_items"] as? [[String: Any]] ?? [] }
+          .compactMap { text($0["device_model"]) ?? text($0["_name"]) }
+        if let model {
+          msg.storageNvme = nvmeModels.contains(model)
+        }
+      }
     }
 
     /// Highest "Device Utilization %" across GPUs, or nil when no GPU driver reports it.

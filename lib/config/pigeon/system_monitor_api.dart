@@ -122,6 +122,74 @@ class SystemBatteryMsg {
 
   /// Charge cycles so far (macOS; Android 14+ where the device reports it).
   int? cycleCount;
+
+  /// macOS only: capacity the battery was built with, in mAh.
+  int? designCapacityMah;
+
+  /// macOS only: what a full charge holds now, in mAh.
+  int? fullChargeCapacityMah;
+
+  /// Charge left in mAh (macOS; Android where the fuel gauge reports it).
+  int? remainingCapacityMah;
+}
+
+/// Fixed hardware facts, read once. Every field is null where the platform
+/// doesn't tell apps.
+class SystemHardwareMsg {
+  SystemHardwareMsg({
+    this.cpuName,
+    this.cpuCores,
+    this.cpuThreads,
+    this.cpuClusterCores,
+    this.cpuMaxFrequencyMhz,
+    this.gpuName,
+    this.gpuCores,
+    this.memoryType,
+    this.memoryManufacturer,
+    this.memorySpeedMhz,
+    this.storageModel,
+    this.storageSolidState,
+    this.storageNvme,
+    this.storageInterface,
+  });
+
+  /// "Apple M4 Pro" (macOS), "Apple A16" (iOS, from the GPU name), "QTI SM8550" (Android 12+).
+  String? cpuName;
+
+  /// Physical cores.
+  int? cpuCores;
+
+  /// Logical CPUs (more than [cpuCores] only with hyper-threading, e.g. Intel Macs).
+  int? cpuThreads;
+
+  /// Cores per cluster, fastest first (Apple: performance, efficiency; Android: by max clock).
+  List<int>? cpuClusterCores;
+
+  /// Android only: the fastest core's max clock.
+  int? cpuMaxFrequencyMhz;
+
+  /// "Apple M4 Pro" (macOS IOAccelerator), "Apple A16 GPU" (iOS Metal).
+  String? gpuName;
+
+  /// macOS (Apple silicon) only.
+  int? gpuCores;
+
+  /// macOS only: "LPDDR5", "DDR4".
+  String? memoryType;
+
+  /// macOS only.
+  String? memoryManufacturer;
+
+  /// macOS (Intel) only.
+  int? memorySpeedMhz;
+
+  /// macOS only: the drive holding the app's files.
+  String? storageModel;
+  bool? storageSolidState;
+  bool? storageNvme;
+
+  /// macOS only: "Apple Fabric", "PCI-Express", "SATA".
+  String? storageInterface;
 }
 
 /// Device stats for the System monitor. Nothing leaves the device.
@@ -134,4 +202,8 @@ abstract class SystemMonitorHostApi {
   SystemStorageMsg storage();
 
   SystemBatteryMsg battery();
+
+  /// Slow on macOS (runs system_profiler), so off the main thread.
+  @async
+  SystemHardwareMsg hardware();
 }

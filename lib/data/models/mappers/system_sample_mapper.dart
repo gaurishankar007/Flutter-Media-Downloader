@@ -1,29 +1,61 @@
 import 'package:media_tool/core/clients/platform/system_monitor_api.g.dart';
 import 'package:media_tool/domain/models/battery_status.dart';
+import 'package:media_tool/domain/models/device_hardware.dart';
 import 'package:media_tool/domain/models/device_storage.dart';
 import 'package:media_tool/domain/models/system_metric.dart';
+import 'package:media_tool/domain/models/system_profile.dart';
 import 'package:media_tool/domain/models/system_sample.dart';
 
-/// Raw platform counters → [SystemSample], [DeviceStorage] and
-/// [BatteryStatus]. CPU load and network speed come from the difference
+/// Raw platform counters → [SystemProfile], [SystemSample], [DeviceStorage]
+/// and [BatteryStatus]. CPU load and network speed come from the difference
 /// between two readings.
 abstract final class SystemSampleMapper {
   /// Readings further apart than this (the monitor was paused) give no rates.
   static const _maxGapMillis = 5000;
 
-  /// The supported metrics, in [SystemMetric] declaration order.
-  static List<SystemMetric> metrics(SystemCapabilitiesMsg msg) => [
-    for (final metric in SystemMetric.values)
-      if (switch (metric) {
-        .network => msg.network,
-        .battery => msg.battery,
-        .memory => msg.memory,
-        .cpu => msg.cpu,
-        .gpu => msg.gpu,
-        .storage => msg.storage,
-      })
-        metric,
-  ];
+  /// The cards in [SystemMetric] declaration order: every metric with a live
+  /// reading, plus CPU and GPU when only their hardware facts are known.
+  static SystemProfile profile(SystemCapabilitiesMsg msg, DeviceHardware? hardware) {
+    final live = {
+      for (final metric in SystemMetric.values)
+        if (switch (metric) {
+          .network => msg.network,
+          .battery => msg.battery,
+          .memory => msg.memory,
+          .cpu => msg.cpu,
+          .gpu => msg.gpu,
+          .storage => msg.storage,
+        })
+          metric,
+    };
+    bool shown(SystemMetric metric) => switch (metric) {
+      .cpu => live.contains(metric) || (hardware?.hasCpu ?? false),
+      .gpu => live.contains(metric) || (hardware?.hasGpu ?? false),
+      _ => live.contains(metric),
+    };
+    return SystemProfile(metrics: SystemMetric.values.where(shown).toList(), liveMetrics: live, hardware: hardware);
+  }
+
+  static DeviceHardware hardware(SystemHardwareMsg msg) {
+    int? positive(int? value) => value != null && value > 0 ? value : null;
+    String? text(String? value) => value == null || value.trim().isEmpty ? null : value.trim();
+    return DeviceHardware(
+      cpuName: text(msg.cpuName),
+      cpuCores: positive(msg.cpuCores),
+      cpuThreads: positive(msg.cpuThreads),
+      cpuClusterCores: [for (final cores in msg.cpuClusterCores ?? const <int>[]) ?positive(cores)],
+      cpuMaxFrequencyMhz: positive(msg.cpuMaxFrequencyMhz),
+      gpuName: text(msg.gpuName),
+      gpuCores: positive(msg.gpuCores),
+      memoryType: text(msg.memoryType),
+      memoryManufacturer: text(msg.memoryManufacturer),
+      memorySpeedMhz: positive(msg.memorySpeedMhz),
+      storageModel: text(msg.storageModel),
+      storageSolidState: msg.storageSolidState,
+      storageNvme: msg.storageNvme,
+      storageInterface: text(msg.storageInterface),
+    );
+  }
 
   /// Null when the volume couldn't be read.
   static DeviceStorage? storage(SystemStorageMsg msg) => switch ((msg.totalBytes, msg.freeBytes)) {
@@ -61,6 +93,9 @@ abstract final class SystemSampleMapper {
         final cycles? when cycles >= 0 => cycles,
         _ => null,
       },
+      designCapacityMah: _mah(msg.designCapacityMah),
+      fullChargeCapacityMah: _mah(msg.fullChargeCapacityMah),
+      remainingCapacityMah: _mah(msg.remainingCapacityMah),
     ),
     null => null,
   };
@@ -94,6 +129,8 @@ abstract final class SystemSampleMapper {
       uploadBytesPerSecond: perSecond(current.networkTxBytes, previous?.networkTxBytes),
     );
   }
+
+  static int? _mah(int? value) => value != null && value > 0 ? value : null;
 
   static int? _delta(int? now, int? before) => now != null && before != null ? now - before : null;
 }

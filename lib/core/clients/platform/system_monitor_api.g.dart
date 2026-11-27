@@ -339,6 +339,9 @@ class SystemBatteryMsg {
     this.minutesRemaining,
     this.healthPercent,
     this.cycleCount,
+    this.designCapacityMah,
+    this.fullChargeCapacityMah,
+    this.remainingCapacityMah,
   });
 
   /// Charge, 0–100.
@@ -361,6 +364,15 @@ class SystemBatteryMsg {
   /// Charge cycles so far (macOS; Android 14+ where the device reports it).
   int? cycleCount;
 
+  /// macOS only: capacity the battery was built with, in mAh.
+  int? designCapacityMah;
+
+  /// macOS only: what a full charge holds now, in mAh.
+  int? fullChargeCapacityMah;
+
+  /// Charge left in mAh (macOS; Android where the fuel gauge reports it).
+  int? remainingCapacityMah;
+
   List<Object?> _toList() {
     return <Object?>[
       levelPercent,
@@ -370,6 +382,9 @@ class SystemBatteryMsg {
       minutesRemaining,
       healthPercent,
       cycleCount,
+      designCapacityMah,
+      fullChargeCapacityMah,
+      remainingCapacityMah,
     ];
   }
 
@@ -386,6 +401,9 @@ class SystemBatteryMsg {
       minutesRemaining: result[4] as int?,
       healthPercent: result[5] as double?,
       cycleCount: result[6] as int?,
+      designCapacityMah: result[7] as int?,
+      fullChargeCapacityMah: result[8] as int?,
+      remainingCapacityMah: result[9] as int?,
     );
   }
 
@@ -398,7 +416,7 @@ class SystemBatteryMsg {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(levelPercent, other.levelPercent) && _deepEquals(state, other.state) && _deepEquals(temperatureCelsius, other.temperatureCelsius) && _deepEquals(health, other.health) && _deepEquals(minutesRemaining, other.minutesRemaining) && _deepEquals(healthPercent, other.healthPercent) && _deepEquals(cycleCount, other.cycleCount);
+    return _deepEquals(levelPercent, other.levelPercent) && _deepEquals(state, other.state) && _deepEquals(temperatureCelsius, other.temperatureCelsius) && _deepEquals(health, other.health) && _deepEquals(minutesRemaining, other.minutesRemaining) && _deepEquals(healthPercent, other.healthPercent) && _deepEquals(cycleCount, other.cycleCount) && _deepEquals(designCapacityMah, other.designCapacityMah) && _deepEquals(fullChargeCapacityMah, other.fullChargeCapacityMah) && _deepEquals(remainingCapacityMah, other.remainingCapacityMah);
   }
 
   @override
@@ -407,7 +425,131 @@ class SystemBatteryMsg {
 
   @override
   String toString() {
-    return 'SystemBatteryMsg(levelPercent: $levelPercent, state: $state, temperatureCelsius: $temperatureCelsius, health: $health, minutesRemaining: $minutesRemaining, healthPercent: $healthPercent, cycleCount: $cycleCount)';
+    return 'SystemBatteryMsg(levelPercent: $levelPercent, state: $state, temperatureCelsius: $temperatureCelsius, health: $health, minutesRemaining: $minutesRemaining, healthPercent: $healthPercent, cycleCount: $cycleCount, designCapacityMah: $designCapacityMah, fullChargeCapacityMah: $fullChargeCapacityMah, remainingCapacityMah: $remainingCapacityMah)';
+  }
+}
+
+/// Fixed hardware facts, read once. Every field is null where the platform
+/// doesn't tell apps.
+class SystemHardwareMsg {
+  SystemHardwareMsg({
+    this.cpuName,
+    this.cpuCores,
+    this.cpuThreads,
+    this.cpuClusterCores,
+    this.cpuMaxFrequencyMhz,
+    this.gpuName,
+    this.gpuCores,
+    this.memoryType,
+    this.memoryManufacturer,
+    this.memorySpeedMhz,
+    this.storageModel,
+    this.storageSolidState,
+    this.storageNvme,
+    this.storageInterface,
+  });
+
+  /// "Apple M4 Pro" (macOS), "Apple A16" (iOS, from the GPU name), "QTI SM8550" (Android 12+).
+  String? cpuName;
+
+  /// Physical cores.
+  int? cpuCores;
+
+  /// Logical CPUs (more than [cpuCores] only with hyper-threading, e.g. Intel Macs).
+  int? cpuThreads;
+
+  /// Cores per cluster, fastest first (Apple: performance, efficiency; Android: by max clock).
+  List<int>? cpuClusterCores;
+
+  /// Android only: the fastest core's max clock.
+  int? cpuMaxFrequencyMhz;
+
+  /// "Apple M4 Pro" (macOS IOAccelerator), "Apple A16 GPU" (iOS Metal).
+  String? gpuName;
+
+  /// macOS (Apple silicon) only.
+  int? gpuCores;
+
+  /// macOS only: "LPDDR5", "DDR4".
+  String? memoryType;
+
+  /// macOS only.
+  String? memoryManufacturer;
+
+  /// macOS (Intel) only.
+  int? memorySpeedMhz;
+
+  /// macOS only: the drive holding the app's files.
+  String? storageModel;
+
+  bool? storageSolidState;
+
+  bool? storageNvme;
+
+  /// macOS only: "Apple Fabric", "PCI-Express", "SATA".
+  String? storageInterface;
+
+  List<Object?> _toList() {
+    return <Object?>[
+      cpuName,
+      cpuCores,
+      cpuThreads,
+      cpuClusterCores,
+      cpuMaxFrequencyMhz,
+      gpuName,
+      gpuCores,
+      memoryType,
+      memoryManufacturer,
+      memorySpeedMhz,
+      storageModel,
+      storageSolidState,
+      storageNvme,
+      storageInterface,
+    ];
+  }
+
+  Object encode() {
+    return _toList();  }
+
+  static SystemHardwareMsg decode(Object result) {
+    result as List<Object?>;
+    return SystemHardwareMsg(
+      cpuName: result[0] as String?,
+      cpuCores: result[1] as int?,
+      cpuThreads: result[2] as int?,
+      cpuClusterCores: (result[3] as List<Object?>?)?.cast<int>(),
+      cpuMaxFrequencyMhz: result[4] as int?,
+      gpuName: result[5] as String?,
+      gpuCores: result[6] as int?,
+      memoryType: result[7] as String?,
+      memoryManufacturer: result[8] as String?,
+      memorySpeedMhz: result[9] as int?,
+      storageModel: result[10] as String?,
+      storageSolidState: result[11] as bool?,
+      storageNvme: result[12] as bool?,
+      storageInterface: result[13] as String?,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! SystemHardwareMsg || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(cpuName, other.cpuName) && _deepEquals(cpuCores, other.cpuCores) && _deepEquals(cpuThreads, other.cpuThreads) && _deepEquals(cpuClusterCores, other.cpuClusterCores) && _deepEquals(cpuMaxFrequencyMhz, other.cpuMaxFrequencyMhz) && _deepEquals(gpuName, other.gpuName) && _deepEquals(gpuCores, other.gpuCores) && _deepEquals(memoryType, other.memoryType) && _deepEquals(memoryManufacturer, other.memoryManufacturer) && _deepEquals(memorySpeedMhz, other.memorySpeedMhz) && _deepEquals(storageModel, other.storageModel) && _deepEquals(storageSolidState, other.storageSolidState) && _deepEquals(storageNvme, other.storageNvme) && _deepEquals(storageInterface, other.storageInterface);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => _deepHash(<Object?>[runtimeType, ..._toList()]);
+
+  @override
+  String toString() {
+    return 'SystemHardwareMsg(cpuName: $cpuName, cpuCores: $cpuCores, cpuThreads: $cpuThreads, cpuClusterCores: $cpuClusterCores, cpuMaxFrequencyMhz: $cpuMaxFrequencyMhz, gpuName: $gpuName, gpuCores: $gpuCores, memoryType: $memoryType, memoryManufacturer: $memoryManufacturer, memorySpeedMhz: $memorySpeedMhz, storageModel: $storageModel, storageSolidState: $storageSolidState, storageNvme: $storageNvme, storageInterface: $storageInterface)';
   }
 }
 
@@ -437,6 +579,9 @@ class _PigeonCodec extends StandardMessageCodec {
     }    else if (value is SystemBatteryMsg) {
       buffer.putUint8(134);
       writeValue(buffer, value.encode());
+    }    else if (value is SystemHardwareMsg) {
+      buffer.putUint8(135);
+      writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
     }
@@ -459,6 +604,8 @@ class _PigeonCodec extends StandardMessageCodec {
         return SystemStorageMsg.decode(readValue(buffer)!);
       case 134:
         return SystemBatteryMsg.decode(readValue(buffer)!);
+      case 135:
+        return SystemHardwareMsg.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
     }
@@ -553,5 +700,24 @@ class SystemMonitorHostApi {
     )
     ;
     return pigeonVar_replyValue! as SystemBatteryMsg;
+  }
+
+  /// Slow on macOS (runs system_profiler), so off the main thread.
+  Future<SystemHardwareMsg> hardware() async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.media_tool.SystemMonitorHostApi.hardware$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as SystemHardwareMsg;
   }
 }
