@@ -164,6 +164,7 @@ final class LibraryRepositoryImpl({
         videoBytes: sum(items.where((item) => item.kind == .video)),
         audioBytes: sum(items.where((item) => item.kind == .audio)),
         photoBytes: sum(items.where((item) => item.kind == .photo)),
+        documentBytes: sum(items.where((item) => item.kind == .document)),
         savedCount: saved.length,
         savedBytes: sum(saved),
       ),

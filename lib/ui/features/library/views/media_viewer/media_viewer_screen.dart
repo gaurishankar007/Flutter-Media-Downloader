@@ -10,6 +10,7 @@ import 'package:media_tool/ui/core/ui/base/buttons/app_icon_button.dart';
 import 'package:media_tool/ui/features/library/providers/library/library_notifier.dart';
 import 'package:media_tool/ui/features/library/providers/media_viewer/media_viewer_notifier.dart';
 import 'package:media_tool/ui/features/library/views/media_viewer/widgets/audio_viewer.dart';
+import 'package:media_tool/ui/features/library/views/media_viewer/widgets/document_viewer.dart';
 import 'package:media_tool/ui/features/library/views/media_viewer/widgets/photo_viewer.dart';
 import 'package:media_tool/ui/features/library/views/media_viewer/widgets/video_viewer.dart';
 import 'package:media_tool/ui/features/library/views/media_viewer/widgets/viewer_action_bar.dart';
@@ -85,6 +86,7 @@ class const MediaViewerScreen({super.key, required final String initialId, requi
                             .video => VideoViewer(key: ValueKey(entry.id), entry: entry, active: active),
                             .audio => AudioViewer(key: ValueKey(entry.id), entry: entry, active: active),
                             .photo => PhotoViewer(key: ValueKey(entry.id), entry: entry),
+                            .document => DocumentViewer(key: ValueKey(entry.id), entry: entry),
                           };
                         },
                       ),

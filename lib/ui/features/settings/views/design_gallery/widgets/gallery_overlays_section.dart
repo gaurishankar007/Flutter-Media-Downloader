@@ -41,7 +41,7 @@ class const GalleryOverlaysSection({super.key}) extends StatelessWidget {
                     destructive: false,
                   ),
                   (icon: Symbols.ios_share_rounded, label: CommonMessages.share, onTap: noop, destructive: false),
-                  (icon: Symbols.swap_horiz_rounded, label: NavMessages.convert, onTap: noop, destructive: false),
+                  (icon: Symbols.swap_horiz_rounded, label: NavMessages.tools, onTap: noop, destructive: false),
                   (icon: Symbols.delete_rounded, label: CommonMessages.delete, onTap: noop, destructive: true),
                 ],
               ),

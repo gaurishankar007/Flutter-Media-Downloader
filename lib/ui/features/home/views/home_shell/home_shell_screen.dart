@@ -45,7 +45,7 @@ class _HomeShellScreenState extends ConsumerState<HomeShellScreen> {
       if (ref.watch(engineStatusProvider.select((state) => state.updateAvailable))) NavDestination.settings,
     };
     return AutoTabsRouter(
-      routes: const [DownloadRoute(), LibraryRoute(), ConvertRoute(), SystemRoute(), SettingsRoute()],
+      routes: const [DownloadRoute(), LibraryRoute(), ToolsRoute(), SystemRoute(), SettingsRoute()],
       duration: AppMotion.normal,
       transitionBuilder: (context, child, animation) => FadeTransition(opacity: animation, child: child),
       builder: (context, child) {

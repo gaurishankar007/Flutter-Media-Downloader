@@ -14,6 +14,7 @@ class const StorageBreakdown({super.key, required final StorageUsage usage}) ext
       (SettingsMessages.storageVideos, usage.videoBytes),
       (SettingsMessages.storageAudio, usage.audioBytes),
       (SettingsMessages.storagePhotos, usage.photoBytes),
+      (SettingsMessages.storageDocuments, usage.documentBytes),
     ];
     return Column(
       spacing: AppSpacing.xs,

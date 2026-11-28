@@ -6,7 +6,7 @@ import 'package:media_tool/core/messages/app_messages.dart';
 enum NavDestination {
   download(Symbols.download_rounded, NavMessages.download),
   library(Symbols.video_library_rounded, NavMessages.library),
-  convert(Symbols.swap_horiz_rounded, NavMessages.convert),
+  tools(Symbols.handyman_rounded, NavMessages.tools),
   system(Symbols.monitoring_rounded, NavMessages.system),
   settings(Symbols.settings_rounded, NavMessages.settings);
 

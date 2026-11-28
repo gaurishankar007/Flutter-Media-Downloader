@@ -6,11 +6,12 @@ final class const StorageUsage({
   final int videoBytes = 0,
   final int audioBytes = 0,
   final int photoBytes = 0,
+  final int documentBytes = 0,
   final int savedCount = 0,
   final int savedBytes = 0,
 }) extends Equatable {
-  int get totalBytes => videoBytes + audioBytes + photoBytes;
+  int get totalBytes => videoBytes + audioBytes + photoBytes + documentBytes;
 
   @override
-  List<Object?> get props => [videoBytes, audioBytes, photoBytes, savedCount, savedBytes];
+  List<Object?> get props => [videoBytes, audioBytes, photoBytes, documentBytes, savedCount, savedBytes];
 }

@@ -10,6 +10,7 @@ import 'package:media_tool/core/errors/error_translators/engine_error_translator
 import 'package:media_tool/core/errors/error_translators/extractor_error_translator.dart';
 import 'package:media_tool/core/errors/error_translators/file_system_error_translator.dart';
 import 'package:media_tool/core/errors/error_translators/gallery_error_translator.dart';
+import 'package:media_tool/core/errors/error_translators/pdf_error_translator.dart';
 
 @InjectableInit(initializerName: 'initialize')
 Future<void> configureDependencies({required String environment}) async {
@@ -20,6 +21,7 @@ Future<void> configureDependencies({required String environment}) async {
     errorTranslators: [
       FileSystemErrorTranslator(),
       GalleryErrorTranslator(),
+      PdfErrorTranslator(),
       ExtractorErrorTranslator(),
       DioErrorTranslator(),
       EngineErrorTranslator(),

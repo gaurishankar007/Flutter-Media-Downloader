@@ -1,7 +1,8 @@
 import 'package:equatable/equatable.dart';
 import 'package:media_tool/domain/models/media_kind.dart';
 
-/// A local file picked for conversion, as ffmpeg (or the image decoder) read it.
+/// A local file picked for conversion or a tool, as ffmpeg, the image decoder
+/// or PDFium read it.
 final class const LocalMediaInfo({
   /// Absolute path of the file to read: a working copy, or the Library file itself.
   required final String path,
@@ -23,6 +24,12 @@ final class const LocalMediaInfo({
   final String? videoCodec,
   final String? audioCodec,
   final int? audioKbps,
+
+  /// PDFs: the number of pages (null while [encrypted]).
+  final int? pageCount,
+
+  /// PDFs: opening it needs a password.
+  final bool encrypted = false,
 }) extends Equatable {
   bool get hasAudio => audioCodec != null;
 
@@ -53,5 +60,7 @@ final class const LocalMediaInfo({
     videoCodec,
     audioCodec,
     audioKbps,
+    pageCount,
+    encrypted,
   ];
 }

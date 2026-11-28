@@ -10,8 +10,9 @@ import 'package:media_tool/ui/features/library/models/library_entry.dart';
 import 'package:media_tool/ui/features/library/providers/library/library_notifier.dart';
 import 'package:media_tool/ui/features/library/widgets/item_action_sheet.dart';
 
-/// The Library's cards. Tap opens the viewer (or toggles selection in
-/// multi-select); long-press / right-click opens the item's actions.
+/// The Library's cards. Tap opens the viewer, or a grouped post's page (or
+/// toggles selection in multi-select); long-press / right-click opens the
+/// item's actions.
 class const LibraryGrid({super.key, required final List<LibraryEntry> entries}) extends ConsumerWidget {
   static const _minCardWidth = 168.0;
 
@@ -20,7 +21,11 @@ class const LibraryGrid({super.key, required final List<LibraryEntry> entries}) 
     final selecting = ref.watch(libraryProvider.select((state) => state.selecting));
     final selectedIds = ref.watch(libraryProvider.select((state) => state.selectedIds));
     final notifier = ref.read(libraryProvider.notifier);
-    final ids = [for (final entry in entries) ...entry.ids];
+    // The viewer swipes through single items; posts open their own page.
+    final ids = [
+      for (final entry in entries)
+        if (!entry.isGroup) entry.id,
+    ];
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -52,12 +57,13 @@ class const LibraryGrid({super.key, required final List<LibraryEntry> entries}) 
               heroTag: 'library-${entry.id}',
               count: entry.isGroup ? entry.ids.length : null,
               selected: selecting ? selectedIds.containsAll(entry.ids) : null,
-              // A grouped post pages through its own items.
+              // A grouped post opens its own page with every item.
               onTap: selecting
                   ? () => notifier.toggleSelectedAll(entry.ids)
-                  : () => context.router.push(
-                      MediaViewerRoute(initialId: entry.id, ids: entry.isGroup ? entry.ids : ids),
-                    ),
+                  : () => context.router.push(switch (entry.item.groupId) {
+                      final groupId? when entry.isGroup => LibraryPostRoute(groupId: groupId),
+                      _ => MediaViewerRoute(initialId: entry.id, ids: ids),
+                    }),
               onMore: selecting
                   ? () => notifier.toggleSelectedAll(entry.ids)
                   : () => showItemActionSheet(context, ref, entry),

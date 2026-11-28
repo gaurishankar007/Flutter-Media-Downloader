@@ -25,6 +25,12 @@ import 'package:media_tool/data/repositories/convert_repository_impl.dart'
     as _i789;
 import 'package:media_tool/data/repositories/cookies_repository_impl.dart'
     as _i814;
+import 'package:media_tool/data/repositories/helpers/local_media_reader.dart'
+    as _i4;
+import 'package:media_tool/data/repositories/helpers/media_tool_runner.dart'
+    as _i420;
+import 'package:media_tool/data/repositories/helpers/pdf_tool_runner.dart'
+    as _i33;
 import 'package:media_tool/data/repositories/job_repository_impl.dart' as _i727;
 import 'package:media_tool/data/repositories/library_repository_impl.dart'
     as _i728;
@@ -36,6 +42,8 @@ import 'package:media_tool/data/repositories/settings_repository_impl.dart'
     as _i236;
 import 'package:media_tool/data/repositories/system_monitor_repository_impl.dart'
     as _i815;
+import 'package:media_tool/data/repositories/tool_repository_impl.dart'
+    as _i499;
 import 'package:media_tool/data/services/local/app_files_local_service.dart'
     as _i662;
 import 'package:media_tool/data/services/local/cookies_local_service.dart'
@@ -82,6 +90,7 @@ import 'package:media_tool/data/services/platform/media_engine/media_engine.dart
     as _i11;
 import 'package:media_tool/data/services/platform/media_picker_service.dart'
     as _i1017;
+import 'package:media_tool/data/services/platform/pdf_service.dart' as _i948;
 import 'package:media_tool/data/services/platform/share_service.dart' as _i316;
 import 'package:media_tool/data/services/platform/speed_test/speed_test_service.dart'
     as _i808;
@@ -127,12 +136,14 @@ import 'package:media_tool/domain/repositories/settings_repository.dart'
     as _i684;
 import 'package:media_tool/domain/repositories/system_monitor_repository.dart'
     as _i521;
+import 'package:media_tool/domain/repositories/tool_repository.dart' as _i114;
 import 'package:media_tool/domain/use_cases/convert_media_use_case.dart'
     as _i966;
 import 'package:media_tool/domain/use_cases/download_media_use_case.dart'
     as _i1046;
 import 'package:media_tool/domain/use_cases/resolve_link_use_case.dart'
     as _i143;
+import 'package:media_tool/domain/use_cases/run_tool_use_case.dart' as _i237;
 
 const String _windows = 'windows';
 const String _android = 'android';
@@ -149,6 +160,7 @@ extension GetItInjectableX on _i174.GetIt {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     gh.singleton<_i1027.AppDirectories>(() => _i1027.AppDirectories());
     gh.lazySingleton<_i847.FfmpegSlot>(() => _i847.FfmpegSlot());
+    gh.lazySingleton<_i948.PdfService>(() => _i948.PdfServiceImpl());
     gh.lazySingleton<_i338.SystemMonitorService>(
       () => _i868.WindowsSystemMonitorService(
         directories: gh<_i1027.AppDirectories>(),
@@ -316,9 +328,44 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i1062.JobRepository>(
       () => _i727.JobRepositoryImpl(localService: gh<_i193.JobLocalService>()),
     );
+    gh.lazySingleton<_i4.LocalMediaReader>(
+      () => _i4.LocalMediaReader(
+        engine: gh<_i11.MediaEngine>(),
+        images: gh<_i990.ImageConvertService>(),
+        thumbnails: gh<_i879.ImageService>(),
+        pdf: gh<_i948.PdfService>(),
+        directories: gh<_i1027.AppDirectories>(),
+        files: gh<_i600.FileService>(),
+        errorHandler: gh<_i166.ErrorHandler>(),
+      ),
+    );
+    gh.lazySingleton<_i377.ConvertRepository>(
+      () => _i789.ConvertRepositoryImpl(
+        engine: gh<_i11.MediaEngine>(),
+        slot: gh<_i847.FfmpegSlot>(),
+        reader: gh<_i4.LocalMediaReader>(),
+        images: gh<_i990.ImageConvertService>(),
+        thumbnails: gh<_i879.ImageService>(),
+        picker: gh<_i1017.MediaPickerService>(),
+        library: gh<_i202.LibraryLocalService>(),
+        directories: gh<_i1027.AppDirectories>(),
+        files: gh<_i600.FileService>(),
+        errorHandler: gh<_i166.ErrorHandler>(),
+      ),
+    );
     gh.lazySingleton<_i305.BackgroundWorkRepository>(
       () => _i384.BackgroundWorkRepositoryImpl(
         service: gh<_i495.BackgroundWorkService>(),
+        errorHandler: gh<_i166.ErrorHandler>(),
+      ),
+    );
+    gh.lazySingleton<_i33.PdfToolRunner>(
+      () => _i33.PdfToolRunner(
+        pdf: gh<_i948.PdfService>(),
+        images: gh<_i879.ImageService>(),
+        decoder: gh<_i990.ImageConvertService>(),
+        reader: gh<_i4.LocalMediaReader>(),
+        files: gh<_i600.FileService>(),
         errorHandler: gh<_i166.ErrorHandler>(),
       ),
     );
@@ -354,6 +401,17 @@ extension GetItInjectableX on _i174.GetIt {
         slot: gh<_i847.FfmpegSlot>(),
       ),
     );
+    gh.lazySingleton<_i420.MediaToolRunner>(
+      () => _i420.MediaToolRunner(
+        engine: gh<_i11.MediaEngine>(),
+        slot: gh<_i847.FfmpegSlot>(),
+        reader: gh<_i4.LocalMediaReader>(),
+        images: gh<_i879.ImageService>(),
+        decoder: gh<_i990.ImageConvertService>(),
+        files: gh<_i600.FileService>(),
+        errorHandler: gh<_i166.ErrorHandler>(),
+      ),
+    );
     gh.lazySingleton<_i601.LibraryRepository>(
       () => _i728.LibraryRepositoryImpl(
         localService: gh<_i202.LibraryLocalService>(),
@@ -363,6 +421,20 @@ extension GetItInjectableX on _i174.GetIt {
         gallery: gh<_i919.GalleryService>(),
         fileExport: gh<_i18.FileExportService>(),
         images: gh<_i879.ImageService>(),
+        errorHandler: gh<_i166.ErrorHandler>(),
+      ),
+    );
+    gh.lazySingleton<_i114.ToolRepository>(
+      () => _i499.ToolRepositoryImpl(
+        reader: gh<_i4.LocalMediaReader>(),
+        pdfRunner: gh<_i33.PdfToolRunner>(),
+        mediaRunner: gh<_i420.MediaToolRunner>(),
+        pdf: gh<_i948.PdfService>(),
+        engine: gh<_i11.MediaEngine>(),
+        picker: gh<_i1017.MediaPickerService>(),
+        library: gh<_i202.LibraryLocalService>(),
+        directories: gh<_i1027.AppDirectories>(),
+        files: gh<_i600.FileService>(),
         errorHandler: gh<_i166.ErrorHandler>(),
       ),
     );
@@ -376,21 +448,11 @@ extension GetItInjectableX on _i174.GetIt {
         youtube: gh<_i687.YouTubePostExtractor>(),
       ),
     );
-    gh.lazySingleton<_i377.ConvertRepository>(
-      () => _i789.ConvertRepositoryImpl(
-        engine: gh<_i11.MediaEngine>(),
-        slot: gh<_i847.FfmpegSlot>(),
-        images: gh<_i990.ImageConvertService>(),
-        thumbnails: gh<_i879.ImageService>(),
-        picker: gh<_i1017.MediaPickerService>(),
-        library: gh<_i202.LibraryLocalService>(),
-        directories: gh<_i1027.AppDirectories>(),
-        files: gh<_i600.FileService>(),
-        errorHandler: gh<_i166.ErrorHandler>(),
-      ),
-    );
     gh.factory<_i966.ConvertMediaUseCase>(
       () => _i966.ConvertMediaUseCase(convert: gh<_i377.ConvertRepository>()),
+    );
+    gh.factory<_i237.RunToolUseCase>(
+      () => _i237.RunToolUseCase(tools: gh<_i114.ToolRepository>()),
     );
     gh.lazySingleton<_i665.PostRepository>(
       () => _i1059.PostRepositoryImpl(

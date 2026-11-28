@@ -6,7 +6,7 @@ import 'package:media_tool/core/services/app_directories.dart';
 import 'package:media_tool/core/services/file_service.dart';
 import 'package:media_tool/core/types/types.dart';
 import 'package:media_tool/core/utils/filename_utils.dart';
-import 'package:media_tool/data/models/responses/local_media_info_dto.dart';
+import 'package:media_tool/data/repositories/helpers/local_media_reader.dart';
 import 'package:media_tool/data/services/local/library_local_service.dart';
 import 'package:media_tool/data/services/platform/image_convert_service.dart';
 import 'package:media_tool/data/services/platform/image_service.dart';
@@ -14,18 +14,15 @@ import 'package:media_tool/data/services/platform/media_engine/builders/ffmpeg_c
 import 'package:media_tool/data/services/platform/media_engine/engine_event.dart';
 import 'package:media_tool/data/services/platform/media_engine/ffmpeg_slot.dart';
 import 'package:media_tool/data/services/platform/media_engine/media_engine.dart';
-import 'package:media_tool/data/services/platform/media_engine/parsers/ffmpeg_info_parser.dart';
 import 'package:media_tool/data/services/platform/media_engine/parsers/ffmpeg_progress_parser.dart';
 import 'package:media_tool/data/services/platform/media_picker_service.dart';
 import 'package:media_tool/domain/models/convert_format.dart';
 import 'package:media_tool/domain/models/convert_request.dart';
 import 'package:media_tool/domain/models/download_event.dart';
-import 'package:media_tool/domain/models/engine_info.dart';
 import 'package:media_tool/domain/models/image_compress_options.dart';
 import 'package:media_tool/domain/models/job_progress.dart';
 import 'package:media_tool/domain/models/library_item.dart';
 import 'package:media_tool/domain/models/local_media_info.dart';
-import 'package:media_tool/domain/models/media_kind.dart';
 import 'package:media_tool/domain/repositories/convert_repository.dart';
 import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
@@ -34,6 +31,7 @@ import 'package:uuid/uuid.dart';
 final class ConvertRepositoryImpl({
   required final MediaEngine _engine,
   required final FfmpegSlot _slot,
+  required final LocalMediaReader _reader,
   required final ImageConvertService _images,
   required final ImageService _thumbnails,
   required final MediaPickerService _picker,
@@ -42,12 +40,6 @@ final class ConvertRepositoryImpl({
   required final FileService _files,
   required final ErrorHandler _errorHandler,
 }) implements ConvertRepository {
-  static const _imageExtensions = {'jpg', 'jpeg', 'png', 'webp', 'heic', 'heif', 'gif', 'bmp'};
-  static const _audioExtensions = {'mp3', 'm4a', 'aac', 'opus', 'ogg', 'wav', 'flac'};
-  static const _sourceThumbnail = 'source-thumb.jpg';
-
-  List<String>? _encoders;
-
   @override
   FutureData<LocalMediaInfo?> pickFromPhotos() => _pick(_picker.pickFromPhotos, action: 'convert.pickFromPhotos');
 
@@ -56,7 +48,7 @@ final class ConvertRepositoryImpl({
 
   @override
   FutureData<LocalMediaInfo> importFile(String path) =>
-      _errorHandler.execute(action: 'convert.import', () => _copyAndRead(path));
+      _errorHandler.execute(action: 'convert.import', () => _reader.copyAndRead(path));
 
   @override
   FutureData<LocalMediaInfo> fromLibrary(String id) => _errorHandler.execute(action: 'convert.fromLibrary', () async {
@@ -65,33 +57,22 @@ final class ConvertRepositoryImpl({
       return failure.retype();
     }
     final item = items.data?.firstOrNull;
-    if (item == null) {
+    if (item == null || item.kind == .document) {
       return const FailureState(message: ConvertMessages.unreadable);
     }
-    return await _read(
-      _directories.resolve(item.relativePath),
-      title: item.title,
-      kind: item.kind,
-      libraryItemId: item.id,
-      thumbnailPath: item.thumbnailRelativePath == null ? null : _directories.resolve(item.thumbnailRelativePath!),
-    );
+    return await _reader.readLibraryItem(item);
   });
 
   @override
-  Future<void> discard(LocalMediaInfo source) => _errorHandler.executeSafe(() async {
-    // Only working copies; a Library file is the user's.
-    final folder = p.dirname(source.path);
-    if (source.libraryItemId == null && p.isWithin(_directories.work, folder)) {
-      await _files.delete(folder);
-    }
-  });
+  Future<void> discard(LocalMediaInfo source) => _reader.discard(source);
 
   @override
   Future<List<ConvertFormat>> targetsFor(LocalMediaInfo source) async {
-    final encoders = _encoders ?? const <String>[];
+    final encoders = _reader.encoders;
     final targets = switch (source.kind) {
       .photo => _images.outputFormats,
       .audio => const [ConvertFormat.mp3, ConvertFormat.m4a],
+      .document => const <ConvertFormat>[],
       .video => [
         ConvertFormat.mp4,
         ConvertFormat.mov,
@@ -110,7 +91,7 @@ final class ConvertRepositoryImpl({
   @override
   ConvertFormat? compressFormatFor(LocalMediaInfo source) => switch (source.kind) {
     .video => .mp4,
-    .audio => null,
+    .audio || .document => null,
     .photo => switch (ConvertFormat.fromExtension(source.format)) {
       final own? when _images.outputFormats.contains(own) => own,
       _ => .jpg,
@@ -143,7 +124,12 @@ final class ConvertRepositoryImpl({
               }
             case EngineDone():
               final thumbnail = request.format.kind == .video
-                  ? await _videoThumbnail(jobId, output, p.join(workDir, 'thumb.jpg'), request.source.durationSeconds)
+                  ? await _reader.videoThumbnail(
+                      jobId,
+                      output,
+                      p.join(workDir, 'thumb.jpg'),
+                      request.source.durationSeconds,
+                    )
                   : null;
               yield DownloadFinished(mediaPath: output, thumbnailPath: thumbnail);
               return;
@@ -227,122 +213,17 @@ final class ConvertRepositoryImpl({
         if (path == null) {
           return const SuccessState(data: null);
         }
-        final read = await _copyAndRead(path);
+        final read = await _reader.copyAndRead(path);
         await _picker.clearTemporaryFiles();
         return read.mapData<LocalMediaInfo?>((info) => info);
       });
-
-  /// Copies [path] into its own `work/` folder (so the original is never
-  /// touched or locked) and reads the copy.
-  FutureData<LocalMediaInfo> _copyAndRead(String path) async {
-    final folder = _directories.workFor('source-${const Uuid().v4()}');
-    final copy = p.join(folder, p.basename(path));
-    await _files.copy(path, copy);
-    final read = await _read(copy, title: p.basenameWithoutExtension(path));
-    if (read is FailureState) {
-      await _files.delete(folder);
-    }
-    return read;
-  }
-
-  FutureData<LocalMediaInfo> _read(
-    String path, {
-    required String title,
-    MediaKind? kind,
-    String? libraryItemId,
-    String? thumbnailPath,
-  }) async {
-    final format = p.extension(path).replaceFirst('.', '').toLowerCase();
-    final sizeBytes = await _files.sizeOf(path);
-    final engine = await _ensureEngine();
-    if (engine case final FailureState<void> failure when kind != .photo && !_imageExtensions.contains(format)) {
-      return failure.retype();
-    }
-
-    if (kind == .photo || (kind == null && _imageExtensions.contains(format))) {
-      final size = await _images.sizeOf(path);
-      return SuccessState(
-        data: LocalMediaInfo(
-          path: path,
-          title: title,
-          kind: .photo,
-          format: format,
-          sizeBytes: sizeBytes,
-          libraryItemId: libraryItemId,
-          thumbnailPath: thumbnailPath ?? path,
-          width: size?.width,
-          height: size?.height,
-        ),
-      );
-    }
-
-    var output = '';
-    await for (final event in _engine.ffmpeg('probe-${const Uuid().v4()}', FfmpegCommandBuilder.probe(path))) {
-      if (event case EngineFailed(output: final text)) {
-        output = text;
-      }
-    }
-    final dto = FfmpegInfoParser.parse(output);
-    final detected = switch (dto) {
-      _ when kind == .audio || _audioExtensions.contains(format) => dto?.audioCodec == null ? null : MediaKind.audio,
-      LocalMediaInfoDto(videoCodec: _?) => MediaKind.video,
-      LocalMediaInfoDto(audioCodec: _?) => MediaKind.audio,
-      _ => null,
-    };
-    if (dto == null || detected == null) {
-      return FailureState(message: ConvertMessages.unreadable, error: _tail(output));
-    }
-    final ownThumbnail =
-        thumbnailPath ??
-        (detected == .video && libraryItemId == null
-            ? await _videoThumbnail(
-                'thumb-${const Uuid().v4()}',
-                path,
-                p.join(p.dirname(path), _sourceThumbnail),
-                dto.durationSeconds,
-              )
-            : null);
-    return SuccessState(
-      data: LocalMediaInfo(
-        path: path,
-        title: title,
-        kind: detected,
-        format: format,
-        sizeBytes: sizeBytes,
-        libraryItemId: libraryItemId,
-        thumbnailPath: ownThumbnail,
-        durationSeconds: dto.durationSeconds,
-        width: dto.width,
-        height: dto.height,
-        videoCodec: detected == .video ? dto.videoCodec : null,
-        audioCodec: dto.audioCodec,
-        audioKbps: dto.audioKbps,
-      ),
-    );
-  }
-
-  /// Starts the engine once (it's usually already running) and keeps its encoder list.
-  FutureVoid _ensureEngine() async {
-    if (_encoders != null) {
-      return const SuccessState.nil();
-    }
-    final result = await _engine.init();
-    if (result case SuccessState(:final data?)) {
-      _encoders = data.encoders;
-      return const SuccessState.nil();
-    }
-    return switch (result) {
-      final FailureState<EngineInfo> failure => failure.retype(),
-      _ => const FailureState(),
-    };
-  }
 
   /// The ffmpeg commands for [request], best first; later ones are fallbacks.
   /// See docs/engine/ffmpeg_recipes.md#convert.
   List<List<String>> _commands(ConvertRequest request, String output) {
     final source = request.source;
     final input = source.path;
-    final encoders = FfmpegCommandBuilder.iphoneEncoders(_encoders ?? const []);
+    final encoders = FfmpegCommandBuilder.iphoneEncoders(_reader.encoders);
     List<List<String>> iphone() => [
       for (final encoder in encoders)
         FfmpegCommandBuilder.iphoneVideo(input: input, output: output, encoder: encoder, height: source.shortSide),
@@ -425,19 +306,6 @@ final class ConvertRepositoryImpl({
     yield DownloadFinished(mediaPath: output, thumbnailPath: hasThumbnail ? thumbnail : null);
   }
 
-  /// A frame at 10% of the video as a small JPG, or null when ffmpeg can't.
-  Future<String?> _videoThumbnail(String jobId, String input, String output, double? durationSeconds) async {
-    final args = FfmpegCommandBuilder.thumbnail(input: input, output: output, atSeconds: (durationSeconds ?? 0) * 0.1);
-    await for (final event in _engine.ffmpeg(jobId, args)) {
-      if (event is EngineDone) {
-        return output;
-      }
-    }
-    return null;
-  }
-
   static String _messageFor(String output) =>
       output.contains('No space left') ? CommonMessages.noSpace : ConvertMessages.failed;
-
-  static String _tail(String text) => text.length > 600 ? text.substring(text.length - 600) : text;
 }

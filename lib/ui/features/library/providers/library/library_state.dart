@@ -78,11 +78,18 @@ final class const LibraryState({
 
   LibraryEntry? byId(String id) => entries.where((entry) => entry.id == id).firstOrNull;
 
+  /// Every item of the post [groupId], in the post's order (filters ignored).
+  List<LibraryEntry> group(String groupId) => [
+    for (final entry in entries)
+      if (entry.item.groupId == groupId) entry,
+  ]..sort((a, b) => (a.item.groupIndex ?? 0).compareTo(b.item.groupIndex ?? 0));
+
   bool _matchesKind(LibraryItem item) => switch (filter.kind) {
     .all => true,
     .videos => item.kind == .video,
     .audio => item.kind == .audio,
     .photos => item.kind == .photo,
+    .documents => item.kind == .document,
   };
 
   LibraryState copyWith({

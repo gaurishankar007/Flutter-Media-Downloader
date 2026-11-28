@@ -10,7 +10,7 @@ import 'package:path/path.dart' as p;
 /// (Windows) or the Pictures / Videos folders (Linux). Methods throw
 /// (`GalException`); repositories call them inside `ErrorHandler.execute`.
 abstract interface class GalleryService {
-  /// Whether [kind] can go to Photos / the gallery at all (audio can't).
+  /// Whether [kind] can go to Photos / the gallery at all (audio and PDFs can't).
   bool supports(MediaKind kind);
 
   Future<void> save(String path, MediaKind kind);
@@ -21,7 +21,7 @@ final class GalleryServiceImpl implements GalleryService {
   static const _album = 'MediaTool';
 
   @override
-  bool supports(MediaKind kind) => kind != .audio;
+  bool supports(MediaKind kind) => kind == .video || kind == .photo;
 
   @override
   Future<void> save(String path, MediaKind kind) async {
@@ -34,8 +34,8 @@ final class GalleryServiceImpl implements GalleryService {
         await Gal.putVideo(path, album: _album);
       case .photo:
         await Gal.putImage(path, album: _album);
-      case .audio:
-        throw UnsupportedError('Audio files cannot be saved to Photos');
+      case .audio || .document:
+        throw UnsupportedError('Only videos and photos can be saved to Photos');
     }
   }
 }
@@ -45,14 +45,14 @@ final class GalleryServiceImpl implements GalleryService {
 @LazySingleton(as: GalleryService, env: [PlatformEnv.linux])
 final class LinuxGalleryService implements GalleryService {
   @override
-  bool supports(MediaKind kind) => kind != .audio;
+  bool supports(MediaKind kind) => kind == .video || kind == .photo;
 
   @override
   Future<void> save(String path, MediaKind kind) async {
     final folder = switch (kind) {
       .video => await _userDir('VIDEOS', 'Videos'),
       .photo => await _userDir('PICTURES', 'Pictures'),
-      .audio => throw UnsupportedError('Audio files cannot be saved to Photos'),
+      .audio || .document => throw UnsupportedError('Only videos and photos can be saved to Photos'),
     };
     final album = Directory(p.join(folder, 'MediaTool'));
     await album.create(recursive: true);

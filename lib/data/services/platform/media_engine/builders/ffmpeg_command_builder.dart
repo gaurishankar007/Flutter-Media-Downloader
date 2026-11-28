@@ -243,6 +243,212 @@ abstract final class FfmpegCommandBuilder {
     output,
   ];
 
+  /// A part of a video → animated GIF: [fps] frames a second, [width] wide,
+  /// with a palette made from the clip itself (two-pass quality in one run).
+  /// See docs/engine/ffmpeg_recipes.md#gif.
+  static List<String> gifFromVideo({
+    required String input,
+    required String output,
+    required double startSeconds,
+    required double durationSeconds,
+    required int fps,
+    required int width,
+  }) => [
+    '-hide_banner',
+    '-nostats',
+    '-progress',
+    'pipe:1',
+    '-y',
+    '-ss',
+    startSeconds.toStringAsFixed(3),
+    '-t',
+    durationSeconds.toStringAsFixed(3),
+    '-i',
+    input,
+    '-vf',
+    'fps=$fps,scale=$width:-1:flags=lanczos,$_gifPalette',
+    '-loop',
+    '0',
+    output,
+  ];
+
+  /// Numbered frames ([framePattern], `%03d.png` from 001, all the same size)
+  /// → animated GIF showing each for [secondsPerImage].
+  static List<String> gifFromFrames({
+    required String framePattern,
+    required String output,
+    required double secondsPerImage,
+  }) => [
+    '-hide_banner',
+    '-nostats',
+    '-progress',
+    'pipe:1',
+    '-y',
+    '-framerate',
+    (1 / secondsPerImage).toStringAsFixed(4),
+    '-start_number',
+    '1',
+    '-i',
+    framePattern,
+    '-vf',
+    _gifPalette,
+    '-loop',
+    '0',
+    output,
+  ];
+
+  /// One image fitted inside [width] × [height] on a white canvas (a GIF frame).
+  static List<String> fitFrame({
+    required String input,
+    required String output,
+    required int width,
+    required int height,
+  }) => [
+    '-hide_banner',
+    '-nostats',
+    '-y',
+    '-i',
+    input,
+    '-vf',
+    [
+      'scale=$width:$height:force_original_aspect_ratio=decrease:flags=lanczos',
+      'pad=$width:$height:(ow-iw)/2:(oh-ih)/2:color=white',
+      'format=rgb24',
+    ].join(','),
+    '-frames:v',
+    '1',
+    '-update',
+    '1',
+    output,
+  ];
+
+  /// Animated GIF → MP4 with [encoder] (even dimensions, yuv420p, faststart).
+  static List<String> gifToVideo({required String input, required String output, required String encoder}) => [
+    ..._head(input),
+    '-vf',
+    'scale=trunc(iw/2)*2:trunc(ih/2)*2',
+    ..._videoEncoder(encoder),
+    '-pix_fmt',
+    'yuv420p',
+    '-an',
+    '-movflags',
+    '+faststart',
+    output,
+  ];
+
+  /// Keep [startSeconds] + [durationSeconds] of a video. With no [encoder] the
+  /// streams are copied (fast; the cut lands on keyframes), else re-encoded
+  /// with it for a frame-exact cut.
+  static List<String> trim({
+    required String input,
+    required String output,
+    required double startSeconds,
+    required double durationSeconds,
+    String? encoder,
+  }) => [
+    '-hide_banner',
+    '-nostats',
+    '-progress',
+    'pipe:1',
+    '-y',
+    '-ss',
+    startSeconds.toStringAsFixed(3),
+    '-i',
+    input,
+    '-t',
+    durationSeconds.toStringAsFixed(3),
+    ..._firstStreams,
+    if (encoder == null) ...[
+      '-c',
+      'copy',
+      '-avoid_negative_ts',
+      'make_zero',
+    ] else ...[
+      ..._videoEncoder(encoder),
+      '-pix_fmt',
+      'yuv420p',
+      '-c:a',
+      'aac',
+      '-b:a',
+      '192k',
+    ],
+    '-movflags',
+    '+faststart',
+    output,
+  ];
+
+  /// The first video stream only, copied: the sound is gone.
+  static List<String> mute({required String input, required String output}) => [
+    ..._head(input),
+    '-map',
+    '0:v:0',
+    '-c',
+    'copy',
+    '-an',
+    output,
+  ];
+
+  /// An image scaled to exactly [width] × [height] with Lanczos, sharpened a
+  /// little when [sharpen] (upscales), cropped first to [crop] (`w:h:x:y` in
+  /// pixels), then turned [quarterTurns] clockwise and flipped. Saved as
+  /// [format] (`jpg`, `png` or `webp`) at [quality].
+  static List<String> editImage({
+    required String input,
+    required String output,
+    required String format,
+    int quality = 92,
+    int? width,
+    int? height,
+    bool sharpen = false,
+    String? crop,
+    int quarterTurns = 0,
+    bool flipHorizontal = false,
+    bool flipVertical = false,
+  }) {
+    final filters = [
+      if (crop != null) 'crop=$crop',
+      if (width != null && height != null) 'scale=$width:$height:flags=lanczos',
+      if (sharpen) 'unsharp=5:5:0.6:5:5:0.0',
+      ...switch (quarterTurns % 4) {
+        1 => ['transpose=1'],
+        2 => ['transpose=1', 'transpose=1'],
+        3 => ['transpose=2'],
+        _ => const <String>[],
+      },
+      if (flipHorizontal) 'hflip',
+      if (flipVertical) 'vflip',
+    ];
+    return [
+      '-hide_banner',
+      '-nostats',
+      '-y',
+      '-i',
+      input,
+      if (filters.isNotEmpty) ...['-vf', filters.join(',')],
+      ...switch (format) {
+        'png' => ['-c:v', 'png'],
+        'webp' => ['-c:v', 'libwebp', '-quality', '$quality'],
+        _ => ['-c:v', 'mjpeg', '-q:v', '${(2 + (100 - quality.clamp(0, 100)) * 29 / 100).round()}'],
+      },
+      '-frames:v',
+      '1',
+      '-update',
+      '1',
+      output,
+    ];
+  }
+
+  // One palette for the whole clip: far fewer bands than ffmpeg's default GIF colours.
+  static const _gifPalette = 'split[a][b];[a]palettegen=stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=5';
+
+  /// The video encoder arguments for [encoder] at good quality.
+  static List<String> _videoEncoder(String encoder) => switch (encoder) {
+    'hevc_videotoolbox' => ['-c:v', encoder, '-q:v', '65', '-tag:v', 'hvc1'],
+    'hevc_mediacodec' => ['-c:v', encoder, '-b:v', '8M', '-tag:v', 'hvc1'],
+    'h264_videotoolbox' => ['-c:v', encoder, '-q:v', '65'],
+    _ => ['-c:v', 'libx264', '-preset', 'veryfast', '-crf', '23'],
+  };
+
   static List<String> _head(String input) => ['-hide_banner', '-nostats', '-progress', 'pipe:1', '-y', '-i', input];
 
   // Subtitles and cover art often can't go into the new container.

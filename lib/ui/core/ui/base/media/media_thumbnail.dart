@@ -28,6 +28,7 @@ class const MediaThumbnail({
           .video => Symbols.movie_rounded,
           .audio => Symbols.music_note_rounded,
           .photo => Symbols.image_rounded,
+          .document => Symbols.picture_as_pdf_rounded,
         }, color: colors.textMuted),
       ),
     );

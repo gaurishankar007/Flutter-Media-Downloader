@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:media_tool/core/messages/app_messages.dart';
+import 'package:media_tool/ui/core/ui/base/layout/screen_back_button.dart';
 import 'package:media_tool/ui/core/ui/base/layout/screen_header.dart';
 import 'package:media_tool/ui/core/ui/base/layout/screen_scroll_view.dart';
 import 'package:media_tool/ui/core/ui/base/text/section_header.dart';
@@ -21,7 +22,8 @@ import 'package:media_tool/ui/features/convert/views/convert/widgets/source_prev
 import 'package:media_tool/ui/features/convert/views/convert/widgets/source_tiles.dart';
 import 'package:media_tool/ui/features/convert/views/convert/widgets/video_compress_options.dart';
 
-/// Pick a file → convert or compress → result, in one screen.
+/// Tools → Convert & compress: pick a file → convert or compress → result,
+/// in one screen.
 /// See docs/features/convert.md.
 @RoutePage()
 class const ConvertScreen({super.key}) extends ConsumerWidget {
@@ -44,32 +46,35 @@ class const ConvertScreen({super.key}) extends ConsumerWidget {
     }
 
     final picking = !job.hasJob && source != null;
-    return ScreenScrollView(
-      // Convert, or the result's Save / Share / Done, stays at the bottom.
-      bottomAction: switch ((job.hasJob, job.done)) {
-        (true, true) => ResultActions(onDone: done),
-        _ when picking => const ConvertButton(),
-        _ => null,
-      },
-      children: [
-        const ScreenHeader(title: ConvertMessages.title, subtitle: ConvertMessages.subtitle),
-        if (job.hasJob)
-          if (job.done) const ConvertResultSection() else const ConvertJobPanel()
-        else if (source == null) ...[
-          const SectionHeader(title: ConvertMessages.pickFile),
-          const SourceTiles(),
-          const SectionHeader(title: ConvertMessages.whatYouCanDo),
-          const FormatOverviewCard(),
-        ] else ...[
-          SourcePreview(source: source, onChange: sourceNotifier.clear),
-          if (options.canCompress) ...[const SectionHeader(title: ConvertMessages.whatToDo), const ModePicker()],
-          switch ((options.mode, source.kind)) {
-            (.convert, _) => const FormatChips(),
-            (.compress, .photo) => const ImageCompressOptionsPanel(),
-            (.compress, _) => const VideoCompressOptionsPanel(),
-          },
+    return Scaffold(
+      body: ScreenScrollView(
+        // Convert, or the result's Save / Share / Done, stays at the bottom.
+        bottomAction: switch ((job.hasJob, job.done)) {
+          (true, true) => ResultActions(onDone: done),
+          _ when picking => const ConvertButton(),
+          _ => null,
+        },
+        children: [
+          const ScreenBackButton(),
+          const ScreenHeader(title: ConvertMessages.title, subtitle: ConvertMessages.subtitle),
+          if (job.hasJob)
+            if (job.done) const ConvertResultSection() else const ConvertJobPanel()
+          else if (source == null) ...[
+            const SectionHeader(title: ConvertMessages.pickFile),
+            const SourceTiles(),
+            const SectionHeader(title: ConvertMessages.whatYouCanDo),
+            const FormatOverviewCard(),
+          ] else ...[
+            SourcePreview(source: source, onChange: sourceNotifier.clear),
+            if (options.canCompress) ...[const SectionHeader(title: ConvertMessages.whatToDo), const ModePicker()],
+            switch ((options.mode, source.kind)) {
+              (.convert, _) => const FormatChips(),
+              (.compress, .photo) => const ImageCompressOptionsPanel(),
+              (.compress, _) => const VideoCompressOptionsPanel(),
+            },
+          ],
         ],
-      ],
+      ),
     );
   }
 }

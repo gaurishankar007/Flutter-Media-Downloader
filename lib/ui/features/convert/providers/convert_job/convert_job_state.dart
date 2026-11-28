@@ -20,7 +20,7 @@ final class const ConvertJobState({
 
   bool get isDone => stage == .done;
 
-  bool get canSaveToPhotos => result != null && result!.kind != .audio;
+  bool get canSaveToPhotos => result != null && (result!.kind == .video || result!.kind == .photo);
 
   ConvertJobState copyWith({
     JobProgress? progress,

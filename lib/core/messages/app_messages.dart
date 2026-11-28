@@ -24,7 +24,10 @@ library;
 /// 11: CookiesMessages.browserBody no longer names macOS (Windows and Linux read browsers too).
 /// 12: added DownloadMessages.addedToLibrary / closePreview and ConvertMessages.addedToLibrary
 ///     (toasts that say where finished files go).
-const kMessagesVersion = 12;
+/// 13: Convert tab became Tools: removed NavMessages.convert, added NavMessages.tools and
+///     ToolsMessages; added LibraryMessages.documents and post page strings,
+///     SettingsMessages.storageDocuments.
+const kMessagesVersion = 13;
 
 abstract final class CommonMessages {
   /// Fallback for any failure without a clearer message.
@@ -85,7 +88,7 @@ abstract final class NavMessages {
   /// Bottom nav / sidebar tab labels.
   static const download = 'Download';
   static const library = 'Library';
-  static const convert = 'Convert';
+  static const tools = 'Tools';
   static const system = 'System';
   static const settings = 'Settings';
 }
@@ -260,6 +263,7 @@ abstract final class LibraryMessages {
   static const videos = 'Videos';
   static const audio = 'Audio';
   static const photos = 'Photos';
+  static const documents = 'PDFs';
 
   /// Empty state.
   static const emptyTitle = 'Nothing here yet';
@@ -323,6 +327,14 @@ abstract final class LibraryMessages {
 
   /// Viewer: the item was deleted or can't be played.
   static const cantPlay = "This file can't be played here.";
+  static const cantOpenPdf = "This PDF can't be shown here.";
+
+  /// Post page (a grouped post or a tool's several outputs). {count} items.
+  static const postItems = 'Items';
+  static const saveAllToPhotos = 'Save all to Photos';
+  static const shareAll = 'Share all';
+  static const deleteAll = 'Delete all';
+  static const postSaveToFilesHint = 'Open an item to save it to Files.';
 }
 
 abstract final class ConvertMessages {
@@ -416,6 +428,219 @@ abstract final class ConvertMessages {
   static const cancelled = 'Conversion cancelled.';
 }
 
+abstract final class ToolsMessages {
+  /// Tools hub header.
+  static const title = 'Tools';
+  static const subtitle = 'Make PDFs and GIFs, trim videos, resize images and more, all on this device.';
+
+  /// Hub sections.
+  static const categoryPdf = 'PDF';
+  static const categoryGifVideo = 'GIF & video';
+  static const categoryImage = 'Image';
+
+  /// The converter's card at the top of the hub.
+  static const convertTitle = 'Convert & compress';
+  static const convertBody = "Change a file's format, or make videos and photos smaller.";
+
+  /// Tool cards and tool screen headers.
+  static const imagesToPdf = 'Images to PDF';
+  static const imagesToPdfBody = 'Put photos on pages, with page size, orientation and margins.';
+  static const pdfToImages = 'PDF to images';
+  static const pdfToImagesBody = 'Save every page as a JPG or PNG.';
+  static const mergePdf = 'Merge PDFs';
+  static const mergePdfBody = 'Join several PDFs into one, in your order.';
+  static const splitPdf = 'Split PDF';
+  static const splitPdfBody = 'Cut a PDF into parts or single pages.';
+  static const organizePdf = 'Organize pages';
+  static const organizePdfBody = 'Reorder, rotate or delete pages.';
+  static const compressPdf = 'Compress PDF';
+  static const compressPdfBody = 'Make a scanned or photo-heavy PDF smaller.';
+  static const unlockPdf = 'Unlock PDF';
+  static const unlockPdfBody = 'Remove the password and restrictions from a PDF you can open.';
+  static const videoToGif = 'Video to GIF';
+  static const videoToGifBody = 'Turn a part of a video into an animated GIF.';
+  static const imagesToGif = 'Images to GIF';
+  static const imagesToGifBody = 'Make an animated GIF from photos.';
+  static const gifToVideo = 'GIF to MP4';
+  static const gifToVideoBody = 'Turn a GIF into a video that plays everywhere.';
+  static const trimVideo = 'Trim video';
+  static const trimVideoBody = 'Keep only the part you want.';
+  static const muteVideo = 'Mute video';
+  static const muteVideoBody = 'Remove the sound from a video.';
+  static const resizeImage = 'Resize image';
+  static const resizeImageBody = 'Make an image bigger or smaller.';
+  static const editImage = 'Rotate & crop';
+  static const editImageBody = 'Turn, flip or crop an image.';
+
+  /// Source section.
+  static const pickFile = 'Pick a file';
+  static const pickFiles = 'Pick files';
+  static const fromLibrary = 'From Library';
+  static const fromLibraryBody = 'Files already in your Library';
+  static const fromPhotos = 'From Photos';
+  static const fromPhotosBody = 'Photos and videos on this device';
+  static const fromFiles = 'From Files';
+  static const filesPdfBody = 'PDF files on this device';
+  static const filesImagesBody = 'JPG, PNG, WebP or HEIC files';
+  static const filesVideoBody = 'MP4, MOV, MKV or WebM files';
+  static const filesGifBody = 'GIF files on this device';
+  static const reading = 'Reading…';
+  static const addMore = 'Add more';
+  static const clearAll = 'Clear';
+  static const moveUp = 'Move up';
+  static const moveDown = 'Move down';
+  static String pageCount(int count) => count == 1 ? '1 page' : '$count pages';
+  static const locked = 'Password protected';
+  static String fileCount(int count) => count == 1 ? '1 file' : '$count files';
+
+  /// Library picker sheet. {count} picked items.
+  static const libraryNothingFits = 'Nothing in your Library fits this tool yet.';
+  static String addPicked(int count) => count == 0 ? 'Add' : 'Add $count';
+
+  /// Picked files of the wrong type.
+  static const wrongTypeImages = "That isn't an image. Pick JPG, PNG, WebP or HEIC files.";
+  static const wrongTypePdf = "That isn't a PDF.";
+  static const wrongTypeVideo = "That isn't a video. Pick an MP4, MOV, MKV or WebM file.";
+  static const wrongTypeGif = "That isn't a GIF.";
+
+  /// Failures. {title} the file's name.
+  static const unreadablePdf = "This PDF can't be opened. It may be damaged.";
+  static const wrongPassword = 'That password is wrong.';
+  static const pdfFailed = "The PDF couldn't be made. Try again with other files.";
+  static const lockedPdf = 'This PDF is password protected. Unlock it with Unlock PDF first.';
+  static const noPages = 'There are no pages left to save.';
+  static const failed = "The tool couldn't finish. Try other settings.";
+  static String imageUnreadable(String title) => "“$title” couldn't be read.";
+
+  /// Library titles of results. {title} the first input's title.
+  static String mergedTitle(String title) => '$title (merged)';
+  static String imagesTitle(String title) => '$title and more';
+
+  /// Images to PDF options.
+  static const pageSize = 'Page size';
+  static const pageFit = 'Fit image';
+  static const pageA4 = 'A4';
+  static const pageLetter = 'Letter';
+  static const orientation = 'Orientation';
+  static const orientationAuto = 'Auto';
+  static const orientationPortrait = 'Portrait';
+  static const orientationLandscape = 'Landscape';
+  static const margin = 'Margin';
+  static const marginNone = 'None';
+  static const marginSmall = 'Small';
+  static const marginLarge = 'Large';
+  static const orientationFitNote = 'Fit image makes each page the size of its image.';
+
+  /// PDF to images options. {dpi} dots per inch.
+  static const imageFormat = 'Format';
+  static const quality = 'Quality';
+  static const dpiScreen = 'Screen';
+  static const dpiStandard = 'Standard';
+  static const dpiPrint = 'Print';
+  static String dpi(int dpi) => '$dpi dpi';
+
+  /// Split options. {count} pages or parts.
+  static const splitHow = 'How to split';
+  static const splitEach = 'Every page';
+  static const splitEvery = 'Every few pages';
+  static const splitRanges = 'Ranges';
+  static const pagesPerPart = 'Pages per part';
+  static const rangesLabel = 'Page ranges';
+  static const rangesHint = 'e.g. 1-3, 5, 8-10';
+  static const rangesInvalid = 'Use page numbers and ranges like 1-3, 5.';
+  static String splitParts(int count) => count == 1 ? 'Makes 1 PDF' : 'Makes $count PDFs';
+
+  /// Organize pages. {number} 1-based page number.
+  static const pages = 'Pages';
+  static const pagesHint =
+      'Press and hold a page, then drop it where it should go. Rotate or delete pages with their buttons.';
+  static const loadingPages = 'Loading pages…';
+  static const rotatePage = 'Rotate';
+  static const deletePage = 'Delete';
+  static const resetPages = 'Reset';
+  static String page(int number) => 'Page $number';
+
+  /// Compress PDF options.
+  static const compression = 'Compression';
+  static const compressLight = 'Light';
+  static const compressMedium = 'Medium';
+  static const compressStrong = 'Strong';
+  static const compressNote =
+      "Pages become images, so text can't be selected or searched afterwards. Best for scans and photo PDFs.";
+
+  /// Unlock PDF.
+  static const password = 'Password';
+  static const passwordHint = "The PDF's password";
+  static const notLocked = 'This PDF opens without a password. Unlocking removes its print and copy restrictions.';
+
+  /// GIF and trim options. {seconds} formatted times.
+  static const part = 'Part of the video';
+  static String range(String start, String end, String length) => '$start – $end · $length';
+  static const frameRate = 'Frames per second';
+  static String fps(int fps) => '$fps fps';
+  static const width = 'Width';
+  static String pixels(int pixels) => '$pixels px';
+  static const perImage = 'Each image shows for';
+  static String seconds(String seconds) => '$seconds s';
+  static const longGif = 'Long GIFs get big quickly. Keep it under 10 seconds.';
+  static const exactCut = 'Frame-exact cut';
+  static const exactCutBody = 'Re-encodes the video: slower, but cuts exactly where you set.';
+  static const noLength = 'Pick a part longer than a fraction of a second.';
+
+  /// Resize options. {width} × {height} pixels, {percent} 0–400.
+  static const size = 'Size';
+  static String percent(int percent) => '$percent%';
+  static String dimensions(int width, int height) => '$width × $height px';
+  static const upscaleNote = "Bigger images are smoothed and sharpened; they can't gain real detail.";
+
+  /// Rotate & crop options.
+  static const rotate = 'Rotate';
+  static const rotateLeft = 'Rotate left';
+  static const rotateRight = 'Rotate right';
+  static const flipHorizontal = 'Flip horizontally';
+  static const flipVertical = 'Flip vertically';
+  static const crop = 'Crop';
+  static const cropOriginal = 'Original';
+  static const cropSquare = '1:1';
+  static const cropPortrait = '4:5';
+  static const cropStory = '9:16';
+  static const cropWide = '16:9';
+  static const cropPhoto = '3:2';
+  static const cropNote = 'The crop is centred.';
+  static const noChanges = 'Rotate, flip or crop the image first.';
+
+  /// Start buttons.
+  static const makePdf = 'Make PDF';
+  static const saveImages = 'Save images';
+  static const merge = 'Merge';
+  static const split = 'Split';
+  static const savePdf = 'Save PDF';
+  static const compress = 'Compress';
+  static const unlock = 'Unlock';
+  static const makeGif = 'Make GIF';
+  static const makeVideo = 'Make MP4';
+  static const trim = 'Trim';
+  static const mute = 'Mute';
+  static const resize = 'Resize';
+  static const saveImage = 'Save image';
+
+  /// Running job.
+  static const working = 'Working';
+  static const waiting = 'Waiting for another conversion to finish…';
+  static const cancelJob = 'Cancel';
+  static const cancelled = 'Cancelled.';
+  static const tryAgain = 'Try again';
+
+  /// Result. {count} files made.
+  static String resultTitle(int count) => count == 1 ? 'Added to your Library' : '$count files added to your Library';
+  static const resultBody = 'The originals are untouched.';
+  static String sizeChange(String before, String after) => '$before → $after';
+  static const addedToLibrary = 'Done and added to your Library';
+  static const open = 'Open';
+  static const startOver = 'Start over';
+  static const done = 'Done';
+}
+
 abstract final class SettingsMessages {
   /// Settings screen header.
   static const title = 'Settings';
@@ -448,6 +673,7 @@ abstract final class SettingsMessages {
   static const storageVideos = 'Videos';
   static const storageAudio = 'Audio';
   static const storagePhotos = 'Photos';
+  static const storageDocuments = 'PDFs';
   static const storageEmpty = '0 KB';
   static const clearSaved = 'Clear saved items';
   static String clearSavedBody(int count, String size) =>

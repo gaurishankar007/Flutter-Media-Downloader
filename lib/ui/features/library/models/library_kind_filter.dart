@@ -7,7 +7,8 @@ enum LibraryKindFilter {
   all(Symbols.apps_rounded, LibraryMessages.all),
   videos(Symbols.movie_rounded, LibraryMessages.videos),
   audio(Symbols.music_note_rounded, LibraryMessages.audio),
-  photos(Symbols.image_rounded, LibraryMessages.photos);
+  photos(Symbols.image_rounded, LibraryMessages.photos),
+  documents(Symbols.picture_as_pdf_rounded, LibraryMessages.documents);
 
   new(this.icon, this.label);
 

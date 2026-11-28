@@ -39,13 +39,13 @@ Future<void> showItemActionSheet(BuildContext context, WidgetRef ref, LibraryEnt
         onTap: () => actions.share(entry.ids),
         destructive: false,
       ),
-      if (!entry.isGroup)
+      if (!entry.isGroup && entry.item.kind != .document)
         (
           icon: Symbols.swap_horiz_rounded,
-          label: NavMessages.convert,
+          label: ConvertMessages.title,
           onTap: () {
             ref.read(convertSourceProvider.notifier).pickFromLibrary(entry.id);
-            context.router.navigate(const ConvertRoute());
+            context.router.push(const ConvertRoute());
           },
           destructive: false,
         ),

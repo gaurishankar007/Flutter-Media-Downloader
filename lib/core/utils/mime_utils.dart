@@ -18,6 +18,7 @@ abstract final class MimeUtils {
     'webp': 'image/webp',
     'heic': 'image/heic',
     'gif': 'image/gif',
+    'pdf': 'application/pdf',
   };
 
   static String forPath(String path) =>

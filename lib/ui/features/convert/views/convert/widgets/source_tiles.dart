@@ -3,11 +3,11 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:media_tool/core/messages/app_messages.dart';
 import 'package:media_tool/ui/core/themes/app_spacing.dart';
+import 'package:media_tool/ui/core/ui/base/cards/source_tile.dart';
 import 'package:media_tool/ui/core/ui/base/progress/gradient_progress_bar.dart';
 import 'package:media_tool/ui/core/ui/base/sheets/app_bottom_sheet.dart';
 import 'package:media_tool/ui/features/convert/providers/convert_source/convert_source_notifier.dart';
-import 'package:media_tool/ui/features/convert/views/convert/widgets/library_picker_sheet.dart';
-import 'package:media_tool/ui/features/convert/views/convert/widgets/source_tile.dart';
+import 'package:media_tool/ui/features/library/widgets/library_picker_sheet.dart';
 
 /// Step 1: From Library · From Photos · From Files.
 class const SourceTiles({super.key}) extends ConsumerWidget {
@@ -17,8 +17,11 @@ class const SourceTiles({super.key}) extends ConsumerWidget {
     final reading = ref.watch(convertSourceProvider.select((state) => state.isReading));
 
     Future<void> pickFromLibrary() async {
-      final id = await showAppBottomSheet<String>(context, child: const LibraryPickerSheet());
-      if (id != null) {
+      final ids = await showAppBottomSheet<List<String>>(
+        context,
+        child: const LibraryPickerSheet(kinds: {.video, .audio, .photo}),
+      );
+      if (ids?.firstOrNull case final id?) {
         await notifier.pickFromLibrary(id);
       }
     }
