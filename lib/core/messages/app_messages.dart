@@ -27,7 +27,10 @@ library;
 /// 13: Convert tab became Tools: removed NavMessages.convert, added NavMessages.tools and
 ///     ToolsMessages; added LibraryMessages.documents and post page strings,
 ///     SettingsMessages.storageDocuments.
-const kMessagesVersion = 13;
+/// 14: Trim keeps or removes several clips: reworded ToolsMessages.trimVideoBody; added clip, preview,
+///     trim mode and ToolsMessages.partHint strings. Removed LibraryMessages.postSaveToFilesHint and
+///     ConvertMessages.change (a picked file now has a close button: CommonMessages.remove).
+const kMessagesVersion = 14;
 
 abstract final class CommonMessages {
   /// Fallback for any failure without a clearer message.
@@ -334,7 +337,6 @@ abstract final class LibraryMessages {
   static const saveAllToPhotos = 'Save all to Photos';
   static const shareAll = 'Share all';
   static const deleteAll = 'Delete all';
-  static const postSaveToFilesHint = 'Open an item to save it to Files.';
 }
 
 abstract final class ConvertMessages {
@@ -369,7 +371,6 @@ abstract final class ConvertMessages {
 
   /// Picked file card. {duration} formatted, {size} formatted bytes.
   static const reading = 'Reading the file…';
-  static const change = 'Change';
   static const original = 'Original';
 
   /// Step 2: mode and options.
@@ -464,7 +465,7 @@ abstract final class ToolsMessages {
   static const gifToVideo = 'GIF to MP4';
   static const gifToVideoBody = 'Turn a GIF into a video that plays everywhere.';
   static const trimVideo = 'Trim video';
-  static const trimVideoBody = 'Keep only the part you want.';
+  static const trimVideoBody = 'Keep the clips you want, or cut some out.';
   static const muteVideo = 'Mute video';
   static const muteVideoBody = 'Remove the sound from a video.';
   static const resizeImage = 'Resize image';
@@ -586,6 +587,28 @@ abstract final class ToolsMessages {
   static const exactCut = 'Frame-exact cut';
   static const exactCutBody = 'Re-encodes the video: slower, but cuts exactly where you set.';
   static const noLength = 'Pick a part longer than a fraction of a second.';
+
+  /// Trim video: keep or remove clips. {number} from 1; {length} formatted.
+  static const keepClips = 'Keep clips';
+  static const removeClips = 'Remove clips';
+  static const clips = 'Clips';
+  static String clip(int number) => 'Clip $number';
+  static const addClip = 'Add clip';
+  static const deleteClip = 'Delete clip';
+  static const startHere = 'Start here';
+  static const endHere = 'End here';
+  static const partHint = 'Play or scrub the video, then set the part with Start here and End here.';
+  static const clipHint = 'Play or scrub the video, then set the selected clip with Start here and End here.';
+  static const addClipToKeep = 'Add a clip to keep.';
+  static const addClipToRemove = 'Add a clip to remove: play the video to the part you want gone, then tap Add clip.';
+  static const removesEverything = 'That removes the whole video. Leave some of it in.';
+  static String resultLength(String length) => 'The new video will be $length long.';
+  static const output = 'Save as';
+  static const oneVideo = 'One video';
+  static const separateVideos = 'Separate videos';
+  static const joinNote = 'Joining clips re-encodes the video, so it takes about as long as converting it.';
+  static const overlapNote = 'Overlapping clips are treated as one.';
+  static const noPreview = "This video can't be previewed here. Set the clips with the slider and times.";
 
   /// Resize options. {width} × {height} pixels, {percent} 0–400.
   static const size = 'Size';

@@ -3,10 +3,10 @@ import 'package:material_ui/material_ui.dart';
 import 'package:media_tool/core/messages/app_messages.dart';
 import 'package:media_tool/ui/core/themes/app_spacing.dart';
 import 'package:media_tool/ui/core/ui/base/media/media_thumbnail.dart';
+import 'package:media_tool/ui/core/ui/base/media/player_controls.dart';
 import 'package:media_tool/ui/core/ui/base/states/error_state.dart';
 import 'package:media_tool/ui/core/utils/local_media.dart';
 import 'package:media_tool/ui/features/library/models/library_entry.dart';
-import 'package:media_tool/ui/features/library/views/media_viewer/widgets/player_controls.dart';
 import 'package:video_player/video_player.dart';
 
 /// A local video with controls. Pauses when swiped away ([active] false).

@@ -5,10 +5,10 @@ import 'package:media_tool/core/messages/app_messages.dart';
 import 'package:media_tool/ui/core/themes/app_gradients.dart';
 import 'package:media_tool/ui/core/themes/app_spacing.dart';
 import 'package:media_tool/ui/core/themes/theme.dart';
+import 'package:media_tool/ui/core/ui/base/media/player_controls.dart';
 import 'package:media_tool/ui/core/ui/base/states/error_state.dart';
 import 'package:media_tool/ui/core/utils/local_media.dart';
 import 'package:media_tool/ui/features/library/models/library_entry.dart';
-import 'package:media_tool/ui/features/library/views/media_viewer/widgets/player_controls.dart';
 
 /// Cover art (or the Aurora gradient with a note), title and player controls.
 class const AudioViewer({super.key, required final LibraryEntry entry, required final bool active}) extends HookWidget {

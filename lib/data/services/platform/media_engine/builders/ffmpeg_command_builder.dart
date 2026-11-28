@@ -377,6 +377,47 @@ abstract final class FfmpegCommandBuilder {
     output,
   ];
 
+  /// Several [parts] of a video (seconds, sorted, not overlapping) joined
+  /// into one MP4 in a single pass: each part is cut with `trim` / `atrim`
+  /// (frame-exact), then `concat` joins them. Always re-encoded with
+  /// [encoder]; [hasAudio] false leaves the sound out of the graph.
+  static List<String> joinParts({
+    required String input,
+    required String output,
+    required List<({double start, double end})> parts,
+    required String encoder,
+    required bool hasAudio,
+  }) {
+    String at(double seconds) => seconds.toStringAsFixed(3);
+    final graph = [
+      for (final (index, part) in parts.indexed) ...[
+        '[0:v:0]trim=start=${at(part.start)}:end=${at(part.end)},setpts=PTS-STARTPTS[v$index]',
+        if (hasAudio) '[0:a:0]atrim=start=${at(part.start)}:end=${at(part.end)},asetpts=PTS-STARTPTS[a$index]',
+      ],
+      [
+        for (var index = 0; index < parts.length; index++) ...['[v$index]', if (hasAudio) '[a$index]'],
+        'concat=n=${parts.length}:v=1:a=${hasAudio ? 1 : 0}',
+        '[v]',
+        if (hasAudio) '[a]',
+      ].join(),
+    ].join(';');
+    return [
+      ..._head(input),
+      '-filter_complex',
+      graph,
+      '-map',
+      '[v]',
+      if (hasAudio) ...['-map', '[a]'],
+      ..._videoEncoder(encoder),
+      '-pix_fmt',
+      'yuv420p',
+      if (hasAudio) ...['-c:a', 'aac', '-b:a', '192k'],
+      '-movflags',
+      '+faststart',
+      output,
+    ];
+  }
+
   /// The first video stream only, copied: the sound is gone.
   static List<String> mute({required String input, required String output}) => [
     ..._head(input),

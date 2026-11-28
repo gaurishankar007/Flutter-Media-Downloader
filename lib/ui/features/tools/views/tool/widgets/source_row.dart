@@ -6,19 +6,17 @@ import 'package:media_tool/domain/models/local_media_info.dart';
 import 'package:media_tool/ui/core/themes/app_spacing.dart';
 import 'package:media_tool/ui/core/themes/theme.dart';
 import 'package:media_tool/ui/core/ui/base/buttons/app_icon_button.dart';
-import 'package:media_tool/ui/core/ui/base/buttons/ghost_button.dart';
 import 'package:media_tool/ui/core/ui/base/cards/app_card.dart';
 import 'package:media_tool/ui/core/ui/base/media/media_thumbnail.dart';
 import 'package:media_tool/ui/core/utils/local_media.dart';
 
 /// One picked file: thumbnail, name and what it is. With [index] it has a
-/// drag handle (ReorderableListView) and [onRemove]; else Change.
+/// drag handle (ReorderableListView); with [onRemove] a close button.
 class const SourceRow({
   super.key,
   required final LocalMediaInfo source,
   final int? index,
   final VoidCallback? onRemove,
-  final VoidCallback? onChange,
 }) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -65,7 +63,6 @@ class const SourceRow({
           ),
           if (onRemove != null)
             AppIconButton(icon: Symbols.close_rounded, label: CommonMessages.remove, onPressed: onRemove),
-          if (onChange != null) GhostButton(label: ConvertMessages.change, onPressed: onChange),
         ],
       ),
     );

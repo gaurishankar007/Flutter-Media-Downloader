@@ -4,6 +4,7 @@ import 'package:media_tool/domain/models/crop_rect.dart';
 import 'package:media_tool/domain/models/local_media_info.dart';
 import 'package:media_tool/domain/models/media_kind.dart';
 import 'package:media_tool/domain/models/pdf_layout.dart';
+import 'package:media_tool/domain/models/video_clip.dart';
 
 /// One run of a tool from the Tools tab. PDF tools run on PDFium (pdfrx) and
 /// the `pdf` package; GIF, video and image tools run ffmpeg.
@@ -155,12 +156,16 @@ final class const GifToVideoRequest({required final LocalMediaInfo source}) exte
   List<Object?> get props => [source];
 }
 
-/// Keep [startSeconds]–[endSeconds] of a video. [exact] re-encodes for a
-/// frame-exact cut; otherwise streams are copied (fast, cuts on keyframes).
+/// Keep the [clips] of a video ([mode] keep), or cut them out and keep the
+/// rest ([mode] remove). [clips] are sorted and merged ([VideoClip.merged]).
+/// Several kept parts are joined into one video (re-encoded, frame-exact),
+/// or saved one file each when [separate] (keep mode). A single part, or
+/// separate parts, are stream-copied (fast, cuts on keyframes) unless [exact].
 final class const TrimVideoRequest({
   required final LocalMediaInfo source,
-  required final double startSeconds,
-  required final double endSeconds,
+  required final List<VideoClip> clips,
+  final TrimMode mode = .keep,
+  final bool separate = false,
   final bool exact = false,
 }) extends MediaToolRequest {
   @override
@@ -169,10 +174,23 @@ final class const TrimVideoRequest({
   @override
   MediaKind get outputKind => .video;
 
-  double get durationSeconds => endSeconds - startSeconds;
+  /// The parts of the source that end up in the output, in order.
+  List<VideoClip> get parts => switch (mode) {
+    .keep => clips,
+    .remove => VideoClip.outside(clips, source.durationSeconds ?? 0),
+  };
+
+  /// Several parts joined into one video: always re-encoded.
+  bool get joins => parts.length > 1 && !(mode == .keep && separate);
+
+  /// Streams are copied instead of re-encoded.
+  bool get copies => !exact && !joins;
+
+  /// The length of everything kept, in seconds.
+  double get keptSeconds => parts.fold(0, (total, part) => total + part.length);
 
   @override
-  List<Object?> get props => [source, startSeconds, endSeconds, exact];
+  List<Object?> get props => [source, clips, mode, separate, exact];
 }
 
 /// A video without its sound (streams copied).

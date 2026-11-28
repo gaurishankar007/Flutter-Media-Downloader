@@ -11,6 +11,7 @@ import 'package:media_tool/ui/features/tools/views/tool/widgets/organize_pages_o
 import 'package:media_tool/ui/features/tools/views/tool/widgets/pdf_to_images_options.dart';
 import 'package:media_tool/ui/features/tools/views/tool/widgets/resize_image_options.dart';
 import 'package:media_tool/ui/features/tools/views/tool/widgets/split_pdf_options.dart';
+import 'package:media_tool/ui/features/tools/views/tool/widgets/trim_video_options.dart';
 import 'package:media_tool/ui/features/tools/views/tool/widgets/unlock_pdf_options.dart';
 import 'package:media_tool/ui/features/tools/views/tool/widgets/video_part_options.dart';
 
@@ -29,7 +30,8 @@ class const ToolOptions({super.key, required final Tool tool}) extends ConsumerW
           .organizePdf => const OrganizePagesOptions(),
           .compressPdf => const CompressPdfOptions(),
           .unlockPdf => const UnlockPdfOptions(),
-          .videoToGif || .trimVideo => VideoPartOptions(tool: tool),
+          .videoToGif => const VideoPartOptions(),
+          .trimVideo => const TrimVideoOptions(),
           .imagesToGif => const ImagesToGifOptions(),
           .resizeImage => const ResizeImageOptions(),
           .editImage => const EditImageOptions(),

@@ -7,6 +7,7 @@ import 'package:media_tool/domain/models/crop_rect.dart';
 import 'package:media_tool/domain/models/local_media_info.dart';
 import 'package:media_tool/domain/models/pdf_layout.dart';
 import 'package:media_tool/domain/models/tool_request.dart';
+import 'package:media_tool/domain/models/video_clip.dart';
 import 'package:media_tool/ui/core/providers/base/base_notifier.dart';
 import 'package:media_tool/ui/features/tools/models/crop_aspect.dart';
 import 'package:media_tool/ui/features/tools/models/split_mode.dart';
@@ -21,6 +22,9 @@ class ToolOptionsNotifier(final Tool tool) extends BaseNotifier<ToolOptionsState
   /// GIFs start as the first few seconds: long GIFs get very big.
   static const _gifSeconds = 5.0;
   static const _minSeconds = 0.2;
+
+  /// Trim: how long a new clip starts out.
+  static const _newClipSeconds = 5.0;
 
   /// Resize never makes a side longer than this.
   static const maxSide = 8000;
@@ -44,8 +48,78 @@ class ToolOptionsNotifier(final Tool tool) extends BaseNotifier<ToolOptionsState
 
   /// The part of the video, kept inside it and at least a moment long.
   void setRange(double start, double end) => runFlow('tools.setRange', () {
-    final duration = _sources.firstOrNull?.durationSeconds ?? 0;
+    final duration = _duration;
     _emit(state.copyWith(start: start.clamp(0, duration), end: end.clamp(0, duration)));
+  });
+
+  /// Video to GIF: the part starts at [seconds] (Start here).
+  void setRangeStart(double seconds) =>
+      runFlow('tools.setRangeStart', () => _emitRange(_range.withStart(seconds, _duration, _minSeconds)));
+
+  /// Video to GIF: the part ends at [seconds] (End here).
+  void setRangeEnd(double seconds) =>
+      runFlow('tools.setRangeEnd', () => _emitRange(_range.withEnd(seconds, _duration, _minSeconds)));
+
+  /// Trim: keep or remove the clips. Removing the whole-video clip a fresh
+  /// pick starts with would remove everything, so it's dropped.
+  void setTrimMode(TrimMode mode) => runFlow('tools.setTrimMode', () {
+    final whole = _wholeClip;
+    var clips = state.clips;
+    if (mode == .remove && clips.length == 1 && clips.single == whole) {
+      clips = const [];
+    } else if (mode == .keep && clips.isEmpty && whole != null) {
+      clips = [whole];
+    }
+    _emit(state.copyWith(trimMode: mode, clips: clips, selectedClip: 0));
+  });
+
+  /// Trim: a new clip at [at] seconds (where the preview is), selected.
+  void addClip(double at) => runFlow('tools.addClip', () {
+    final duration = _duration;
+    if (duration <= 0) {
+      return;
+    }
+    final length = math.min(_newClipSeconds, duration);
+    final start = math.min(at.clamp(0, duration).toDouble(), duration - length);
+    final clips = [...state.clips, VideoClip(start: start, end: start + length)];
+    _emit(state.copyWith(clips: clips, selectedClip: clips.length - 1));
+  });
+
+  void selectClip(int index) => runFlow('tools.selectClip', () {
+    if (index >= 0 && index < state.clips.length) {
+      _emit(state.copyWith(selectedClip: index));
+    }
+  });
+
+  void removeClip(int index) => runFlow('tools.removeClip', () {
+    if (index < 0 || index >= state.clips.length) {
+      return;
+    }
+    final clips = [...state.clips]..removeAt(index);
+    final selected = state.selectedClip > index ? state.selectedClip - 1 : state.selectedClip;
+    _emit(state.copyWith(clips: clips, selectedClip: math.max(0, math.min(selected, clips.length - 1))));
+  });
+
+  /// Trim: both ends of clip [index] (the range slider), kept inside the video.
+  void setClip(int index, double start, double end) => runFlow('tools.setClip', () {
+    final duration = _duration;
+    _replaceClip(index, VideoClip(start: start.clamp(0, duration), end: end.clamp(0, duration)));
+  });
+
+  /// Trim: clip [index] starts at [seconds]. Past its end, the clip moves
+  /// there keeping its length.
+  void setClipStart(int index, double seconds) => runFlow('tools.setClipStart', () {
+    if (_clipAt(index) case final clip?) {
+      _replaceClip(index, clip.withStart(seconds, _duration, _minSeconds));
+    }
+  });
+
+  /// Trim: clip [index] ends at [seconds]. Before its start, the clip moves
+  /// there keeping its length.
+  void setClipEnd(int index, double seconds) => runFlow('tools.setClipEnd', () {
+    if (_clipAt(index) case final clip?) {
+      _replaceClip(index, clip.withEnd(seconds, _duration, _minSeconds));
+    }
   });
 
   void rotateImage(int quarterTurns) =>
@@ -74,6 +148,24 @@ class ToolOptionsNotifier(final Tool tool) extends BaseNotifier<ToolOptionsState
 
   void _emit(ToolOptionsState next) => state = _withRequest(next);
 
+  VideoClip get _range => VideoClip(start: state.start, end: state.end);
+
+  void _emitRange(VideoClip range) => _emit(state.copyWith(start: range.start, end: range.end));
+
+  double get _duration => _sources.firstOrNull?.durationSeconds ?? 0;
+
+  /// The whole video as one clip; null before a video with a length is picked.
+  VideoClip? get _wholeClip => _duration > 0 ? VideoClip(start: 0, end: _duration) : null;
+
+  VideoClip? _clipAt(int index) => index >= 0 && index < state.clips.length ? state.clips[index] : null;
+
+  void _replaceClip(int index, VideoClip clip) {
+    if (_clipAt(index) == null) {
+      return;
+    }
+    _emit(state.copyWith(clips: [...state.clips]..[index] = clip, selectedClip: index));
+  }
+
   /// Options that follow the file: the whole video (a GIF's first seconds),
   /// every page, and a resize that suits the image.
   ToolOptionsState _defaultsFor(LocalMediaInfo? source, ToolOptionsState options) {
@@ -84,6 +176,10 @@ class ToolOptionsNotifier(final Tool tool) extends BaseNotifier<ToolOptionsState
       end: tool == .videoToGif ? math.min(duration, _gifSeconds) : duration,
       pages: _allPages(source),
       scalePercent: longSide >= 2400 ? 50 : 200,
+      clips: tool == .trimVideo && duration > 0 && options.trimMode == .keep
+          ? [VideoClip(start: 0, end: duration)]
+          : const [],
+      selectedClip: 0,
       password: '',
       ranges: '',
     );
@@ -161,17 +257,26 @@ class ToolOptionsNotifier(final Tool tool) extends BaseNotifier<ToolOptionsState
       case .gifToVideo:
         return options.withRequest(GifToVideoRequest(source: source));
       case .trimVideo:
-        if (length < _minSeconds) {
+        if (options.clips.isEmpty) {
+          return options.withRequest(
+            null,
+            problem: options.trimMode == .keep ? ToolsMessages.addClipToKeep : ToolsMessages.addClipToRemove,
+          );
+        }
+        if (options.clips.any((clip) => clip.length < _minSeconds)) {
           return options.withRequest(null, problem: ToolsMessages.noLength);
         }
-        return options.withRequest(
-          TrimVideoRequest(
-            source: source,
-            startSeconds: options.start,
-            endSeconds: options.end,
-            exact: options.exactCut,
-          ),
+        final request = TrimVideoRequest(
+          source: source,
+          clips: VideoClip.merged(options.clips),
+          mode: options.trimMode,
+          separate: options.separateClips,
+          exact: options.exactCut,
         );
+        if (request.keptSeconds < _minSeconds) {
+          return options.withRequest(null, problem: ToolsMessages.removesEverything);
+        }
+        return options.withRequest(request);
       case .muteVideo:
         return options.withRequest(MuteVideoRequest(source: source));
       case .resizeImage:

@@ -65,7 +65,7 @@ class const ConvertScreen({super.key}) extends ConsumerWidget {
             const SectionHeader(title: ConvertMessages.whatYouCanDo),
             const FormatOverviewCard(),
           ] else ...[
-            SourcePreview(source: source, onChange: sourceNotifier.clear),
+            SourcePreview(source: source, onRemove: sourceNotifier.clear),
             if (options.canCompress) ...[const SectionHeader(title: ConvertMessages.whatToDo), const ModePicker()],
             switch ((options.mode, source.kind)) {
               (.convert, _) => const FormatChips(),

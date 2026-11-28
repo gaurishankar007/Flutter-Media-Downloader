@@ -47,7 +47,7 @@ class const ToolSourceList({super.key, required final Tool tool}) extends Consum
     );
 
     if (!tool.multiple) {
-      return SourceRow(source: sources.first, onChange: notifier.clear);
+      return SourceRow(source: sources.first, onRemove: notifier.clear);
     }
     return Column(
       crossAxisAlignment: .stretch,

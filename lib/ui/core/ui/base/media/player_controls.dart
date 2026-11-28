@@ -8,10 +8,18 @@ import 'package:media_tool/ui/core/ui/base/buttons/app_icon_button.dart';
 import 'package:video_player/video_player.dart';
 
 /// Play / pause, scrubber with times, and mute for a [VideoPlayerController].
-class const PlayerControls({super.key, required final VideoPlayerController controller}) extends StatelessWidget {
+/// [precise] shows the times to a tenth of a second (Trim video).
+class const PlayerControls({
+  super.key,
+  required final VideoPlayerController controller,
+  final bool precise = false,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    String time(Duration position) => precise
+        ? FormatUtils.clipTime(position.inMilliseconds / 1000)
+        : FormatUtils.duration(position.inSeconds);
     return ValueListenableBuilder(
       valueListenable: controller,
       builder: (context, value, _) {
@@ -24,7 +32,7 @@ class const PlayerControls({super.key, required final VideoPlayerController cont
               label: value.isPlaying ? LibraryMessages.pause : LibraryMessages.play,
               onPressed: value.isPlaying ? controller.pause : controller.play,
             ),
-            Text(FormatUtils.duration(value.position.inSeconds), style: context.text.caption),
+            Text(time(value.position), style: context.text.caption),
             Expanded(
               child: VideoProgressIndicator(
                 controller,
@@ -37,7 +45,7 @@ class const PlayerControls({super.key, required final VideoPlayerController cont
                 ),
               ),
             ),
-            Text(FormatUtils.duration(value.duration.inSeconds), style: context.text.caption),
+            Text(time(value.duration), style: context.text.caption),
             AppIconButton(
               icon: muted ? Symbols.volume_off_rounded : Symbols.volume_up_rounded,
               label: muted ? LibraryMessages.unmute : LibraryMessages.mute,

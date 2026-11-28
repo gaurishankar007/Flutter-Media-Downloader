@@ -1,16 +1,18 @@
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:media_tool/core/messages/app_messages.dart';
 import 'package:media_tool/core/utils/format_utils.dart';
 import 'package:media_tool/domain/models/local_media_info.dart';
 import 'package:media_tool/ui/core/themes/app_spacing.dart';
 import 'package:media_tool/ui/core/themes/theme.dart';
-import 'package:media_tool/ui/core/ui/base/buttons/ghost_button.dart';
+import 'package:media_tool/ui/core/ui/base/buttons/app_icon_button.dart';
 import 'package:media_tool/ui/core/ui/base/cards/app_card.dart';
 import 'package:media_tool/ui/core/ui/base/media/media_thumbnail.dart';
 import 'package:media_tool/ui/core/utils/local_media.dart';
 
-/// The picked file: thumbnail, name and what it is, with Change.
-class const SourcePreview({super.key, required final LocalMediaInfo source, final VoidCallback? onChange})
+/// The picked file: thumbnail, name and what it is, with a close button
+/// that clears it.
+class const SourcePreview({super.key, required final LocalMediaInfo source, final VoidCallback? onRemove})
     extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -47,7 +49,7 @@ class const SourcePreview({super.key, required final LocalMediaInfo source, fina
               ],
             ),
           ),
-          GhostButton(label: ConvertMessages.change, onPressed: onChange),
+          AppIconButton(icon: Symbols.close_rounded, label: CommonMessages.remove, onPressed: onRemove),
         ],
       ),
     );

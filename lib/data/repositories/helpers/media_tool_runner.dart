@@ -17,6 +17,7 @@ import 'package:media_tool/domain/models/local_media_info.dart';
 import 'package:media_tool/domain/models/tool_event.dart';
 import 'package:media_tool/domain/models/tool_output.dart';
 import 'package:media_tool/domain/models/tool_request.dart';
+import 'package:media_tool/domain/models/video_clip.dart';
 import 'package:path/path.dart' as p;
 
 /// Runs the GIF, video and image tools with ffmpeg, one at a time in the
@@ -153,17 +154,70 @@ final class MediaToolRunner({
 
   Stream<ToolEvent> _trim(String jobId, TrimVideoRequest request, String workDir) async* {
     final source = request.source;
-    final copy = !request.exact;
-    final output = p.join(workDir, 'output.${copy ? _copyExtension(source) : 'mp4'}');
-    List<String> trim([String? encoder]) => FfmpegCommandBuilder.trim(
-      input: source.path,
-      output: output,
-      startSeconds: request.startSeconds,
-      durationSeconds: request.durationSeconds,
-      encoder: encoder,
-    );
-    final commands = copy ? [trim()] : [for (final encoder in _encoders()) trim(encoder)];
-    yield* _video(jobId, commands, output, workDir, durationSeconds: request.durationSeconds);
+    final parts = request.parts;
+    final extension = request.copies ? _copyExtension(source) : 'mp4';
+    if (request.joins) {
+      final output = p.join(workDir, 'output.mp4');
+      final commands = [
+        for (final encoder in _encoders())
+          FfmpegCommandBuilder.joinParts(
+            input: source.path,
+            output: output,
+            parts: [for (final part in parts) (start: part.start, end: part.end)],
+            encoder: encoder,
+            hasAudio: source.hasAudio,
+          ),
+      ];
+      yield* _video(jobId, commands, output, workDir, durationSeconds: request.keptSeconds);
+      return;
+    }
+    List<List<String>> commands(VideoClip part, String output) {
+      List<String> trim([String? encoder]) => FfmpegCommandBuilder.trim(
+        input: source.path,
+        output: output,
+        startSeconds: part.start,
+        durationSeconds: part.length,
+        encoder: encoder,
+      );
+      return request.copies ? [trim()] : [for (final encoder in _encoders()) trim(encoder)];
+    }
+
+    if (parts.length == 1) {
+      final output = p.join(workDir, 'output.$extension');
+      yield* _video(jobId, commands(parts.single, output), output, workDir, durationSeconds: parts.single.length);
+      return;
+    }
+    // Separate clips: one file each, grouped in the Library.
+    final outputs = <ToolOutput>[];
+    for (final (index, part) in parts.indexed) {
+      final number = (index + 1).toString().padLeft(3, '0');
+      final output = p.join(workDir, 'clip-$number.$extension');
+      final progress = _ffmpeg(
+        jobId,
+        commands(part, output),
+        durationSeconds: part.length,
+        from: index / parts.length,
+        to: (index + 1) / parts.length,
+      );
+      await for (final event in progress) {
+        if (event is! ToolFinished) {
+          yield event;
+          if (event is! ToolProgressed) {
+            return;
+          }
+        }
+      }
+      final thumbnail = await _reader.videoThumbnail(
+        'thumb-$jobId-$number',
+        output,
+        p.join(workDir, 'clip-$number-thumb.jpg'),
+        part.length,
+      );
+      outputs.add(
+        ToolOutput(path: output, kind: .video, thumbnailPath: thumbnail, durationMs: (part.length * 1000).round()),
+      );
+    }
+    yield ToolFinished(outputs);
   }
 
   Stream<ToolEvent> _mute(String jobId, MuteVideoRequest request, String workDir) async* {
@@ -225,13 +279,14 @@ final class MediaToolRunner({
   }
 
   /// Runs [commands] in turn until one works (each is a fallback for the one
-  /// before). Yields progress mapped into [from]–1, then one terminal event:
+  /// before). Yields progress mapped into [from]–[to], then one terminal event:
   /// an empty [ToolFinished] on success, [ToolFailed] or [ToolCancelled].
   Stream<ToolEvent> _ffmpeg(
     String jobId,
     List<List<String>> commands, {
     double? durationSeconds,
     double from = 0,
+    double to = 1,
   }) async* {
     var lastError = '';
     for (final args in commands) {
@@ -247,7 +302,7 @@ final class MediaToolRunner({
               yield ToolProgressed(
                 JobProgress(
                   stage: .processing,
-                  fraction: from + (progress.fraction ?? 0) * (1 - from),
+                  fraction: from + (progress.fraction ?? 0) * (to - from),
                   etaSeconds: progress.etaSeconds,
                 ),
               );
@@ -337,8 +392,8 @@ final class MediaToolRunner({
     return failed == null ? jpg : null;
   }
 
-  /// Video encoders to try, best first; libx264 is the last resort.
-  List<String> _encoders() => [...FfmpegCommandBuilder.iphoneEncoders(_reader.encoders), 'libx264'];
+  /// Video encoders to try, best first; libx264 is always the last resort.
+  List<String> _encoders() => FfmpegCommandBuilder.iphoneEncoders(_reader.encoders);
 
   /// The container a stream copy keeps (AVI and 3GP become MKV, which takes any codec).
   static String _copyExtension(LocalMediaInfo source) => switch (source.format) {

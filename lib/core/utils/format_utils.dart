@@ -35,6 +35,12 @@ abstract final class FormatUtils {
     return hours > 0 ? '$hours:${minutes.toString().padLeft(2, '0')}:$secs' : '$minutes:$secs';
   }
 
+  /// `0:02.4`, `1:05.0`, `1:02:03.5`: a position in a video, to a tenth of a second.
+  static String clipTime(double seconds) {
+    final tenths = (seconds * 10).round();
+    return '${duration(tenths ~/ 10)}.${tenths % 10}';
+  }
+
   /// `45 s left`, `3 min left`.
   static String eta(int seconds) =>
       seconds < 60 ? DownloadMessages.etaSeconds(seconds) : DownloadMessages.etaMinutes((seconds / 60).ceil());
