@@ -1,9 +1,3 @@
-- New Tools tab (replaces Convert):
-  - PDF: Images to PDF (page size, orientation, margin), PDF to images, Merge, Split, Organize pages, Compress, Unlock.
-  - GIF & video: Video to GIF, Images to GIF, GIF to video, Trim, Mute.
-  - Image: Resize (up to 400%), Rotate & crop.
-  - Convert & compress is still there, as the first card.
-- Pick files from the Library, Photos or Files; results are added to your Library.
-- Library: tapping a post with several items opens a post page with its details, Save all to Photos, Share all and Delete all.
-- Library: PDFs have their own filter and open in a built-in viewer.
-- Windows: building from source now needs Developer Mode turned on.
+- Trim video: keep or remove several clips. Kept clips can be joined into one video or saved as separate videos; removed clips are cut out and the rest is joined.
+- Trim and Video to GIF now have a preview player with a timeline, times to a tenth of a second, and Start here / End here buttons.
+- A picked file now has a close (✕) button instead of Change, in Tools and in Convert.
