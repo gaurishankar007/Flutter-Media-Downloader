@@ -150,7 +150,7 @@ All under `lib/ui/core/ui/base/<category>/`, plain props only (no providers), on
 | --- | --- |
 | `buttons/` | `GradientButton` (primary), `TonalButton` (secondary), `GhostButton` (tertiary), `AppIconButton` (circle, 40px; the whole 48px box around it is tappable) |
 | `cards/` | `AppCard`, `SourceTile` (icon tile + title + subtitle, a big tappable row: pick sources, the Tools hub's Convert card), `MediaCard` (thumbnail + title + metadata + badge; long-press / right-click for actions), `JobCard` (thumbnail + stage + progress + actions; pulses with a light haptic when done) |
-| `media/` | `MediaThumbnail` (local or remote, rounded, duration pill, saved check, kind icon fallback incl. a PDF icon, optional Hero tag), `SiteBadge`, `PhotoGrid` (selectable, numbered checks) |
+| `media/` | `MediaThumbnail` (local or remote, rounded, duration pill, saved check, kind icon fallback incl. a PDF icon, optional Hero tag), `SiteBadge`, `PhotoGrid` (selectable, numbered checks), `PlayerControls` (scrubber and play / pause for a `VideoPlayerController`; `precise` shows tenths of a second) |
 | `progress/` | `GradientProgressBar`, `StageLabel` (Queued / Downloading / Processing / Saving / Done / Failed) |
 | `chips/` | `SelectChip` (quality, format, filter), `ChipRow` (horizontal scroll) |
 | `form/` | `AppTextField` (plain labelled field: Unlock PDF's password, Split's ranges), `LinkField` (big rounded field with Paste button and site icon that appears when the URL is recognised), `AppSlider`, `AppSwitchTile`, `SegmentedPicker` (Video / Audio / Photos; labels fill the track and centre against the sliding pill, and the whole segment is tappable) |

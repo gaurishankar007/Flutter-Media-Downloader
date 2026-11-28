@@ -163,7 +163,19 @@ ffmpeg ... -ss <start> -i in.mp4 -t <length> -map 0:v:0 -map 0:a:0? \
        -movflags +faststart out.<ext>
 ```
 
-A stream copy keeps the source container, except AVI / 3GP (→ MKV) and M4V (→ MP4).
+A stream copy keeps the source container, except AVI / 3GP (→ MKV) and M4V (→ MP4). Separate kept clips run this once per clip.
+
+**Join parts** (`joinParts`): Trim's Remove clips, or several kept clips saved as one video. Always re-encoded, so every cut is frame-exact:
+
+```
+ffmpeg ... -i in.mp4 -filter_complex \
+  "[0:v:0]trim=start=2.000:end=10.000,setpts=PTS-STARTPTS[v0];[0:a:0]atrim=start=2.000:end=10.000,asetpts=PTS-STARTPTS[a0];\
+   [0:v:0]trim=start=13.000:end=23.000,setpts=PTS-STARTPTS[v1];[0:a:0]atrim=start=13.000:end=23.000,asetpts=PTS-STARTPTS[a1];\
+   [v0][a0][v1][a1]concat=n=2:v=1:a=1[v][a]" \
+  -map "[v]" -map "[a]" <video args> -pix_fmt yuv420p -c:a aac -b:a 192k -movflags +faststart out.mp4
+```
+
+Without audio the `atrim` chains and `[a]` are left out (`concat=...:a=0`). Video args are the same fixed-quality ones as GIF → MP4 above, tried encoder by encoder.
 
 **Mute** (`mute`):
 

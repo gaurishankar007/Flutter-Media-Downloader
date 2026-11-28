@@ -27,7 +27,7 @@ library/
     media_viewer/                  # MediaViewerRoute (/viewer), full screen above the tabs
       media_viewer_screen.dart
       widgets/ video_viewer.dart, audio_viewer.dart, photo_viewer.dart, document_viewer.dart,
-               player_controls.dart, viewer_action_bar.dart, item_info_sheet.dart
+               viewer_action_bar.dart, item_info_sheet.dart
   widgets/
     item_action_sheet.dart         # showItemActionSheet + confirmAndDelete
     library_actions_listener.dart  # toasts + the remove prompt for the visible route
@@ -99,7 +99,7 @@ flowchart TD
 
 `MediaViewerRoute(initialId, ids)` opens full screen above the tabs, from the grid or from a finished download's card. It's a `PageView` over `ids`: swipe for the next item; deleted items drop out (`retain`) and the viewer closes when none are left.
 
-- **Video:** `video_player` on the local file (`video_player_win` on Windows), tap to play/pause, `PlayerControls` (scrubber, play/pause); pauses when swiped away. Linux has no `video_player` implementation, so the viewer shows "This file can't be played here" and Share / Save still work.
+- **Video:** `video_player` on the local file (`video_player_win` on Windows), tap to play/pause, `PlayerControls` (`base/media/`: scrubber, play/pause); pauses when swiped away. Linux has no `video_player` implementation, so the viewer shows "This file can't be played here" and Share / Save still work.
 - **Audio:** cover art (or the Aurora gradient with a note), title, `PlayerControls`.
 - **Photo:** zoomable (`InteractiveViewer`), Hero from the grid card; a broken-image icon when the file is missing (removed outside the app).
 - **PDF:** `DocumentViewer` (`PdfViewer.file` from pdfrx: scroll and zoom through the pages); an error banner (`LibraryMessages.cantOpenPdf`) when it can't be opened.

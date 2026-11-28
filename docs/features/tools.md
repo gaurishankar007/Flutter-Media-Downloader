@@ -26,6 +26,8 @@ The Tools tab (tab 3) is a hub of small one-job tools that run on the device: PD
 
 ```text
 tools/
+  hooks/
+    use_preview_player.dart  # video_player for the picked video (Trim, Video to GIF); failed on Linux
   models/
     tool.dart              # enum Tool: category, icon, title, body, input, startLabel, multiple, minSources
     tool_category.dart     # pdf, gifVideo, image (hub sections, in order)
@@ -45,7 +47,8 @@ tools/
                tool_options.dart (switch over the tool), choice_section.dart, option_note.dart,
                images_to_pdf_options.dart, pdf_to_images_options.dart, split_pdf_options.dart,
                organize_pages_options.dart, page_tile.dart, compress_pdf_options.dart, unlock_pdf_options.dart,
-               video_part_options.dart, images_to_gif_options.dart, resize_image_options.dart,
+               video_part_options.dart, trim_video_options.dart, video_preview.dart, clip_timeline.dart,
+               clip_row.dart, clip_editor.dart, images_to_gif_options.dart, resize_image_options.dart,
                edit_image_options.dart, edit_preview.dart,
                tool_start_button.dart, tool_job_panel.dart, tool_result_section.dart, tool_result_actions.dart
 ```
@@ -63,10 +66,10 @@ tools/
 | **Organize pages** | PDF | 1 | A grid of pages: press and hold a page, then drop it on another to move it; rotate or delete each page; Reset | One PDF |
 | **Compress PDF** | PDF | 1 | Light (150 dpi, q80) / Medium (120 dpi, q65) / Strong (96 dpi, q50). A note says text can't be selected afterwards. | One PDF |
 | **Unlock PDF** | PDF | 1 | Password (needed only when the PDF asks for one to open) | One PDF without its password and restrictions |
-| **Video to GIF** | video | 1 | Part of the video (`RangeSlider`; the first 5 s by default); 10 / 12 / 15 / 20 / 24 fps; width 320 / 480 / 640 / 800 px | One GIF |
+| **Video to GIF** | video | 1 | Part of the video, picked on the [preview player](#video-preview) (the first 5 s by default); 10 / 12 / 15 / 20 / 24 fps; width 320 / 480 / 640 / 800 px | One GIF |
 | **Images to GIF** | images | 2+ in order | Seconds per image (0.25 / 0.5 / 1 / 2 / 3); width 320–800 px. Every frame takes the first image's shape (white bars around others). | One GIF |
 | **GIF to video** | GIF | 1 | — | One MP4 |
-| **Trim video** | video | 1 | Start and end (`RangeSlider`); **Exact cut** switch (re-encodes; off = fast stream copy that cuts on keyframes) | One video |
+| **Trim video** | video | 1 | **Keep clips** / **Remove clips**; one or more clips picked on the [preview player](#video-preview); with several kept clips, **Save as** One video / Separate videos; **Frame-exact cut** switch when nothing is joined | One video, or one per clip (grouped) |
 | **Mute video** | video | 1 | — | The video without sound (streams copied) |
 | **Resize image** | images | 1 | 25 / 50 / 75 / 150 / 200 / 300 / 400 %, shows the new pixel size (long side capped at 8000 px); JPG / PNG. Enlarged images get Lanczos plus a light sharpen. Default: 50 % when the long side is ≥ 2400 px, else 200 %. | One image |
 | **Rotate & crop** | images | 1 | Rotate left / right, flip horizontal / vertical, crop presets (Original, 1:1, 4:5, 3:2, 16:9, 9:16, centred); a live preview (`EditPreview`) shades the cropped part; JPG / PNG | One image |
@@ -91,7 +94,7 @@ Input types (`ToolInput.extensions`):
 
    Picked files are copied into `work/source-<uuid>/` and read. Library files are read in place. Files of the wrong type are skipped; the pick fails only when none could be read.
 2. **Arrange and choose.**
-   - `ToolSourceList` shows the picks as `SourceRow`s. Tools that take several files can reorder them (`ReorderableListView`, `onReorderItem`), remove one, add more, or **Clear all**. Single-file tools have **Change**.
+   - `ToolSourceList` shows the picks as `SourceRow`s. Tools that take several files can reorder them (`ReorderableListView`, `onReorderItem`), remove one, add more, or **Clear all**. Single-file tools have a close (✕) button that clears the pick.
    - `ToolOptions` then shows the tool's own options.
    - `OptionNote` shows a problem the user can fix: a locked PDF, bad ranges, a part too short, no pages left, or nothing changed.
 3. **Run.** The pinned `ToolStartButton` shows the tool's label ("Make PDF", "Merge", "Make GIF"…) and is enabled only when the options make a request. `ToolJobPanel` then shows a `JobCard` with "Waiting for another conversion to finish…" (ffmpeg tools wait for the slot), percent, ETA and **Cancel**. After a failure or a cancel it shows **Try again**.
@@ -107,12 +110,12 @@ All three are `NotifierProvider.family` over `Tool`. They are keep-alive, so eac
 | Provider | Owns | Key methods |
 | --- | --- | --- |
 | `toolSourcesProvider(tool)` (`ToolSourcesNotifier`) | The picked `LocalMediaInfo`s in order; page thumbnails for Organize | `pick(PickSource)`, `pickFromLibrary(ids)`, `remove(index)`, `reorder(from, to)`, `clear()` |
-| `toolOptionsProvider(tool)` (`ToolOptionsNotifier`) | `ToolOptionsState`: every tool's options, the `ToolRequest` (or `problem`), Split's `partCount` | `change(edit)`, `setRange(start, end)`, `rotateImage(turns)`, `rotatePage(i)`, `deletePage(i)`, `reorderPages(from, to)`, `resetPages()` |
+| `toolOptionsProvider(tool)` (`ToolOptionsNotifier`) | `ToolOptionsState`: every tool's options, the `ToolRequest` (or `problem`), Split's `partCount` | `change(edit)`, `setRange(start, end)`, `setRangeStart(s)`, `setRangeEnd(s)`, `setTrimMode(mode)`, `addClip(at)`, `selectClip(i)`, `removeClip(i)`, `setClip(i, start, end)`, `setClipStart(i, s)`, `setClipEnd(i, s)`, `rotateImage(turns)`, `rotatePage(i)`, `deletePage(i)`, `reorderPages(from, to)`, `resetPages()` |
 | `toolJobProvider(tool)` (`ToolJobNotifier`) | `jobId`, `request`, `JobProgress`, the result `LibraryItem`s and their thumbnails | `start(request)`, `cancel()`, `reset()`, `share()` |
 
 How they react to changes:
 
-- **New picks reset the options that depend on the file.** `ToolOptionsNotifier` listens to the sources. A new pick resets the range (the whole video; a GIF's first 5 s), the page list, the resize default, the password and the ranges.
+- **New picks reset the options that depend on the file.** `ToolOptionsNotifier` listens to the sources. A new pick resets the range (a GIF's first 5 s), Trim's clips (Keep: the whole video; Remove: none), the page list, the resize default, the password and the ranges.
 - **Single-file and multi-file tools pick differently.** A single-file tool replaces its pick (and deletes the old working copy). A multi-file tool appends to the end.
 - **They follow the Library.** Sources and job both watch `LibraryRepository.watchItems()` and react only to real removals. A Library pick deleted in the Library drops out of the sources. A result deleted in the Library leaves the result card, and when none are left the finished job is forgotten.
 
@@ -169,6 +172,16 @@ PDF tools don't use ffmpeg, so they never wait for the ffmpeg slot.
 | Compress | `pageSizes`, then each page rendered at the level's dpi → JPG at its quality → `jpegPagesToPdf` (each JPEG fills a page of the original size) |
 | Unlock | Open with the password (if any) → save without security |
 
+## Video Preview
+
+Trim and Video to GIF pick their parts on the video itself. `usePreviewPlayer` opens a `video_player` for the picked file and disposes it with the screen.
+
+- **`VideoPreview`:** the video (tap to play / pause, at most 360 px high) and `PlayerControls(precise: true)`, so times show to a tenth of a second (`FormatUtils.clipTime`, e.g. 0:02.4). The still shows while it loads.
+- **`ClipTimeline`:** the whole video as a bar with each clip on it (accent colour to keep, red to remove, the selected one stronger) and the player's position as a line. Tap or drag to move the player there.
+- **`ClipEditor`:** a `RangeSlider` for the selected clip or GIF part (the player pauses and jumps to the handle being dragged, so you see that frame) and **Start here** / **End here**, which take the player's position. An edge set past the other end moves the clip there, keeping its length (`VideoClip.withStart` / `withEnd`).
+- **Trim only:** `ClipRow`s list the clips (tap selects one and jumps to its start; delete button). **Add clip** adds a 5 s clip at the player's position. Notes show the result's length and that overlapping clips count as one.
+- **Linux** has no `video_player`, so the player fails and a note says to set the parts with the slider; Start here / End here are disabled.
+
 ## GIF, Video and Image Tools
 
 `MediaToolRunner` takes the shared `FfmpegSlot` first (FIFO with downloads' re-encodes and Convert; see [Media Engine](../engine/media_engine.md#concurrency)) and makes sure the engine is started. Arguments come from `FfmpegCommandBuilder` (commands in [ffmpeg Recipes](../engine/ffmpeg_recipes.md#tools)).
@@ -179,7 +192,10 @@ PDF tools don't use ffmpeg, so they never wait for the ffmpeg slot.
   2. `fitFrame` onto a white canvas of the first image's shape → `frames/001.png`… (the runner creates the folder; ffmpeg doesn't).
   3. `gifFromFrames`. Progress is 0–50 % for the frames, 50–100 % for the GIF.
 - **GIF to video:** `gifToVideo` once per encoder (the iPhone encoders, then `libx264`), each tried in turn.
-- **Trim:** stream copy by default. The container is kept, except AVI / 3GP → MKV and M4V → MP4. **Exact cut** re-encodes to MP4 with the encoder list.
+- **Trim:** `TrimVideoRequest` holds the clips (sorted, overlaps merged by `VideoClip.merged`) and the mode. Its `parts` are the clips (Keep) or the rest of the video (Remove, `VideoClip.outside`).
+  - **Joined** (Remove, or several kept clips as One video): `joinParts` cuts every part with `trim` / `atrim` and joins them with `concat`, re-encoded to MP4 with the encoder list. Cuts are frame-exact.
+  - **One part, or Separate videos:** stream copy by default (`trim`, once per part into `clip-001.<ext>`…, each with its own still). The container is kept, except AVI / 3GP → MKV and M4V → MP4. **Frame-exact cut** re-encodes to MP4 with the encoder list.
+  - Nothing to run: no clips, a clip under 0.2 s, or Remove taking out the whole video shows a problem note instead.
 - **Mute:** first video stream copied, `-an`.
 - **Resize, Rotate & crop:**
   - **Input:** JPG and HEIC are first made upright JPGs (q100) by the platform decoder; other formats go to ffmpeg as they are.

@@ -1,6 +1,6 @@
 # App Messages
 
-> Status: built. File: `lib/core/messages/app_messages.dart`. Current `kMessagesVersion`: `13`.
+> Status: built. File: `lib/core/messages/app_messages.dart`. Current `kMessagesVersion`: `14`.
 
 Every string the app writes itself (toasts, dialog text, empty and error states, button labels, semantic labels, validator errors) lives in one catalog. Never write a user-facing literal at the call site.
 
@@ -63,6 +63,7 @@ Areas, in file order:
 | 11 | `CookiesMessages.browserBody` no longer names macOS (Windows and Linux read browsers too). |
 | 12 | Added `DownloadMessages.addedToLibrary` / `closePreview` and `ConvertMessages.addedToLibrary`. |
 | 13 | Convert tab became Tools: removed `NavMessages.convert`, added `NavMessages.tools` and `ToolsMessages`; added `LibraryMessages.documents` and post page strings, `SettingsMessages.storageDocuments`. |
+| 14 | Trim keeps or removes several clips: reworded `ToolsMessages.trimVideoBody`; added clip, preview, trim mode and `ToolsMessages.partHint` strings. Removed `LibraryMessages.postSaveToFilesHint` and `ConvertMessages.change` (a picked file now has a close button: `CommonMessages.remove`). |
 
 ## Localisation
 
