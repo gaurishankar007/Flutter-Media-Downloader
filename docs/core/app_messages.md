@@ -1,6 +1,6 @@
 # App Messages
 
-> Status: built. File: `lib/core/messages/app_messages.dart`. Current `kMessagesVersion`: `12`.
+> Status: built. File: `lib/core/messages/app_messages.dart`. Current `kMessagesVersion`: `13`.
 
 Every string the app writes itself (toasts, dialog text, empty and error states, button labels, semantic labels, validator errors) lives in one catalog. Never write a user-facing literal at the call site.
 
@@ -25,13 +25,14 @@ Areas, in file order:
 | `CommonMessages` | Generic error, storage errors, shared buttons (Retry, OK, Cancel, Close, Back, Share, Delete…) |
 | `JobStageMessages` | Stage labels on job cards (downloading, processing, saving…) |
 | `SavedPromptMessages` | The "remove from app?" prompt after a confirmed save |
-| `NavMessages` | Tab labels: Download, Library, Convert, System, Settings |
+| `NavMessages` | Tab labels: Download, Library, Tools, System, Settings |
 | `StartupMessages` | Startup error screen and the one-time rights notice |
 | `DownloadMessages` | Download screen, preview sheet, job cards, photo posts |
 | `EngineMessages` | Engine failure texts (see [Error Handling](error_handling.md#engine-error-mapping)) |
 | `ExtractorMessages` | Photo extractor failures (see [Photo Extractors](../extractors/photo_extractors.md)) |
-| `LibraryMessages` | Library grid, filters, viewer, item actions |
+| `LibraryMessages` | Library grid, filters (incl. PDFs), post page, viewer, item actions |
 | `ConvertMessages` | Converter and compressor |
+| `ToolsMessages` | Tools hub, every tool's card, options, problems, job and result, PDF / GIF failures |
 | `SettingsMessages` | Settings screen |
 | `CookiesMessages` | Cookies screen |
 | `AboutMessages` | About screen |
@@ -61,6 +62,7 @@ Areas, in file order:
 | 10 | Added `SystemMessages` hardware rows (battery capacity, CPU, GPU, RAM, drive), `cpuInfoBody` / `gpuInfoBody` and speed test strings. |
 | 11 | `CookiesMessages.browserBody` no longer names macOS (Windows and Linux read browsers too). |
 | 12 | Added `DownloadMessages.addedToLibrary` / `closePreview` and `ConvertMessages.addedToLibrary`. |
+| 13 | Convert tab became Tools: removed `NavMessages.convert`, added `NavMessages.tools` and `ToolsMessages`; added `LibraryMessages.documents` and post page strings, `SettingsMessages.storageDocuments`. |
 
 ## Localisation
 

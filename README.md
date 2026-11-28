@@ -1,6 +1,6 @@
 # Media Tool
 
-**Paste a link, pick a quality, and keep the video, audio or photos.** Media Tool is a Flutter app for **Android, iOS, macOS, Windows and Linux**. It downloads from YouTube, Facebook, Instagram, Threads, X/Twitter and TikTok, keeps everything in its own Library, and converts or compresses media files. It also shows live device stats.
+**Paste a link, pick a quality, and keep the video, audio or photos.** Media Tool is a Flutter app for **Android, iOS, macOS, Windows and Linux**. It downloads from YouTube, Facebook, Instagram, Threads, X/Twitter and TikTok, keeps everything in its own Library, converts or compresses media files, and has PDF, GIF, video and image tools. It also shows live device stats.
 
 Everything runs **on your device**. There is no server, account, analytics or crash reporting. Your cookies, history and errors never leave the device.
 
@@ -30,7 +30,7 @@ Get the latest version from the **[Releases page](https://github.com/gaurishanka
   </tr>
   <tr>
     <td align="center"><img src="docs/screenshots/library.png" alt="Library grid with filters" width="260"><br><sub><b>Library</b></sub></td>
-    <td align="center"><img src="docs/screenshots/convert.png" alt="Convert tab with file sources and formats" width="260"><br><sub><b>Convert and compress</b></sub></td>
+    <td align="center"><img src="docs/screenshots/convert.png" alt="Convert screen with file sources and formats" width="260"><br><sub><b>Convert and compress</b></sub></td>
     <td align="center"><img src="docs/screenshots/system.png" alt="System tab with RAM, CPU, GPU and network stats" width="260"><br><sub><b>System stats</b></sub></td>
   </tr>
   <tr>
@@ -74,6 +74,9 @@ Get the latest version from the **[Releases page](https://github.com/gaurishanka
 | Manage your downloads | Use the **Library**: search, filter, sort, view or play, then Save to Photos, Save to Files, Share or Delete |
 | Convert a file | Video ↔ MP4 / MKV / WebM / MOV, video → MP3 / M4A, image ↔ JPG / PNG / WebP / HEIC |
 | Shrink a file | Video: quality presets, a max resolution or "aim for about N MB". Image: resize, set quality, strip metadata |
+| Work with PDFs | Images → PDF (page size, orientation, margin), PDF → images, merge, split, reorder / rotate / delete pages, compress, remove a password |
+| Make GIFs and edit clips | Video → GIF, images → GIF, GIF → MP4, trim a video, remove its sound |
+| Edit an image | Resize or enlarge (25–400 %), rotate, flip, crop to 1:1 / 4:5 / 3:2 / 16:9 / 9:16 |
 | Download private or login-only posts | Import a `cookies.txt` for that site. It's used only for that site. |
 | Keep it working when sites change | One-tap yt-dlp engine update, plus a daily check for new versions |
 | Watch your device | The **System** tab shows live network speed, battery, RAM, CPU, GPU and storage, including how much space Media Tool's files take (whatever the platform supports) |
@@ -106,9 +109,10 @@ The bottom bar shows on phones and a sidebar shows on tablets and desktops.
 - When a download fails, it suggests a fix: **Update engine** if the site changed, or **Cookies** if the post needs a login.
 
 ### 📚 Library
-- Everything you download or convert is saved in the **app's own folder** first, not straight to your gallery.
-- A grid of thumbnails. You can filter by Videos, Audio or Photos and by site, sort by newest, oldest or largest, and search by title.
-- A post's photos are grouped into one card.
+- Everything you download, convert or make with a tool is saved in the **app's own folder** first, not straight to your gallery.
+- A grid of thumbnails. You can filter by Videos, Audio, Photos or PDFs and by site, sort by newest, oldest or largest, and search by title.
+- A post's photos (or a tool's several results) are grouped into one card. Tap it to open the post: its details, Save all to Photos, Share all, Delete all, and every item.
+- PDFs open in a built-in viewer.
 - A full-screen viewer lets you swipe between items. It plays video and audio, and you can zoom into photos.
 - Actions for each item, or for several selected at once:
   - **Save to Photos** (gallery)
@@ -118,7 +122,17 @@ The bottom bar shows on phones and a sidebar shows on tablets and desktops.
   - **Convert**
 - After a save works, the app asks *"Remove it from the app to free up space?"* You can tick "don't ask again". Saved items show a ✓.
 
-### 🔄 Convert
+### 🧰 Tools
+A hub of one-job tools. Each one works the same way: pick files from the **Library**, **Photos** or **Files** (drag to reorder when there are several), set the options, tap the button at the bottom, then **Open**, **Share** or **Done**. Results are added to the Library. Jobs keep running if you leave the screen.
+
+| Section | Tools |
+|---|---|
+| Convert & compress | The converter below, as its own screen |
+| PDF | Images to PDF, PDF to images, Merge, Split, Organize pages, Compress (pages become images), Unlock |
+| GIF & video | Video to GIF, Images to GIF, GIF to video, Trim (fast or frame-exact), Mute |
+| Image | Resize (smoothed and sharpened when enlarging), Rotate & crop |
+
+#### Convert & compress
 1. Pick a file from the **Library**, **Photos** or **Files**.
 2. Choose **Convert** (new format) or **Compress** (smaller file).
 3. Set the options and tap **Convert**. The button stays at the bottom of the screen.
@@ -150,7 +164,7 @@ Live device stats. Network, RAM, CPU and GPU update every second with a 60-secon
 
 ### ⚙️ Settings
 - **Downloads:** default video and audio quality, the iPhone-compatible output toggle, and "convert photos to JPG".
-- **Library and storage:** "ask to remove after saving", storage used by Videos, Audio and Photos, and **Clear saved items**.
+- **Library and storage:** "ask to remove after saving", storage used by Videos, Audio, Photos and PDFs, and **Clear saved items**.
 - **Cookies:** import a `cookies.txt` for each site, with step-by-step help. See which sites have cookies, and replace or remove them. On desktops you can also use a browser's cookies directly (macOS: Safari, Chrome, Firefox; Linux: Chrome, Firefox; Windows: Firefox).
 - **Engine:** the yt-dlp version, **Update**, and the daily check when the app opens. A dot on the Settings tab means an update is available.
 - **Appearance:** light, dark or follow the system.
@@ -163,7 +177,7 @@ Live device stats. Network, RAM, CPU and GPU update every second with a 60-secon
 2. **Get the MP3:** do the same, but choose **Audio** and **320 kbps**.
 3. **Save carousel photos:** paste an Instagram, TikTok, Facebook, Threads or X photo post → **Photos** → untick the ones you don't want → **Download N photos**.
 4. **Move it to your gallery:** **Library** → long-press the item → **Save to Photos** → choose whether to remove it from the app.
-5. **Make a video smaller to send:** **Convert** → **From Library** → **Compress** → "aim for about 25 MB" → **Convert** → **Share**.
+5. **Make a video smaller to send:** **Tools** → **Convert & compress** → **From Library** → **Compress** → "aim for about 25 MB" → **Convert** → **Share**.
 6. **Download a private post:** export cookies from a browser where you're logged in to that site (Settings → Cookies shows how) → import them for that site → paste the link again.
 7. **When a site stops working:** **Settings → Engine → Update**, or tap **Update engine** on the failed download.
 
@@ -173,7 +187,7 @@ Live device stats. Network, RAM, CPU and GPU update every second with a 60-secon
 - Flutter **3.50.1** / Dart **3.14** or newer
 - **Android:** Android SDK (compileSdk 37), a phone with USB debugging, or an emulator. Min Android 7.0 (API 24).
 - **iOS / macOS:** Xcode and CocoaPods. For an iPhone you also need an Apple ID or developer team to sign with.
-- **Windows:** Visual Studio 2022 with the *Desktop development with C++* workload. x64 only.
+- **Windows:** Visual Studio 2022 with the *Desktop development with C++* workload, and **Developer Mode** on (the PDF library builds with symlinks). x64 only.
 - **Linux:** `clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev` (Ubuntu package names). x64 is what releases build; ARM64 works from source.
 
 ### Clone and set up
@@ -262,7 +276,8 @@ Flutter UI (Views + Riverpod Notifiers)
 | macOS, Windows, Linux | One desktop engine: the bundled yt-dlp, `ffmpeg` and `ffprobe` run as processes from Dart |
 
 - **Photo posts** (which yt-dlp doesn't handle) go through small Dart extractors for Instagram, TikTok, Facebook, Threads and X. They use an HTTP client that sends each site's cookies only to that site.
-- **Converter and compressor** use the same ffmpeg each engine already ships, and run one ffmpeg job at a time.
+- **Converter, compressor and the GIF / video / image tools** use the same ffmpeg each engine already ships, and run one ffmpeg job at a time.
+- **PDF tools** use PDFium (`pdfrx`) and the pure-Dart `pdf` package on every platform.
 - **Storage:** files live in the app's own folder. A local drift database indexes them for the Library, storing paths relative to the app folder.
 - **System monitor** uses a small Pigeon API on Android, iOS and macOS that returns raw counters and hardware facts; Windows (Win32 through `dart:ffi`) and Linux (`/proc`, `/sys`) read them in Dart. Dart turns the counters into rates. Speed tests call the C library (Win32 on Windows) through `dart:ffi` in a background isolate.
 
@@ -277,6 +292,7 @@ Flutter UI (Views + Riverpod Notifiers)
 - Playback: video_player (video_player_win on Windows)
 - Saving and sharing: gal, file_picker, share_plus
 - Images: flutter_image_compress (ffmpeg on Windows and Linux)
+- PDFs: pdfrx (PDFium), pdf
 - Toasts: flutter_sliding_toast
 - Lints: leancode_lint
 
@@ -301,7 +317,7 @@ lib/
   routing/      # auto_route config
   ui/
     core/       # theme tokens, design-system widgets, base notifiers, ToastUtil
-    features/   # home (shell), download, library, convert, system, settings
+    features/   # home (shell), download, library, tools, convert, system, settings
 android/…/engine, background, export, system   # Kotlin: engine, download service, Save to Files, system monitor
 ios/Runner/Engine, Export, Storage, SystemMonitor   # Swift: embedded Python engine, Save to Files, backup exclusion, system monitor
 macos/Runner/SystemMonitor, macos/scripts      # Swift system monitor; binary fetch and bundle scripts
@@ -322,7 +338,7 @@ All modules are documented in [`docs/`](docs/). Start with [docs/architecture/ar
 | `core/` | Routing, error handling, app messages, local database, core services |
 | `engine/` | The MediaEngine interface; the Android, iOS and desktop (macOS, Windows, Linux) engines; yt-dlp/ffmpeg recipes; site support |
 | `extractors/` | Instagram, TikTok, Facebook, Threads and X photo extractors |
-| `features/` | Download, Library, Convert, System, Settings |
+| `features/` | Download, Library, Tools, Convert, System, Settings |
 | `utils/` | Packages, troubleshooting |
 
 Contributor rules and the product brief are in [CLAUDE.md](CLAUDE.md).

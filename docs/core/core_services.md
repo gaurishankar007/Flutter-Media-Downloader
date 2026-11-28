@@ -55,10 +55,11 @@ All in `lib/data/services/platform/`, each behind an interface. Per-platform imp
 | `GalleryService` | Save a video or photo to Photos (iOS/macOS) / the gallery (Android) / the Pictures library (Windows), into a `MediaTool` album. Linux (`LinuxGalleryService`): copies into `MediaTool/` in the Pictures or Videos folder (`xdg-user-dir`), never overwriting. **Audio can't** go to Photos (`supports(kind)` is false), so the Library hides that action for audio. | `gal` / `dart:io` on Linux |
 | `FileExportService` | Save to Files. Returns `true` when saved, `false` when cancelled. Android: SAF `ACTION_CREATE_DOCUMENT` + streamed copy (Kotlin `export/FileExporter.kt`). iOS: `UIDocumentPickerViewController(forExporting:)` (Swift `Runner/Export/FileExporter.swift`). Both through Pigeon `file_export_api.dart`. macOS, Windows, Linux (`DesktopFileExportService`): the system save dialog via `file_picker`'s `saveFile` (Linux needs the desktop portal, `zenity` or `kdialog`), then a Dart file copy. | Pigeon / `file_picker` |
 | `ShareService` | System share sheet for one or more files | `share_plus` |
-| `MediaPickerService` | Converter import: `pickFromPhotos()` (media picker), `pickFromFiles()` (any file), `clearTemporaryFiles()` | `file_picker` |
+| `MediaPickerService` | Converter and Tools import: `pickFromPhotos()` (media picker), `pickFromFiles()` (any file), `pickMany(filter, fromPhotos, multiple, extensions)` (one or several images / videos from Photos, or files limited to extensions), `clearTemporaryFiles()` | `file_picker` |
 | `FilePickerService` | One file read once (cookies.txt import) | `file_picker` |
 | `ImageService` | `toJpg` (full size, quality 92) and `thumbnail` (short side ~480 px) | `flutter_image_compress`; the bundled ffmpeg on Windows and Linux (`FfmpegImageService`) |
 | `ImageConvertService` | Converter images: output formats this platform can write, decoded size, convert/resize/strip metadata | `flutter_image_compress`, `dart:ui`; ffmpeg on Windows and Linux (`FfmpegImageConvertService`: JPG, PNG, WebP) |
+| `PdfService` | Tools and the PDF viewer: page count / password check, page sizes, render pages to PNG, images → PDF pages, JPEG pages → PDF, assemble pages from several PDFs, unlock. Throws pdfrx's `PdfException`s. See [Tools](../features/tools.md#pdf-tools). | `pdfrx` (PDFium), `pdf` |
 | `AppInfoService` | App version `1.0.0 (1)` for About | `package_info_plus` |
 | `BackgroundWorkService` | Android: the `dataSync` foreground service + notification with Cancel (Pigeon `background_work_api.dart`). iOS and the desktops: no-op. | Pigeon / `permission_handler` |
 | `SystemMonitorService` | RAM / CPU / GPU / network samples, storage, battery and hardware facts for the System tab | Pigeon `system_monitor_api.dart` (Android, iOS, macOS); Win32 through `dart:ffi` plus one PowerShell query (Windows); `/proc`, `/sys`, `df`, `lsblk`, `lspci` (Linux). See [System](../features/system.md) |
@@ -86,6 +87,7 @@ There's no separate thumbnail service. Every Library item gets a JPG in `thumbna
 - Photo posts: each photo is downscaled with `ImageService.thumbnail`; post videos use the still the extractor found.
 - TikTok "Save as video": the first photo.
 - Converted videos: one frame at 10% of the duration (`FfmpegCommandBuilder.thumbnail`), through the engine. Converted images: `ImageService.thumbnail`.
+- Tool outputs: videos a frame at 10%, GIFs their first frame, images `ImageService.thumbnail`, PDFs their first page rendered by PDFium (`LocalMediaReader.pdfThumbnail`, 720 px, then `ImageService.thumbnail`).
 - Audio without a thumbnail: none (the card shows a music icon on a gradient).
 
 Generation is best-effort (`executeSafeReturn`): a missing thumbnail never fails a download.

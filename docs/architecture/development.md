@@ -72,7 +72,7 @@ linux/scripts/fetch_engine_binaries.sh   # Linux: yt-dlp_linux, ffmpeg, ffprobe 
 flutter run -d android                   # or: -d ios, -d macos, -d windows, -d linux
 ```
 
-On Windows (PowerShell): `powershell -ExecutionPolicy Bypass -File windows\scripts\fetch_engine.ps1 [-WithDeno]` (yt-dlp.exe, ffmpeg.exe, ffprobe.exe into `windows\engine\bin\`). Flutter only builds Windows apps on Windows and Linux apps on Linux, so the Mac can't build either; CI does.
+On Windows (PowerShell): `powershell -ExecutionPolicy Bypass -File windows\scripts\fetch_engine.ps1 [-WithDeno]` (yt-dlp.exe, ffmpeg.exe, ffprobe.exe into `windows\engine\bin\`). Turn on **Developer Mode** (Settings → System → For developers) before building: `pdfrx`'s build uses symlinks. Flutter only builds Windows apps on Windows and Linux apps on Linux, so the Mac can't build either; CI does.
 
 Android needs no fetch step: youtubedl-android comes from Gradle. Xcode build phases copy the fetched files into the app (`macos/scripts/bundle_engine_binaries.sh`, `ios/scripts/install_engine.sh`); on Windows and Linux an `install()` rule in the runner's `CMakeLists.txt` copies `engine/bin/` next to the executable. Details: [Desktop Engine](../engine/desktop_engine.md), [macOS Engine](../engine/macos_engine.md), [iOS Engine](../engine/ios_engine.md).
 

@@ -101,7 +101,7 @@ Every platform delivers raw stdout lines (iOS included: the shim runs yt-dlp's C
 
 ## Reading Local Files
 
-The converter reads imported files with `FfmpegCommandBuilder.probe(path)` = `ffmpeg -hide_banner -i <file>`. With no output ffmpeg prints the input summary to stderr and exits with an error, so the result arrives as `EngineFailed(output)`. `FfmpegInfoParser` reads duration, the first video stream's codec and size (swapping width/height for a 90° rotation flag, ignoring cover art), and the first audio stream's codec and bitrate. No ffprobe is needed. See [Convert](../features/convert.md).
+The converter and the tools read imported files (through `LocalMediaReader`) with `FfmpegCommandBuilder.probe(path)` = `ffmpeg -hide_banner -i <file>`. With no output ffmpeg prints the input summary to stderr and exits with an error, so the result arrives as `EngineFailed(output)`. `FfmpegInfoParser` reads duration, the first video stream's codec and size (swapping width/height for a 90° rotation flag, ignoring cover art), and the first audio stream's codec and bitrate. No ffprobe is needed. See [Convert](../features/convert.md).
 
 ## Cancel
 
@@ -133,7 +133,7 @@ Settings → Engine shows the current version, **Check for updates** and **Updat
 ## Concurrency
 
 - **Downloads:** at most **2** run at once (`DownloadQueueNotifier._maxParallel`); more wait as `queued`.
-- **ffmpeg:** one at a time. `FfmpegSlot` (a lazy singleton) is a FIFO lock shared by `ConvertRepositoryImpl.run` (video/audio conversions and compressions) and `MediaRepositoryImpl._runFfmpeg` (the iPhone re-encode after a download and the TikTok slideshow video). Re-encodes are CPU and battery heavy, so they never run in parallel. Short ffmpeg calls (reading a local file, a thumbnail frame) don't take the slot. Image conversions (`flutter_image_compress`, or a one-frame ffmpeg run on Windows and Linux) don't take it either.
+- **ffmpeg:** one at a time. `FfmpegSlot` (a lazy singleton) is a FIFO lock shared by `ConvertRepositoryImpl.run` (video/audio conversions and compressions), `MediaToolRunner.run` (every GIF, video and image tool, including their one-frame steps) and `MediaRepositoryImpl._runFfmpeg` (the iPhone re-encode after a download and the TikTok slideshow video). PDF tools don't use ffmpeg and don't take it. Re-encodes are CPU and battery heavy, so they never run in parallel. Short ffmpeg calls (reading a local file, a thumbnail frame) don't take the slot. Image conversions (`flutter_image_compress`, or a one-frame ffmpeg run on Windows and Linux) don't take it either.
 - **Encoder fallback:** the re-encode and compress commands are a list, one per encoder from `FfmpegCommandBuilder.iphoneEncoders` (hardware first, `libx264` last; Windows and Linux get `libx264` only); each runs only if the one before failed.
 
 Per-platform details: [Android](android_engine.md), [iOS](ios_engine.md), [Desktop](desktop_engine.md) (macOS, Windows, Linux), [macOS](macos_engine.md).

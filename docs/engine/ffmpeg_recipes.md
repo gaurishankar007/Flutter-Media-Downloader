@@ -114,6 +114,80 @@ ffmpeg -hide_banner -nostats -y -i <in> \
 
 The scale filter sets the short side to `S` and never upscales. Output is JPG, PNG or WebP (no HEIC); metadata is always dropped. The decoded size comes from `dart:ui` on every platform.
 
+## Tools
+
+Built by `FfmpegCommandBuilder` for the [Tools](../features/tools.md) tab and run by `MediaToolRunner` inside the `FfmpegSlot`. Not yet tested on real files.
+
+### GIF
+
+**Video → GIF** (`gifFromVideo`): one pass, with a palette made from the clip itself (far fewer bands than ffmpeg's default GIF colours):
+
+```
+ffmpeg -hide_banner -nostats -progress pipe:1 -y -ss <start> -t <length> -i in.mp4 \
+       -vf "fps=<fps>,scale=<width>:-1:flags=lanczos,split[a][b];[a]palettegen=stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=5" \
+       -loop 0 out.gif
+```
+
+**Images → GIF.** First, each image (already an upright JPG) is fitted onto a white canvas shaped like the first image (`fitFrame`):
+
+```
+ffmpeg -hide_banner -nostats -y -i image-1.jpg \
+       -vf "scale=W:H:force_original_aspect_ratio=decrease:flags=lanczos,pad=W:H:(ow-iw)/2:(oh-ih)/2:color=white,format=rgb24" \
+       -frames:v 1 -update 1 frames/001.png
+```
+
+Then the frames become a GIF (`gifFromFrames`), each shown for `<s>` seconds:
+
+```
+ffmpeg ... -framerate 1/<s> -start_number 1 -i frames/%03d.png -vf "<the palette chain above>" -loop 0 out.gif
+```
+
+ffmpeg doesn't create `frames/`, so the runner does. The GIF tools need the `gif` encoder and the `palettegen` / `paletteuse` filters; the mobile ffmpeg builds haven't been checked for them yet.
+
+**GIF → MP4** (`gifToVideo`), one command per encoder (the iPhone encoders, then `libx264`):
+
+```
+ffmpeg ... -i in.gif -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" <video args> -pix_fmt yuv420p -an -movflags +faststart out.mp4
+```
+
+Video args are a fixed-quality version of the [encoder table](#iphone-compatible-re-encode): videotoolbox `-q:v 65`, mediacodec `-b:v 8M`, `libx264 -preset veryfast -crf 23`. HEVC adds `-tag:v hvc1`.
+
+### Trim and Mute
+
+**Trim** (`trim`):
+
+```
+ffmpeg ... -ss <start> -i in.mp4 -t <length> -map 0:v:0 -map 0:a:0? \
+       -c copy -avoid_negative_ts make_zero                       # fast: cuts land on keyframes
+     | <video args> -pix_fmt yuv420p -c:a aac -b:a 192k           # Exact cut: re-encode to MP4
+       -movflags +faststart out.<ext>
+```
+
+A stream copy keeps the source container, except AVI / 3GP (→ MKV) and M4V (→ MP4).
+
+**Mute** (`mute`):
+
+```
+ffmpeg ... -i in.mp4 -map 0:v:0 -c copy -an out.<ext>
+```
+
+### Resize, Rotate and Crop
+
+`editImage` runs on an upright input: JPG and HEIC are first re-encoded by the platform decoder (`ImageService.toJpg`, quality 100) so that EXIF rotation is applied. It's one ffmpeg command:
+
+```
+ffmpeg -hide_banner -nostats -y -i in.jpg \
+       -vf "crop=w:h:x:y,scale=W:H:flags=lanczos,unsharp=5:5:0.6:5:5:0.0,transpose=1,hflip,vflip" \
+       -c:v mjpeg -q:v <2..31> | -c:v png \
+       -frames:v 1 -update 1 out.jpg
+```
+
+Only the filters that apply are added:
+- **Resize:** `scale` to the exact size; `unsharp` only when enlarging.
+- **Rotate & crop:** `crop` in pixels, applied before the turn; `transpose=1` for each clockwise quarter turn (`transpose=2` for one turn counter-clockwise); then the flips.
+
+JPG quality maps 100 → `-q:v 2` and 0 → `-q:v 31` (resize uses 92).
+
 ## TikTok Slideshow → Video (optional)
 
 `FfmpegCommandBuilder.slideshow`, used for TikTok photo posts with **Save as video**:

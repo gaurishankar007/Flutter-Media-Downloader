@@ -136,7 +136,7 @@ Material Symbols **Rounded**, weight 400, filled for the selected state, outline
 | 600–839 (small tablets) | Bottom nav, wider grids |
 | ≥ 840 (tablets, macOS) | Left sidebar (`AppSidebar`) with labels; screen content capped at a readable width (`AppSpacing.maxContentWidth`, 760) |
 
-Five tabs, in this order: **Download**, **Library**, **Convert**, **System**, **Settings**. An engine update puts a badge dot on the Settings tab. Full-screen pages above the tabs: the Library media viewer, Settings → Cookies and Settings → About (and the debug-only design gallery).
+Five tabs, in this order: **Download**, **Library**, **Tools**, **System**, **Settings**. An engine update puts a badge dot on the Settings tab. Full-screen pages above the tabs: the Library media viewer and post page, Convert & Compress, each tool's screen, Settings → Cookies and Settings → About (and the debug-only design gallery).
 
 The macOS window has a minimum size of 600 × 600 points, matching the narrowest supported layout. Drag and drop of links/files onto the Download and Convert screens and two-pane layouts are not built yet.
 
@@ -149,11 +149,11 @@ All under `lib/ui/core/ui/base/<category>/`, plain props only (no providers), on
 | Category | Widgets |
 | --- | --- |
 | `buttons/` | `GradientButton` (primary), `TonalButton` (secondary), `GhostButton` (tertiary), `AppIconButton` (circle, 40px; the whole 48px box around it is tappable) |
-| `cards/` | `AppCard`, `MediaCard` (thumbnail + title + metadata + badge; long-press / right-click for actions), `JobCard` (thumbnail + stage + progress + actions; pulses with a light haptic when done) |
-| `media/` | `MediaThumbnail` (local or remote, rounded, duration pill, saved check, kind icon fallback, optional Hero tag), `SiteBadge`, `PhotoGrid` (selectable, numbered checks) |
+| `cards/` | `AppCard`, `SourceTile` (icon tile + title + subtitle, a big tappable row: pick sources, the Tools hub's Convert card), `MediaCard` (thumbnail + title + metadata + badge; long-press / right-click for actions), `JobCard` (thumbnail + stage + progress + actions; pulses with a light haptic when done) |
+| `media/` | `MediaThumbnail` (local or remote, rounded, duration pill, saved check, kind icon fallback incl. a PDF icon, optional Hero tag), `SiteBadge`, `PhotoGrid` (selectable, numbered checks) |
 | `progress/` | `GradientProgressBar`, `StageLabel` (Queued / Downloading / Processing / Saving / Done / Failed) |
 | `chips/` | `SelectChip` (quality, format, filter), `ChipRow` (horizontal scroll) |
-| `form/` | `LinkField` (big rounded field with Paste button and site icon that appears when the URL is recognised), `AppSlider`, `AppSwitchTile`, `SegmentedPicker` (Video / Audio / Photos; labels fill the track and centre against the sliding pill, and the whole segment is tappable) |
+| `form/` | `AppTextField` (plain labelled field: Unlock PDF's password, Split's ranges), `LinkField` (big rounded field with Paste button and site icon that appears when the URL is recognised), `AppSlider`, `AppSwitchTile`, `SegmentedPicker` (Video / Audio / Photos; labels fill the track and centre against the sliding pill, and the whole segment is tappable) |
 | `sheets/` | `AppBottomSheet` (drag handle, `xl` radius, scrim, keyboard-aware; optional `bottomAction` pinned under the scrolling body), `ActionSheet` (list of icon + label actions) |
 | `dialog/` | `ConfirmDialog` (title, body, destructive variant), `SavedRemovePrompt` (the "Saved. Remove from app?" dialog with "Don't ask again") |
 | `states/` | `EmptyState` (icon + title + body + action), `ErrorState` (message + Retry), `ShimmerBox` (loading placeholder matching the final layout) |
@@ -220,11 +220,15 @@ Photo posts show a `PhotoGrid` instead of the player, all images pre-selected, w
 
 ### Library
 
-Grid of `MediaCard`s (2 columns on phones, adaptive on wider screens), filter chips on top (All · Videos · Audio · Photos, then site chips), search in the app bar, sort menu (Newest, Oldest, Largest). Long-press (or right-click on macOS) opens an `ActionSheet`: Save to Photos, Save to Files, Share, Convert, Delete. Items already saved show a small ✓ on the thumbnail. Tapping an item opens the full-screen media viewer. See [Library](../features/library.md).
+Grid of `MediaCard`s (2 columns on phones, adaptive on wider screens), filter chips on top (All · Videos · Audio · Photos · PDFs, then site chips), search in the app bar, sort menu (Newest, Oldest, Largest). Long-press (or right-click on macOS) opens an `ActionSheet`: Save to Photos, Save to Files, Share, Convert, Delete. Items already saved show a small ✓ on the thumbnail. Tapping an item opens the full-screen media viewer; tapping a grouped post opens its post page (header, Save all / Share all / Delete all, grid of items). See [Library](../features/library.md).
+
+### Tools
+
+A hub: the **Convert & compress** card on top, then sections **PDF**, **GIF & video** and **Image**, each a list of tool cards. A tool's screen follows one pattern: **1. Pick** (From Library · From Photos · From Files tiles; a reorderable list once picked) → **2. Options** (`ChoiceSection` chip rows, sliders, switches; a note when something needs fixing; the start button pinned at the bottom) → **3. Run** (`JobCard`) → **4. Result** inline (thumbnails, size before → after, Open / Share / Done). See [Tools](../features/tools.md).
 
 ### Convert
 
-A three-step flow in one screen: **1. Pick** (three big tiles: From Library · From Photos · From Files) → **2. Choose** (`SegmentedPicker`: Convert / Compress, then format chips or preset chips + slider; **Convert** pinned at the bottom) → **3. Result** shown inline (before → after size with the change in percent, Save to Photos / Save to Files / Share / Done). See [Convert](../features/convert.md).
+Pushed from the Tools hub. A three-step flow in one screen: **1. Pick** (three big tiles: From Library · From Photos · From Files) → **2. Choose** (`SegmentedPicker`: Convert / Compress, then format chips or preset chips + slider; **Convert** pinned at the bottom) → **3. Result** shown inline (before → after size with the change in percent, Save to Photos / Save to Files / Share / Done). See [Convert](../features/convert.md).
 
 ### System
 

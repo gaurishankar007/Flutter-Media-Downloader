@@ -2,11 +2,11 @@
 
 > Status: built (v1 step 3), not yet tested on every device. Feature folder: `lib/ui/features/convert/`.
 
-Change a file's format, or make it smaller. Video and audio use the same ffmpeg every engine already ships for downloads (commands from `FfmpegCommandBuilder`); images use `flutter_image_compress` (`ImageConvertService`).
+Change a file's format, or make it smaller. It's the first card of the [Tools](tools.md) tab and opens as its own screen. Video and audio use the same ffmpeg every engine already ships for downloads (commands from `FfmpegCommandBuilder`); images use `flutter_image_compress` (`ImageConvertService`).
 
 ## Screens and Widgets
 
-Everything happens on one screen (`ConvertScreen`, the Convert tab); there is no separate result route.
+Everything happens on one screen (`ConvertScreen`, `ConvertRoute` at `/tools/convert`), pushed above the tabs from the Tools hub's **Convert & compress** card or a Library item's **Convert** action. It has a back button; there is no separate result route.
 
 ```text
 convert/
@@ -18,18 +18,18 @@ convert/
     convert_job/      convert_job_notifier.dart       # running job + result (keep-alive)
   views/convert/
     convert_screen.dart
-    widgets/ source_tiles.dart, source_tile.dart, library_picker_sheet.dart, format_overview_card.dart, format_row.dart,
+    widgets/ source_tiles.dart, format_overview_card.dart, format_row.dart,
              source_preview.dart, mode_picker.dart, format_chips.dart, video_compress_options.dart,
              image_compress_options.dart, convert_button.dart, convert_job_panel.dart,
              convert_result_section.dart, size_comparison.dart, size_column.dart, result_actions.dart
 ```
 
-The screen is a `ScreenScrollView`; its `bottomAction` (pinned above the nav bar) is the **Convert / Compress** button while choosing, and `ResultActions` once the job is done.
+`SourceTile` lives in `lib/ui/core/ui/base/cards/` and `LibraryPickerSheet` in `lib/ui/features/library/widgets/`, because the Tools screens use them too. The screen is a `ScreenScrollView`; its `bottomAction` (pinned above the nav bar) is the **Convert / Compress** button while choosing, and `ResultActions` once the job is done.
 
 ## Steps
 
 1. **Pick** — three tiles (`SourceTiles`):
-   - **From Library**: `LibraryPickerSheet` (a Library grid in a bottom sheet). The Library file is read in place, never copied or deleted.
+   - **From Library**: `LibraryPickerSheet` (a Library grid in a bottom sheet, limited to video, audio and photos; it pops the chosen ids). The Library file is read in place, never copied or deleted.
    - **From Photos**: `file_picker` with `FileType.media`.
    - **From Files**: `file_picker` (any file).
 
@@ -44,7 +44,7 @@ The screen is a `ScreenScrollView`; its `bottomAction` (pinned above the nav bar
 
 ## Reading the Source
 
-`ConvertRepositoryImpl` builds a `LocalMediaInfo` for the picked file:
+`ConvertRepositoryImpl` builds a `LocalMediaInfo` for the picked file through `LocalMediaReader` (`lib/data/repositories/helpers/`), which the Tools share:
 
 - **Images** (by extension or a Library photo): size from `ImageConvertService.sizeOf`; no engine needed.
 - **Video / audio:** there is no `MediaEngine.probeFile`. The repository runs `FfmpegCommandBuilder.probe` (`ffmpeg -i <file>`, which "fails" without an output) and parses the stderr of `EngineFailed` with `FfmpegInfoParser`: duration, video/audio codecs, size, audio bitrate. A video without a Library thumbnail gets one from a frame at 10%. Unreadable files fail with `ConvertMessages.unreadable`.
@@ -78,3 +78,5 @@ The source's own format is left out. MP4 / MOV remux (`-c copy`) when the video 
 - Batch conversion of many files at once.
 - HEIC output on Android, Windows and Linux; WebP output on macOS.
 - Drag and drop onto the Convert screen on the desktops.
+
+More one-job tools (PDF, GIF, trim, mute, resize, rotate & crop) are in [Tools](tools.md).

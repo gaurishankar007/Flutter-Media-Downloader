@@ -22,6 +22,8 @@
 | `video_player` | Preview playback and the Library viewer (no Linux implementation) |
 | `video_player_win` | The Windows `video_player` implementation (Media Foundation), registered automatically |
 | `ffi` | `calloc` and UTF-16 strings for the Win32 calls (Windows system monitor and speed tests) |
+| `pdfrx` | PDFium on every platform: open, render pages, re-assemble (merge / split / organize), unlock, and the Library's PDF viewer (`PdfViewer.file`). Its Windows build needs Developer Mode (symlinks). |
+| `pdf` | Pure-Dart PDF writer: lays images out on pages (Images to PDF, Compress PDF) |
 | `flutter_image_compress` | Image convert / compress, photos → JPG, thumbnails (Android, iOS, macOS; Windows and Linux use ffmpeg) |
 | `flutter_sliding_toast` | Toasts through `ToastUtil` |
 | `package_info_plus` | App version in About |

@@ -22,7 +22,7 @@ Sub-pages use `ScreenBackButton` + `ScreenHeader` inside a `ScreenScrollView`.
 | | iPhone-compatible video | On |
 | | Convert photos to JPG (off = keep the original WebP / HEIC) | On |
 | **Library & storage** | Ask to remove from the app after saving (`askRemoveAfterSave`) | On |
-| | Storage used (Videos / Audio / Photos breakdown) | — |
+| | Storage used (Videos / Audio / Photos / PDFs breakdown) | — |
 | | Clear items already saved to Photos or Files (with a confirm) | — |
 | **Cookies** | Tile with how many sites have cookies → `CookiesRoute` | None |
 | **Engine** | yt-dlp version + **Update**, update banner, check for updates on launch | On (at most daily) |

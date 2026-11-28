@@ -1,8 +1,8 @@
 # Library
 
-> Status: built (v1 steps 1–2), not yet tested on every device. Feature folder: `lib/ui/features/library/`.
+> Status: built (v1 steps 1–2, plus the post page and PDFs), not yet tested on every device. Feature folder: `lib/ui/features/library/`.
 
-Everything the app downloads or converts lands in its own folder first. The Library is the one place to see all of it and to move things out to Photos or Files.
+Everything the app downloads, converts or makes with a [tool](tools.md) lands in its own folder first. The Library is the one place to see all of it and to move things out to Photos or Files.
 
 ## Screens and Widgets
 
@@ -21,13 +21,17 @@ library/
       library_screen.dart
       widgets/ storage_summary.dart, library_toolbar.dart, library_search_field.dart, sort_menu.dart,
                library_filter_bar.dart, selection_bar.dart, library_grid.dart, library_loading_grid.dart
+    library_post/                  # LibraryPostRoute (/library/post): one grouped post
+      library_post_screen.dart
+      widgets/ post_header.dart, post_actions.dart, post_item_grid.dart
     media_viewer/                  # MediaViewerRoute (/viewer), full screen above the tabs
       media_viewer_screen.dart
-      widgets/ video_viewer.dart, audio_viewer.dart, photo_viewer.dart, player_controls.dart,
-               viewer_action_bar.dart, item_info_sheet.dart
+      widgets/ video_viewer.dart, audio_viewer.dart, photo_viewer.dart, document_viewer.dart,
+               player_controls.dart, viewer_action_bar.dart, item_info_sheet.dart
   widgets/
     item_action_sheet.dart         # showItemActionSheet + confirmAndDelete
     library_actions_listener.dart  # toasts + the remove prompt for the visible route
+    library_picker_sheet.dart      # a Library grid in a sheet to pick inputs (Convert, Tools)
 ```
 
 ## Providers
@@ -38,14 +42,14 @@ library/
 | `libraryActionsProvider` (`LibraryActionsNotifier`) | Busy item ids, and `pendingRemovePrompt` (the items just saved + destination) | `saveToPhotos(ids)`, `saveToFiles(id)`, `share(ids)`, `delete(ids)`, `confirmRemoveAfterSave({dontAskAgain})`, `dismissRemovePrompt({dontAskAgain})` |
 | `mediaViewerProvider` (`MediaViewerNotifier`, `.autoDispose`) | The ids the viewer pages through and the current index | `open(id, ids)`, `show(index)`, `next()`, `previous()`, `retain(existingIds)` |
 
-The repository streams every row; filtering, sorting and grouping happen in `LibraryState` (`visibleItems`, `visible`).
+The repository streams every row; filtering, sorting and grouping happen in `LibraryState` (`visibleItems`, `visible`, and `group(groupId)`: one post's items by `groupIndex`, ignoring the filter).
 
 ## Grid
 
-- Top: `StorageSummary` ("42 items · 3.1 GB"), `LibraryToolbar` (search by title or uploader, `SortMenu`: Newest / Oldest / Largest, **Select** / **Done**), then `LibraryFilterBar`: **All · Videos · Audio · Photos** and one chip per site that has items.
-- **Posts are grouped:** items of one post share a `groupId`; the grid shows one card (the first by `groupIndex`) with a count badge. Opening it pages through just that post; its actions apply to every item.
+- Top: `StorageSummary` ("42 items · 3.1 GB"), `LibraryToolbar` (search by title or uploader, `SortMenu`: Newest / Oldest / Largest, **Select** / **Done**), then `LibraryFilterBar`: **All · Videos · Audio · Photos · PDFs** and one chip per site that has items.
+- **Posts are grouped:** items of one post (a carousel download, or a tool's several outputs such as PDF → images or Split) share a `groupId`; the grid shows one card (the first by `groupIndex`) with a count badge. Tapping it opens the [post page](#post-page); its action sheet applies to every item.
 - `MediaCard` shows thumbnail, title, site badge, duration, size · format, and a ✓ when saved to Photos or Files (`isSaved`).
-- Tap opens `MediaViewerRoute` (or toggles selection while selecting). Long-press / right-click (the card's "more") opens the item's action sheet.
+- Tap opens `MediaViewerRoute`, which swipes through the visible single items (grouped posts are left out: they open their own page), or toggles selection while selecting. Long-press / right-click (the card's "more") opens the item's action sheet.
 - States: loading grid (shimmer), error, empty ("Go to Download" switches to the Download tab), and "no matches" when the filter hides everything.
 
 ## Item Actions
@@ -54,13 +58,22 @@ From the action sheet (`showItemActionSheet`):
 
 | Action | Does |
 | --- | --- |
-| **Save to Photos** | `GalleryService` (`gal`) → Photos / gallery / the Windows Pictures library; on Linux a copy into `MediaTool/` in the Pictures or Videos folder. Sets `savedToPhotosAt`. Not offered for audio. |
+| **Save to Photos** | `GalleryService` (`gal`) → Photos / gallery / the Windows Pictures library; on Linux a copy into `MediaTool/` in the Pictures or Videos folder. Sets `savedToPhotosAt`. Not offered for audio or PDFs (`GalleryService.supports` is true only for video and photo). |
 | **Save to Files** | `FileExportService` → Android SAF create-document, iOS document picker (export), the desktop save dialog on macOS, Windows and Linux (`file_picker` `saveFile`, then a file copy; Linux needs the desktop portal, `zenity` or `kdialog`). Sets `savedToFilesAt`. Single items only (not on a grouped card: open the post to save one file). |
 | **Share** | System share sheet (`share_plus`). No prompt afterwards. |
-| **Convert** | `ConvertSourceNotifier.pickFromLibrary(id)` and switches to the Convert tab. Single items only. |
+| **Convert** | `ConvertSourceNotifier.pickFromLibrary(id)`, then pushes `ConvertRoute` (the Convert & Compress screen, above the tabs). Single items only; not for PDFs. |
 | **Delete** | `confirmAndDelete` (`ConfirmDialog`), then delete files + thumbnails + rows. |
 
-**Multi-select:** `SelectionBar` shows the count, **Select all / none**, and Save to Photos (skips audio), Share and Delete for the selected items. Tapping a grouped card selects all its items.
+**Multi-select:** `SelectionBar` shows the count, **Select all / none**, and Save to Photos (skips audio and PDFs), Share and Delete for the selected items. Tapping a grouped card selects all its items.
+
+## Post Page
+
+`LibraryPostRoute(groupId)` (`/library/post`) opens full screen above the tabs when a grouped card is tapped, and from a tool's **Open** when it made several files.
+
+- `PostHeader`: the first item's title, site badge and uploader, then "N items · size" and the date added.
+- `PostActions` (a wrapping `ChipRow` of `TonalButton`s): **Save all to Photos** (only the items that can go there), **Share all**, **Delete all** (with `confirmAndDelete`). Save to Files asks for a destination per file, so it stays per item (open an item, or use its action sheet).
+- `PostItemGrid`: every item as a `MediaCard` in the post's order. Tap opens the viewer paging through just this post; long-press / right-click opens that item's action sheet.
+- The page follows `libraryProvider.group(groupId)`: deleted items drop out, and the page pops once the group is empty. It's wrapped in `LibraryActionsListener`, so saves show toasts and the remove prompt here too.
 
 ## Save and the Remove Prompt
 
@@ -89,6 +102,7 @@ flowchart TD
 - **Video:** `video_player` on the local file (`video_player_win` on Windows), tap to play/pause, `PlayerControls` (scrubber, play/pause); pauses when swiped away. Linux has no `video_player` implementation, so the viewer shows "This file can't be played here" and Share / Save still work.
 - **Audio:** cover art (or the Aurora gradient with a note), title, `PlayerControls`.
 - **Photo:** zoomable (`InteractiveViewer`), Hero from the grid card; a broken-image icon when the file is missing (removed outside the app).
-- `ViewerActionBar`: Save to Photos (not for audio), Save to Files, Share, **Info** (`ItemInfoSheet`: file name, size, format, duration, date added, source URL as selectable text), Delete.
+- **PDF:** `DocumentViewer` (`PdfViewer.file` from pdfrx: scroll and zoom through the pages); an error banner (`LibraryMessages.cantOpenPdf`) when it can't be opened.
+- `ViewerActionBar`: Save to Photos (not for audio or PDFs), Save to Files, Share, **Info** (`ItemInfoSheet`: file name, size, format, duration, date added, source URL as selectable text), Delete.
 
 Not built yet: Convert from the viewer, Show in Finder, and an "Open link" button.

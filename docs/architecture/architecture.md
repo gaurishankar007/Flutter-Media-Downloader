@@ -45,17 +45,18 @@ lib/
 │   ├── models/
 │   │   ├── mappers/         # MediaInfoMapper, PostMapper, SystemSampleMapper
 │   │   └── responses/       # DTOs: yt-dlp JSON, extracted posts, local media info
-│   ├── repositories/        # Media, Post, Library, Job, Convert, Settings, Cookies, AppInfo, BackgroundWork, SystemMonitor
+│   ├── repositories/        # Media, Post, Library, Job, Convert, Tool, Settings, Cookies, AppInfo, BackgroundWork, SystemMonitor
+│   │   └── helpers/         # LocalMediaReader (shared by Convert and Tools), PdfToolRunner, MediaToolRunner, ToolRunnerSteps
 │   └── services/
 │       ├── local/           # LibraryLocalService, JobLocalService, SettingsLocalService, CookiesLocalService, ErrorLogLocalService, AppFilesLocalService
 │       ├── platform/        # media_engine/ (Android + desktop engines, builders, parsers, FfmpegSlot), file_export/, background_work/,
 │       │                    # system_monitor/, speed_test/, GalleryService, ShareService, FilePickerService, MediaPickerService,
-│       │                    # ImageService, ImageConvertService, AppInfoService
+│       │                    # ImageService, ImageConvertService, PdfService (pdfrx + pdf), AppInfoService
 │       └── remote/          # SiteHttpClient, extractors/ (Instagram, TikTok, Facebook, Threads, X), MediaFileDownloader, EngineReleaseService
 ├── domain/
-│   ├── models/              # Site, MediaInfo, VideoOption, DownloadRequest, DownloadJob, JobProgress, LibraryItem, ConvertRequest, AppSettings, SystemSample, SystemProfile, DeviceHardware, DeviceStorage, BatteryStatus, SpeedTestResult, ...
+│   ├── models/              # Site, MediaInfo, VideoOption, DownloadRequest, DownloadJob, JobProgress, LibraryItem, ConvertRequest, ToolRequest, ToolEvent, AppSettings, SystemSample, SystemProfile, DeviceHardware, DeviceStorage, BatteryStatus, SpeedTestResult, ...
 │   ├── repositories/        # abstract contracts
-│   └── use_cases/           # ResolveLinkUseCase, DownloadMediaUseCase, ConvertMediaUseCase
+│   └── use_cases/           # ResolveLinkUseCase, DownloadMediaUseCase, ConvertMediaUseCase, RunToolUseCase
 ├── routing/
 │   └── routes.dart          # auto_route config (AppRouter)
 ├── ui/
@@ -67,8 +68,9 @@ lib/
 │   ├── features/
 │   │   ├── home/            # shell: bottom nav / sidebar, 5 tabs
 │   │   ├── download/        # paste -> preview -> queue (Share / Remove on finished jobs), engine status
-│   │   ├── library/         # all items, media viewer, Save to Photos / Files, Share, Delete
-│   │   ├── convert/         # pick -> convert or compress -> result
+│   │   ├── library/         # all items, post page, media viewer (incl. PDFs), Save to Photos / Files, Share, Delete
+│   │   ├── tools/           # Tools tab: hub + one screen per tool (PDF, GIF & video, image)
+│   │   ├── convert/         # pick -> convert or compress -> result (pushed from the Tools hub)
 │   │   ├── system/          # system monitor (network / battery / RAM / CPU / GPU / storage)
 │   │   └── settings/        # defaults, cookies, storage, engine update, about, design gallery
 │   ├── startup/             # runMediaToolApp, StartupErrorApp, one-time rights notice
@@ -132,7 +134,7 @@ Rules:
 - An `.autoDispose` notifier can be disposed during an `await` (e.g. the media viewer closes mid-load). Check `ref.mounted` before touching state after an `await`.
 - A notifier that calls another notifier captures it once in `build()`, never through a lazy getter.
 
-Long-running work (downloads, conversions) is owned by **keep-alive** notifiers (`DownloadQueueNotifier`, `ConvertJobNotifier`, plain `NotifierProvider`s), so leaving a screen never cancels a job. The preview is keep-alive too, so it stays open across tabs. Screen-scoped notifiers (media viewer, cookies, about, storage, system monitor) are `.autoDispose`.
+Long-running work (downloads, conversions, tool jobs) is owned by **keep-alive** notifiers (`DownloadQueueNotifier`, `ConvertJobNotifier`, plain `NotifierProvider`s; `ToolJobNotifier`, a keep-alive `NotifierProvider.family` per tool), so leaving a screen never cancels a job. The preview is keep-alive too, so it stays open across tabs. Screen-scoped notifiers (media viewer, cookies, about, storage, system monitor) are `.autoDispose`.
 
 ## Dependency Injection
 
@@ -183,7 +185,7 @@ flowchart TD
     M --> N["JobCard: Done + Share / Remove"]
 ```
 
-Details: [Download](../features/download.md), [Library](../features/library.md), [Convert](../features/convert.md).
+Details: [Download](../features/download.md), [Library](../features/library.md), [Convert](../features/convert.md), [Tools](../features/tools.md).
 
 ## Media Engine
 
@@ -215,5 +217,5 @@ See [Media Engine](../engine/media_engine.md).
 | Files, permissions, thumbnails | [Core Services](../core/core_services.md) |
 | Engine | [Media Engine](../engine/media_engine.md), [Android](../engine/android_engine.md), [iOS](../engine/ios_engine.md), [Desktop](../engine/desktop_engine.md), [macOS](../engine/macos_engine.md), [ffmpeg Recipes](../engine/ffmpeg_recipes.md), [Site Support](../engine/site_support.md) |
 | Photo posts | [Photo Extractors](../extractors/photo_extractors.md) |
-| Features | [Download](../features/download.md), [Library](../features/library.md), [Convert](../features/convert.md), [System](../features/system.md), [Settings](../features/settings.md) |
+| Features | [Download](../features/download.md), [Library](../features/library.md), [Tools](../features/tools.md), [Convert](../features/convert.md), [System](../features/system.md), [Settings](../features/settings.md) |
 | Packages, problems | [Packages](../utils/packages.md), [Troubleshooting](../utils/troubleshooting.md) |

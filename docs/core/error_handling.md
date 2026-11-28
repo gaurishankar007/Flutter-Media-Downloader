@@ -45,6 +45,7 @@ Tried in this order; the first that matches wins. Anything unmatched becomes a `
 | `GalleryErrorTranslator` | `GalException` (Save to Photos) | Photos access denied / no space / unsupported format / save failed |
 | `ExtractorErrorTranslator` | `ExtractorException` from a photo extractor | `ExtractorMessages` for `loginRequired` (names the site), `notFound`, `noMedia`, `broken` |
 | `DioErrorTranslator` | `DioException` (extractors, direct downloads) | 401/403 → forbidden, 404/410 → not found, 429 → rate limited, timeouts/connection → network, else download failed. The logged error keeps host + path only. |
+| `PdfErrorTranslator` | pdfrx `PdfException` (PDF tools) | `ToolsMessages.wrongPassword` for `PdfPasswordException`, else `pdfFailed` |
 | `EngineErrorTranslator` | `EngineException` (stderr, thrown in Dart) and `PlatformException` (from the native engine) | Matched by text, see below |
 
 Failures carry a **message string**, not typed failure classes: the UI compares the message (e.g. a failed job card offers **Update engine** for `EngineMessages.extractorBroken` and **Cookies** for `needsLogin` / `botCheck`).

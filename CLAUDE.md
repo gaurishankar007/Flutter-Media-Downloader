@@ -6,7 +6,7 @@
 
 ## 1. Project Identity
 
-- **App:** Media Tool. A Flutter app that downloads videos, audio and photos from YouTube, Facebook, Instagram, Threads, X/Twitter and TikTok, keeps them in its own Library, and converts or compresses media files.
+- **App:** Media Tool. A Flutter app that downloads videos, audio and photos from YouTube, Facebook, Instagram, Threads, X/Twitter and TikTok, keeps them in its own Library, converts or compresses media files, and has a Tools tab (PDF, GIF, video and image tools).
 - **Architecture:** Feature-first MVVM with Riverpod, get_it/injectable, auto_route and drift. See `docs/architecture/architecture.md`.
 - **Platforms:** Android, iOS, macOS, Windows, Linux. No web, no flavors.
 - **Entry point:** `lib/main.dart`. Package name: `media_tool`.
@@ -107,10 +107,10 @@ lib/data/
 lib/domain/
     ├── models/             # Site, MediaInfo, FormatOption, JobProgress, LibraryItem, ...
     ├── repositories/       # abstract contracts
-    └── use_cases/          # ResolveLinkUseCase, DownloadMediaUseCase, ConvertMediaUseCase
+    └── use_cases/          # ResolveLinkUseCase, DownloadMediaUseCase, ConvertMediaUseCase, RunToolUseCase
 ```
 
-Full tree: `docs/architecture/architecture.md`. Features: `home` (shell, 5 tabs: Download, Library, Convert, System, Settings), `download`, `library`, `convert`, `system`, `settings`.
+Full tree: `docs/architecture/architecture.md`. Features: `home` (shell, 5 tabs: Download, Library, Tools, System, Settings), `download`, `library`, `tools` (hub + one screen per tool), `convert` (pushed from the Tools hub), `system`, `settings`.
 
 Widget tiers: one screen → `views/<screen>/widgets/`; several screens in one feature → `<feature>/widgets/`; several features → `lib/ui/core/ui/base/<category>/`.
 
@@ -163,6 +163,7 @@ Engine files aren't committed: after cloning run `macos/scripts/fetch_engine_bin
 2. **Preview** before downloading (thumbnail, title, in-app playback when possible, all photos of a post) and pick the **quality** (Best/4K/1440p/1080p/720p/480p; MP3 320/192/128).
 3. Save into the **app's own folder**; a **Library** shows everything, with Save to Photos, Save to Files, Share, Delete, and a "remove from app?" prompt after a confirmed save. Finished jobs on the Download page have **Share** and **Remove**.
 4. **Convert and compress** local files (from the Library, Photos or Files): video ↔ MP4/MKV/WebM/MOV, video → MP3/M4A, image ↔ JPG/PNG/WebP/HEIC, smaller videos and images.
+6. **Tools** tab: Images → PDF, PDF → images, merge / split / organize / compress / unlock PDFs, video → GIF, images → GIF, GIF → MP4, trim, mute, resize, rotate & crop. Results go into the Library (several outputs are grouped into one post).
 5. **iPhone-compatible** output by default (HEVC or H.264 + AAC in MP4, `hvc1` tag), so files play in the iPhone Photos app.
 
 ### Running on your own devices
@@ -187,13 +188,14 @@ Engine files aren't committed: after cloning run `macos/scripts/fetch_engine_bin
 | Download page, preview, job cards, Share/Remove | `docs/features/download.md` |
 | Library, Save to Photos/Files, remove prompt | `docs/features/library.md` |
 | Converter and compressor | `docs/features/convert.md` |
+| Tools tab (PDF, GIF, video, image tools), PdfService | `docs/features/tools.md` |
 | System tab: RAM / CPU / GPU / network monitor, hardware facts, speed tests per platform | `docs/features/system.md` |
 | Settings, cookies, engine updates, About | `docs/features/settings.md` |
 | Look and feel | `docs/design/design_system.md` |
 
 ### Build order (v1)
 
-All six steps are implemented (untested on devices), plus a System tab (system monitor) and Windows and Linux builds (built in CI, untested on devices).
+All six steps are implemented (untested on devices), plus a System tab (system monitor), the Tools tab with a Library post page and PDF support, and Windows and Linux builds (built in CI, untested on devices).
 
 1. Project skeleton (architecture, theme, base widgets) + `MediaEngine` + **Android engine**. Paste → preview → MP4/MP3 with quality → progress → app folder. **Library** with Save to Photos / Save to Files / Share / Delete and the remove prompt; Share / Remove on finished downloads. YouTube, Facebook, Instagram, X, TikTok videos.
 2. Photo extractors (Facebook, Instagram, TikTok) + Threads extractor. A pasted link picks the video or photo route automatically.
@@ -202,7 +204,7 @@ All six steps are implemented (untested on devices), plus a System tab (system m
 5. iOS engine (hardest; last).
 6. Settings: iPhone-compatible toggle, default quality, cookie import, engine update + check on launch.
 
-Later: exact-size two-pass compression, batch conversion, HEIC output on Android if unreliable, receiving links from the share sheet.
+Later: exact-size two-pass compression, batch conversion, HEIC output on Android if unreliable, receiving links from the share sheet, AI upscale and remove background. To discuss: OCR (images, live camera), search by image, transcripts of YouTube links and imported videos.
 
 ### Guardrails
 
