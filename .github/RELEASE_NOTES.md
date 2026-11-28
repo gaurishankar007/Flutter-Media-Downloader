@@ -1,7 +1,9 @@
-- New: Windows (x64 zip) and Linux (x64 tarball) builds. Linux has no video playback.
-- The preview now opens right on the Download screen, above your downloads, instead of in a pop-up sheet. Close it with the × button; it stays open when you switch tabs.
-- Download images from YouTube channel posts (single and multi-image posts, at full size).
-- A toast now tells you when a download or conversion has finished and been added to your Library.
-- Facebook share links (facebook.com/share/…) and Instagram share links (instagram.com/share/…) now open correctly.
-- Posts that need you to be logged in now say so and offer to import cookies, instead of saying the video is unavailable.
-- Android: the battery charge left is read correctly on devices that report it in mAh.
+- New Tools tab (replaces Convert):
+  - PDF: Images to PDF (page size, orientation, margin), PDF to images, Merge, Split, Organize pages, Compress, Unlock.
+  - GIF & video: Video to GIF, Images to GIF, GIF to video, Trim, Mute.
+  - Image: Resize (up to 400%), Rotate & crop.
+  - Convert & compress is still there, as the first card.
+- Pick files from the Library, Photos or Files; results are added to your Library.
+- Library: tapping a post with several items opens a post page with its details, Save all to Photos, Share all and Delete all.
+- Library: PDFs have their own filter and open in a built-in viewer.
+- Windows: building from source now needs Developer Mode turned on.
